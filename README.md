@@ -5,6 +5,7 @@
 DAO governance tools with the zero design
 
 ```
+cp .env.example .env
 npm install
 npm run dev
 

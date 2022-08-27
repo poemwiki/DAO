@@ -2,10 +2,12 @@ const mongoose = require("mongoose")
 
 // DDAO
 // mongodb+srv://<user></user>:<password>@ddao.n7b87r2.mongodb.net/?retryWrites=true&w=majority
+const host = process.env.MONGODB_HOST || 'ddao.n7b87r2.mongodb.net'
+const scheme = process.env.MONGODB_SCHEME || 'mongodb+srv'
+const authDB = process.env.MONGODB_DEFAULT_AUTH_DB || ''
 
-mongoose.connect(
-  `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@ddao.n7b87r2.mongodb.net/?retryWrites=true&w=majority`
-)
+const connectionStr = `${scheme}://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${host}/${authDB}?retryWrites=true&w=majority`
+mongoose.connect(connectionStr)
 
 const db = mongoose.connection
 db.on("error", (err) => {

@@ -28,7 +28,7 @@ app.get("/", function (req, res) {
     daoname: process.env.DAO_NAME,
     serverUrl,
     token: process.env.TOKEN_ADDRESS,
-    governor:  process.env.GOVERNOR_ADDRESS,
+    governor: process.env.GOVERNOR_ADDRESS,
     governorType: process.env.GOVERNOR_TYPE
   })
 })
