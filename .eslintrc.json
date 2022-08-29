@@ -1,6 +1,6 @@
 {
     "env": {
-        "browser": true,
+        "node": true,
         "commonjs": true,
         "es2021": true
     },
@@ -14,7 +14,9 @@
     "parserOptions": {
         "ecmaVersion": "latest"
     },
-    "excludedFiles": "**/*.ejs",
+    "ignorePatterns": [
+        "**/*.ejs"
+    ],
     "plugins": [
         "react",
         "@typescript-eslint"
@@ -22,7 +24,7 @@
     "rules": {
         "indent": [
             "error",
-            4
+            2
         ],
         "linebreak-style": [
             "error",

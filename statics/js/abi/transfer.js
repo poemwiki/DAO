@@ -4,22 +4,22 @@ function trasferAbi() {
       constant: false,
       inputs: [
         {
-          name: "_to",
-          type: "address"
+          name: '_to',
+          type: 'address'
         },
         {
-          name: "_value",
-          type: "uint256"
+          name: '_value',
+          type: 'uint256'
         }
       ],
-      name: "transfer",
+      name: 'transfer',
       outputs: [
         {
-          name: "",
-          type: "bool"
+          name: '',
+          type: 'bool'
         }
       ],
-      type: "function"
+      type: 'function'
     }
   ]
 }
