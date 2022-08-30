@@ -370,7 +370,7 @@ async function createBatchMintProposal() {
   log.innerHTML =
         '<p>提案编号 (Proposal ID): ' +
         proposalId +
-        '</p><p>提案描述: ' +
+        '</p><p>描述: ' +
         description.slice(20) +
         '</p><p>发放地址与数量：<br/>' +
         resultStr +
@@ -480,7 +480,7 @@ async function createProposal() {
         address +
         '</p><p>发放数量: ' +
         amount +
-        '</p><p>提案描述: ' +
+        '</p><p>描述: ' +
         description.slice(20) +
         '</p>' +
         '<a href="' +
@@ -767,8 +767,8 @@ async function queryProposal() {
     proposal.innerHTML =
             `<br/><font size=\"2\">提案序号: ${pState.emoji} Proposal #${p.serialId}<br/>` +
             `提案人: ${proposalName}<br/>` +
-            `提案状态: ${pState.text}<br/>` +
-            `提案编号: ${p.proposalId}</font><br/>`
+            `状态: ${pState.text}<br/>` +
+            `编号: ${p.proposalId}</font><br/>`
 
     const snapshot = await governor.methods
       .proposalSnapshot(p.proposalId)
@@ -781,10 +781,10 @@ async function queryProposal() {
     console.log('startTimeSec:', startTimeSec)
 
     proposal.innerHTML +=
-            `<font size=\"2\">提案时间: ${new Date(
+            `<font size=\"2\">时间: ${new Date(
               1000 * startTime.timestamp
             ).toLocaleString()} (区块: ${snapshot})<br/>` +
-            `提案说明: ${p.description.slice(20)}</font><br/>`
+            `说明: <br/>${p.description.slice(200)}</font><br/>`
 
     if (p.type === 'mint') {
       let receiverMame = p.receiver
@@ -792,9 +792,9 @@ async function queryProposal() {
       if (holder !== undefined && holder !== null) {
         receiverMame = getHolderNameColor(holder.name)
       }
-      proposal.innerHTML += `<font size=\"2\">提案操作: 对 ${receiverMame} 发放积分 ${p.amount} $${symbol}</font><br/>`
+      proposal.innerHTML += `<font size=\"2\">操作: 对 ${receiverMame} 发放积分 ${p.amount} $${symbol}</font><br/>`
     } else if (p.type === 'batchmint') {
-      proposal.innerHTML += '<font size=\"2\">提案操作:</font><br/>'
+      proposal.innerHTML += '<font size=\"2\">操作:</font><br/>'
       p.receivers.forEach((r, idx) => {
         let receiverMame = r
         const holder = getHolder(holders, r)
