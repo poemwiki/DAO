@@ -1977,6 +1977,7 @@ async function delegate(delegateAddress) {
   log.innerHTML = '<p>上链中 ...</p>'
 
   let transactionHash = '<none>'
+  let error = null
   const tx = await token.methods
     .delegate(delegateAddress)
     .send(
@@ -1992,9 +1993,14 @@ async function delegate(delegateAddress) {
       }
     )
     .catch((sendError) => {
+      error = sendError
       console.log(sendError)
     })
 
+  if (error) {
+    await cleanUpSetDelegates(true)
+    return
+  }
   log = document.getElementById('delegate_log')
   const delegates = await token.methods.delegates(accountAddress).call()
   let newDelegateAddress = delegates
