@@ -20,8 +20,8 @@ export interface IMintProposal {
 
 const mintProposalSchema = new Schema<IMintProposal>({
   serialId: { type: Number, unique: true },
-  proposalId: { type: String, enum: ['mint', 'batchmint'], required: true },
-  type: String,
+  type: { type: String, enum: ['mint', 'batchmint'], required: true },
+  proposalId: String,
   proposer: String,
   receiver: String,
   amount: String,
