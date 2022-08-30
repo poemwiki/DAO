@@ -1,28 +1,29 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('dotenv').config()
 
-var path = require('path')
-var express = require('express')
-var bodyParser = require('body-parser')
+import path from 'path'
+import express from 'express'
+import bodyParser from 'body-parser'
+import connect from './db'
 
-var app = express()
-require('./db')
+connect()
+const app = express()
 
-const mintProposalModel = require('./models/proposal/mint/model')
-const holderModel = require('./models/holder/model')
+import mintProposalModel from './models/proposal/mint/model'
+import holderModel from './models/holder/model'
 
 const port = process.env.PORT || 3000
 
 app.set('view engine', 'ejs')
 
-app.use(express.static(path.join(__dirname, 'statics')))
+app.use(express.static(path.join(__dirname, '../statics')))
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 const mode = process.argv[2]
 let serverUrl = `http://localhost:${port}`
-if (mode === 'prod') serverUrl = process.env.SERVER_URL
+if (mode === 'prod') serverUrl = process.env.SERVER_URL ? process.env.SERVER_URL : serverUrl
 
 app.get('/', function (req, res) {
   res.render('index', {
@@ -34,7 +35,7 @@ app.get('/', function (req, res) {
   })
 })
 
-app.post('/api/holder/update', (req, res, next) => {
+app.post('/api/holder/update', (req, res) => {
   holderModel
     .updateHolder(req.body)
     .then(() =>
@@ -45,7 +46,7 @@ app.post('/api/holder/update', (req, res, next) => {
     .catch((err) => res.status(400).json({ message: err }))
 })
 
-app.post('/api/holder/all', (req, res, next) => {
+app.post('/api/holder/all', (req, res) => {
   holderModel
     .getAllHolders()
     .then((holders) =>
@@ -57,12 +58,7 @@ app.post('/api/holder/all', (req, res, next) => {
     .catch((err) => res.status(400).json({ error: err.message }))
 })
 
-app.post('/api/proposal/update', (req, res, next) => {
-  var errors = []
-  if (errors.length) {
-    res.status(400).json({ error: errors.join(',') })
-    return
-  }
+app.post('/api/proposal/update', (req, res) => {
   mintProposalModel
     .updateProposal(req.body)
     .then(() =>
@@ -74,8 +70,8 @@ app.post('/api/proposal/update', (req, res, next) => {
 })
 
 
-app.post('/api/proposal/find', (req, res, next) => {
-  var errors = []
+app.post('/api/proposal/find', (req, res) => {
+  const errors: string[] = []
   if (req.body.proposalId === undefined) errors.push('No proposal id specified')
   if (errors.length) {
     res.status(400).json({ error: errors.join(',') })
@@ -92,8 +88,8 @@ app.post('/api/proposal/find', (req, res, next) => {
     .catch((err) => res.status(400).json({ error: err.message }))
 })
 
-app.post('/api/proposal/', (req, res, next) => {
-  var errors = []
+app.post('/api/proposal/', (req, res) => {
+  const errors: string[] = []
   const { offset, limit } = req.body
   if (offset === undefined) errors.push('No offset specified')
   if (limit === undefined) errors.push('No limit specified')
@@ -112,8 +108,8 @@ app.post('/api/proposal/', (req, res, next) => {
     .catch((err) => res.status(400).json({ error: err.message }))
 })
 
-app.post('/api/proposal/mint/create', (req, res, next) => {
-  var errors = []
+app.post('/api/proposal/mint/create', async (req, res) => {
+  const errors: string[] = []
   //const data = JSON.parse(Object.keys(req.body)[0])
   const {
     proposal_id,
@@ -137,8 +133,8 @@ app.post('/api/proposal/mint/create', (req, res, next) => {
     return
   }
 
-  mintProposalModel
-    .createMintProposal(
+  try {
+    await mintProposalModel.createMintProposal(
       proposal_id,
       proposer,
       receiver,
@@ -147,27 +143,23 @@ app.post('/api/proposal/mint/create', (req, res, next) => {
       Number(propose_time),
       transaction_hash
     )
-    .then(() => {
-      const receivers = [receiver]
-      holderModel
-        .getNewHolders(receivers)
-        .then((newHolders) => {
-          holderModel
-            .addHolders(newHolders.addresses, newHolders.names)
-            .then(() => {
-              res.json({
-                message: 'success'
-              })
-            })
-            .catch((err) => res.status(400).json({ error: err.message }))
-        })
-        .catch((err) => res.status(400).json({ error: err.message }))
+
+    const receivers = [receiver]
+    const newHolders = await holderModel.getNewHolders(receivers)
+
+    await holderModel.addHolders(newHolders.addresses, newHolders.names)
+
+    return res.json({
+      message: 'success'
     })
-    .catch((err) => res.status(400).json({ error: err.message }))
+  } catch (err) {
+    res.status(400).json({ error: err.message })
+    return
+  }
 })
 
-app.post('/api/proposal/batchmint/create', (req, res, next) => {
-  var errors = []
+app.post('/api/proposal/batchmint/create', async (req, res) => {
+  const errors: string[] = []
   //const data = JSON.parse(Object.keys(req.body)[0])
   const {
     proposalId,
@@ -191,8 +183,8 @@ app.post('/api/proposal/batchmint/create', (req, res, next) => {
     return
   }
 
-  mintProposalModel
-    .createBatchMintProposal(
+  try {
+    await mintProposalModel.createBatchMintProposal(
       proposalId,
       proposer,
       receivers,
@@ -201,22 +193,18 @@ app.post('/api/proposal/batchmint/create', (req, res, next) => {
       Number(proposeTime),
       proposeTx
     )
-    .then(() => {
-      holderModel
-        .getNewHolders(receivers)
-        .then((newHolders) => {
-          holderModel
-            .addHolders(newHolders.addresses, newHolders.names)
-            .then(() => {
-              res.json({
-                message: 'success'
-              })
-            })
-            .catch((err) => res.status(400).json({ error: err.message }))
-        })
-        .catch((err) => res.status(400).json({ error: err.message }))
+
+    const newHolders = await holderModel.getNewHolders(receivers)
+    await holderModel.addHolders(newHolders.addresses, newHolders.names)
+
+    return res.json({
+      message: 'success'
     })
-    .catch((err) => res.status(400).json({ error: err.message }))
+  } catch (err) {
+    res.status(400).json({ error: err.message })
+    return
+  }
+
 })
 
 // app.post("/api/scoreProposal/create", (req, res, next) => {
