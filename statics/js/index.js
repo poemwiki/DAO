@@ -12,8 +12,8 @@ const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://polyg
 // const TOKEN_ADDRESS = "0x074DA668CE35dF9bc4CF66129c5A4302f15016f4" // Polygon: "0x8A1e48a84579F2239cB8383fC556b04D84b09E30"
 // const GOVERNOR_ADDRESS = "0xB4B732007b174379D3B410D18Bb22b2B287AC7AE" // Polygon: "0x4634764d6DbD533b27CC764ad595f5585C8f607d"
 
-const TOKEN_ADDRESS = '0xCB0eaD5E287A9F69655DB9998ABb8aD9890E7108'
-const GOVERNOR_ADDRESS = '0xA868d1d4452E00fE82F895df3d8160447E32DCb7'
+const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
+const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
 const SERVER_URL = 'http://localhost:3009'
 const GOVERNOR_TYPE = 'NoTLGovernor'
 
@@ -1735,6 +1735,55 @@ function cleanLog() {
   done()
 }
 
+function toDecial(value, decimals=18) {
+  const BN = Web3.utils.BN
+  if (typeof value !== 'string' && !(value instanceof String)) {
+    throw new Error('Pass strings to prevent floating point precision issues.')
+  }
+  const ten = new BN(10)
+  const base = ten.pow(new BN(decimals))
+
+  // Is it negative?
+  let negative = (value.substring(0, 1) === '-')
+  if (negative) {
+    value = value.substring(1)
+  }
+
+  if (value === '.') { 
+    throw new Error(
+      `Invalid value ${value} cannot be converted to`
+    + ` base unit with ${decimals} decimals.`) 
+  }
+
+  const whole = new BN(value)
+  let ether = whole.div(base)
+  const fraction = whole.mod(base).toString()
+  const fractionLength = fraction.replace(/0*$/, '').length
+
+  if (negative) {
+    ether = ether.neg()
+  }
+  const res = parseFloat(ether.toString()
+    .concat('.', fraction.padStart(decimals, '0')))
+    .toFixed(fractionLength ? (fractionLength > 2 ? 2 : fractionLength) : 0)
+
+  return res
+}
+
+async function callProxy(contract, method, from, args) {
+  const interface = args ? contract.methods[method](...args) : contract.methods[method]()
+  const abi = interface.encodeABI()
+    
+  const res = await web3.eth.call({
+    from: from,
+    to:   contract._address,
+    data: abi,
+    chain: CHAIN_NAME
+  })
+  console.log(method, res)
+  return res
+}
+
 async function Connect() {
   running()
   const accounts = await window.ethereum.request({
@@ -1762,29 +1811,25 @@ async function Connect() {
     account.innerHTML +=
             ' <button onclick="window.open(\'https://goerlifaucet.com/\',\'_blank\')">水龙头1</button>'
   }
-  connectWallet = document.getElementById('connectWallet')
-  connectWallet.remove()
-  const balance = await web3.eth.getBalance(accountAddress)
+  const $connectWallet = document.getElementById('connectWallet')
+  $connectWallet.remove()
+  
   const token = new web3.eth.Contract(tokenAbi(), TOKEN_ADDRESS)
   console.log(token.methods)
-  const decimals = web3.utils.toBN(await token.methods.decimals().call())
-  const totalSupply = await token.methods.totalSupply().call()
-  const tokenAmount = await token.methods.balanceOf(accountAddress).call()
-  const myToken = web3.utils
-    .toBN(tokenAmount)
-    .div(web3.utils.toBN(10).pow(decimals))
-  const totalSupplyToken = web3.utils
-    .toBN(totalSupply)
-    .div(web3.utils.toBN(10).pow(decimals))
+  const decimals = await token.methods.decimals().call()
+  
+  const myTokenBalance = toDecial(await token.methods.balanceOf(accountAddress).call(), decimals)
+  const totalSupply = toDecial(await token.methods.totalSupply().call(), decimals)
   const symbol = await token.methods.symbol().call()
 
   var tokens = document.getElementById('tokens')
-  tokens.innerHTML = `<p>我的积分: ${myToken} $${symbol} <small>(占比 ${(
-    Number(100 * myToken) / Number(totalSupplyToken)
-  ).toFixed(2)}%) 总发行: ${totalSupplyToken} $${symbol}</small></p>`
+  tokens.innerHTML = `<p>我的积分: ${myTokenBalance} $${symbol} <small>(占比 ${(
+    Number(100 * myTokenBalance) / Number(totalSupply)
+  ).toFixed(2)}%) 总发行: ${totalSupply} $${symbol}</small></p>`
 
-  if (myToken > 0) {
+  if (myTokenBalance > 0) {
     const delegates = await token.methods.delegates(accountAddress).call()
+    console.log('current delegates: ', delegates)
 
     let delegateAddress = '无'
     const noDelegates = delegates === ZERO_ADDRESS
@@ -1801,7 +1846,7 @@ async function Connect() {
     const currentBlock = await web3.eth.getBlockNumber()
     const governor = new web3.eth.Contract(governorAbi(), GOVERNOR_ADDRESS)
     let getVotesWei = -1
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 3; i++) {
       try {
         getVotesWei = await governor.methods
           .getVotes(accountAddress, currentBlock - i)
@@ -1810,18 +1855,17 @@ async function Connect() {
       if (getVotesWei >= 0) break
     }
 
-    const getVotes = web3.utils
-      .toBN(getVotesWei)
-      .div(web3.utils.toBN(10).pow(decimals))
-    if (getVotes > myToken) {
+    const getVotes = toDecial(getVotesWei, decimals)
+    console.log({ getVotesWei, getVotes })
+    if (getVotes > myTokenBalance) {
       if (delegates === accountAddress) {
-        extra = `[代理: ${getVotes - myToken} $${symbol}]`
+        extra = `[代理: ${getVotes - myTokenBalance} $${symbol}]`
       } else {
         extra = `[代理: ${getVotes} $${symbol}]`
       }
     }
     const voteRatio = ` (${(
-      Number(100 * getVotes) / Number(totalSupplyToken)
+      Number(100 * getVotes) / Number(totalSupply)
     ).toFixed(2)} %)`
     tokens.innerHTML += `<p style=\"font-size: 12px;\">我的投票权: ${getVotes} $${symbol}${voteRatio} ${extra}</p>`
 
@@ -1833,9 +1877,6 @@ async function Connect() {
     else {
       createGovButtons()
     }
-  } else {
-    var tokens = document.getElementById('tokens')
-    tokens.innerHTML += '<p>请到 Discord 留下钱包地址，将有人提案给予测试积分. <a style="color:#59bfcf;" target="_blank" href=\"https://discord.com/channels/995771542631890944/998592435678617600\">Discord 网址</a></p>'
   }
 
   done()
