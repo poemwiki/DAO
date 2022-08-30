@@ -47,7 +47,7 @@ async function getNewHolders(addresses: IHolder['address'][]) {
   addresses.forEach((addr) => {
     if (oldHolders.findIndex((h) => h.address === addr) < 0) {
       newHoldersAddress.push(addr)
-      newHoldersName.push('')
+      newHoldersName.push(addr)
     }
   })
   return { addresses: newHoldersAddress, names: newHoldersName }
