@@ -14,7 +14,7 @@ const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://polyg
 
 const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
 const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
-const SERVER_URL = '//dao.poemwiki.com'
+const SERVER_URL = window.location.origin
 const GOVERNOR_TYPE = 'NoTLGovernor'
 
 function governorAbi() {
@@ -2111,29 +2111,8 @@ async function initViewHolders(cleanup) {
   const totalSupplyWei = await token.methods.totalSupply().call()
   const totalSupply = web3.utils.fromWei(totalSupplyWei, 'ether')
 
-  var holdersTable = document.createElement('table')
-  holdersTable.setAttribute('id', 'holdersTable')
-  viewHoldersBlock.appendChild(holdersTable)
-  holdersTable = document.getElementById('holdersTable')
-  holdersTable.style = 'text-align: right;'
-  thead = holdersTable.createTHead()
-  thRow = thead.insertRow()
-  thRow.style = 'text-align: center;'
-  thRow.insertCell().innerText = '持有人'
-  thRow.insertCell().innerText = '投票代理人'
-  thRow.insertCell().innerText = '积分'
-  thRow.insertCell().innerText = ''
-  thRow.insertCell().innerText = '投票权'
-  thRow.insertCell().innerText = ''
-  thRow.insertCell().innerText = '持有人地址'
-  thRow.insertCell().innerText = '投票代理人地址'
-  tbody = holdersTable.createTBody()
-
   console.log('holders::', holders)
-
   g_holders = []
-
-
   for (var i = 0; i < holders.length; i++) {
     const addr = holders[i].address
     let name = holders[i].name
@@ -2170,17 +2149,9 @@ async function initViewHolders(cleanup) {
     console.log('holder votes::', holderVotes)
     const holderTokensRatio = (100 * Number(holderTokens) / Number(totalSupply))
     const holderVotesRatio = (100 * Number(holderVotes) / Number(totalSupply))
-    thRow = thead.insertRow()
+    
     if (delegateeName === '') delegateeName = getShortAddress(delegatee)
-    thRow.insertCell().innerHTML = name + ' | '
-    thRow.insertCell().innerHTML = delegateeName + ' | '
-    thRow.insertCell().innerText = holderTokens.toString() + ' | '
-    thRow.insertCell().innerText = `${holderTokensRatio.toFixed(2)}% | `
-    thRow.insertCell().innerText = holderVotes.toString() + ' | '
-    thRow.insertCell().innerText = `${(100 * Number(holderVotes) / Number(totalSupply)).toFixed(2)}% | `
-    thRow.insertCell().innerText = addr + ' | '
-    thRow.insertCell().innerText = delegatee
-
+    
     g_holders.push({
       name, delegateeName, holderTokens, holderTokensRatio, holderVotes, holderVotesRatio, address: addr, delegatee
     })
@@ -2198,14 +2169,19 @@ async function initViewHolders(cleanup) {
 
   g_holders.sort(compare)
 
+  var holdersTable = document.createElement('table')
+  holdersTable.setAttribute('id', 'holdersTable')
+  viewHoldersBlock.appendChild(holdersTable)
+  holdersTable = document.getElementById('holdersTable')
+  holdersTable.style = 'text-align: right;'
   viewHoldersBlock.removeChild(document.getElementById('holdersTable'))
   holdersTable = document.createElement('table')
   holdersTable.setAttribute('id', 'holdersTable')
   viewHoldersBlock.appendChild(holdersTable)
   holdersTable = document.getElementById('holdersTable')
   holdersTable.style = 'text-align: right;'
-  thead = holdersTable.createTHead()
-  thRow = thead.insertRow()
+  const thead = holdersTable.createTHead()
+  const thRow = thead.insertRow()
   thRow.style = 'text-align: center;'
   thRow.insertCell().innerText = '持有人'
   thRow.insertCell().innerText = '投票代理人'
@@ -2215,10 +2191,10 @@ async function initViewHolders(cleanup) {
   thRow.insertCell().innerText = ''
   thRow.insertCell().innerText = '持有人地址'
   thRow.insertCell().innerText = '投票代理人地址'
-  tbody = holdersTable.createTBody()
+  const tbody = holdersTable.createTBody()
 
   g_holders.forEach((h) => {
-    thRow = thead.insertRow()
+    const thRow = tbody.insertRow()
     console.log('h.delegateeName::', h.delegateeName)
     let delegateeName = h.delegateeName
     if (delegateeName === '') delegateeName = getShortAddress(h.delegatee)
@@ -2228,8 +2204,8 @@ async function initViewHolders(cleanup) {
     thRow.insertCell().innerText = `${h.holderTokensRatio.toFixed(2)}% | `
     thRow.insertCell().innerText = h.holderVotes.toString() + ' | '
     thRow.insertCell().innerText = `${h.holderVotesRatio.toFixed(2)}% | `
-    thRow.insertCell().innerText = h.address + ' | '
-    thRow.insertCell().innerText = h.delegatee
+    thRow.insertCell().innerText = getShortAddress(h.address) + ' | '
+    thRow.insertCell().innerText = getShortAddress(h.delegatee)
   })
 
   viewHoldersBlock.innerHTML += '<br/><small><font color="gray">∎</font></small>'
