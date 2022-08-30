@@ -12,6 +12,11 @@
     body {
       font-family: Hack;
     }
+
+    #createProposalDescription,
+    #createBatchMintProposalDescription {
+      vertical-align: text-top;
+    }
   </style>
 </head>
 
@@ -45,14 +50,14 @@
     <span>发放数量<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAmount"
         type="text" /></span><br />
     <br />
-    <span>提案描述:&nbsp;<input id="createProposalDescription" type="text" /></span><br /><br />
+    <span>提案描述:&nbsp;<textarea id="createProposalDescription" rows="5"></textarea></span><br /><br />
     <button id="createProposalFormSummit" type="button" onclick="runCreateProposal()">
       提案上链
     </button>
   </form>
   <form id="createBatchMintProposalForm" hidden>
     <h3>提案批量发放积分</h3>
-    <span>提案描述:&nbsp;<input id="createBatchMintProposalDescription" type="text" /></span><br /><br />
+    <span>提案描述:&nbsp;<textarea id="createBatchMintProposalDescription" rows="5"></textarea></span><br /><br />
     <div id="csvpreview"></div>
     <br />
     <span id="csvfileupload">CSV 档案<font color="red"><small>*</small></font>:&nbsp;
@@ -77,12 +82,9 @@
     <font color="#808080">Powered by
       <a href="https://github.com/fatfingererr/govzero">
         <font color="#808080">Govzero</font>
-      </a> , Supported by <a href="https://discord.gg/Kfx8rUMXKP">
-        <font color="#808080">DDAO</font>
       </a>
     </font>
   </h5>
-  <font color="#808080">I hate almost all web3 projects have a fancy frontend design.</font>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="js/abi/erc20.js"></script>
