@@ -1,15 +1,18 @@
->
-> I hate almost all web3 projects have a fancy frontend design. 😠
->
-# govzero
-DAO governance tools with the zero design
+PoemWiki DAO governance tools powered by govzero.  
+Work with [poemwiki/DAO-contracts](https://github.com/poemwiki/DAO-contracts): Non-transfer token based DAO voting.
+
+# For Developers
 
 ```
 cp .env.example .env
-npm install
-npm run dev
 
-npm run start
+// install dependencies
+yarn install
+
+// TODO database initialize
+
+// run server
+pm2 start 'yarn run start' --name=govzero
 ```
 
 
