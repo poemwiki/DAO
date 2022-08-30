@@ -97,7 +97,7 @@ function done() {
     if (typing.innerHTML === '_') {
       typing.innerHTML = '\n'
     } else {
-      typing.innerHTML = '_'
+      typing.innerHTML = ''
     }
   }, 1000)
 }
@@ -106,16 +106,16 @@ function running() {
   clearInterval(TYPEING_ID)
   TYPEING_ID = setInterval(() => {
     var typing = document.getElementById('typing')
-    if (typing.innerHTML === '\\\n') {
-      typing.innerHTML = '|\n'
-    } else if (typing.innerHTML === '|\n') {
-      typing.innerHTML = '/\n'
-    } else if (typing.innerHTML === '/\n') {
-      typing.innerHTML = '-\n'
-    } else if (typing.innerHTML === '-\n') {
-      typing.innerHTML = '\\\n'
+    if (typing.innerHTML === 'Loading\\\n') {
+      typing.innerHTML = 'Loading|\n'
+    } else if (typing.innerHTML === 'Loading|\n') {
+      typing.innerHTML = 'Loading/\n'
+    } else if (typing.innerHTML === 'Loading/\n') {
+      typing.innerHTML = 'Loading-\n'
+    } else if (typing.innerHTML === 'Loading-\n') {
+      typing.innerHTML = 'Loading\\\n'
     } else {
-      typing.innerHTML = '\\\n'
+      typing.innerHTML = 'Loading\\\n'
     }
   }, 200)
 }
@@ -1815,9 +1815,8 @@ async function Connect() {
   $connectWallet.remove()
   
   const token = new web3.eth.Contract(tokenAbi(), TOKEN_ADDRESS)
-  console.log(token.methods)
-  const decimals = await token.methods.decimals().call()
   
+  const decimals = await token.methods.decimals().call()
   const myTokenBalance = toDecial(await token.methods.balanceOf(accountAddress).call(), decimals)
   const totalSupply = toDecial(await token.methods.totalSupply().call(), decimals)
   const symbol = await token.methods.symbol().call()
@@ -1846,12 +1845,15 @@ async function Connect() {
     const currentBlock = await web3.eth.getBlockNumber()
     const governor = new web3.eth.Contract(governorAbi(), GOVERNOR_ADDRESS)
     let getVotesWei = -1
-    for (var i = 0; i < 3; i++) {
+    for (var i = 1; i < 10; i++) {
       try {
         getVotesWei = await governor.methods
           .getVotes(accountAddress, currentBlock - i)
           .call()
-      } catch (e) { }
+        console.log('try getVotesWei from block', currentBlock - i)
+      } catch (e) {
+        console.error(e)
+      }
       if (getVotesWei >= 0) break
     }
 
@@ -1871,12 +1873,14 @@ async function Connect() {
 
     if (noDelegates) {
       tokens.innerHTML +=
-                '<p style="color:red;">※ 未指定投票代理人的投票不会计入，请点击下方 "投票代理人变更"</p>'
+        '<p style="color:red;">※ 未指定投票代理人的投票不会计入，请点击下方 "投票代理人变更"</p>'
       createNoDelegatesGovButtons()
     }
     else {
       createGovButtons()
     }
+  } else {
+    tokens.innerHTML += '<p>👏欢迎光临</p>'
   }
 
   done()
@@ -2072,7 +2076,7 @@ async function initHolderNameUpdate(viewHoldersBlock, holders, address) {
   var holderNameUpdate = document.createElement('div')
   holderNameUpdate.setAttribute('id', 'holderNameUpdate')
   viewHoldersBlock.appendChild(holderNameUpdate)
-  if (holder.name === undefined || holder.name === null) {
+  if (holder === undefined || holder.name === undefined || holder.name === null) {
     holderNameUpdate.innerHTML = '<span>我的名字:&nbsp;<input type=\"text\" disabled></input>&nbsp;<button disabled>更新</button>&nbsp;(你没有积分)</span><br/><br/>'
   }
   else {
