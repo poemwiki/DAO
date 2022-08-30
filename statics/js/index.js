@@ -14,7 +14,7 @@ const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://polyg
 
 const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
 const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
-const SERVER_URL = 'http://localhost:3009'
+const SERVER_URL = 'http://dao.poemwiki.com'
 const GOVERNOR_TYPE = 'NoTLGovernor'
 
 function governorAbi() {
