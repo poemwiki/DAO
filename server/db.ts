@@ -7,7 +7,12 @@ const scheme = process.env.MONGODB_SCHEME || 'mongodb+srv'
 const database = process.env.MONGODB_DB
 const authDB = process.env.MONGODB_DEFAULT_AUTH_DB || ''
 
-const connectionStr = `${scheme}://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${host}/${database}?authSource=${authDB}&retryWrites=true&w=majority`
+let connectionStr: string
+if (authDB && process.env.MONGODB_USER && process.env.MONGODB_PASSWORD) {
+  connectionStr = `${scheme}://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${host}/${database}?authSource=${authDB}&retryWrites=true&w=majority`
+} else {
+  connectionStr = `${scheme}://${host}/${database}?retryWrites=true&w=majority`
+}
 
 export default async function connect() {
   const db = mongoose.connection
