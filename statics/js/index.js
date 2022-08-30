@@ -434,9 +434,9 @@ async function createProposal() {
   console.log('gasEstimate: ' + gasEstimate)
   console.log('gasPrice: ' + gasPrice)
 
-  var log = document.getElementById('log')
-  log.style.color = ''
-  log.innerHTML = '<p>上链中 ...</p>'
+  const $log = document.getElementById('log')
+  $log.style.color = ''
+  $log.innerHTML = '<p>上链中 ...</p>'
 
   let transactionHash = '<none>'
   const tx = await governor.methods
@@ -458,7 +458,7 @@ async function createProposal() {
     })
 
   console.log('transactionHash:', transactionHash)
-  await fetch(`${SERVER_URL}/api/proposal/mint/create`, {
+  const res = await fetch(`${SERVER_URL}/api/proposal/mint/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -471,9 +471,18 @@ async function createProposal() {
       propose_time: nowTime.getTime()
     })
   })
+  
+  // check for error response
+  if (!res.ok) {
+    const isJson = res.headers.get('content-type')?.includes('application/json')
+    const data = isJson ? await res.json() : null
+    // get error message from body or default to response status
+    const error = data ? data.error || data.message : res.status
+    alert(`Server error ${error}. Please try agian later.`)
+    console.error('createProposal error: ', data, res)
+  }
 
-  var log = document.getElementById('log')
-  log.innerHTML =
+  $log.innerHTML =
         '<p>提案编号 (Proposal ID): ' +
         proposalId +
         '</p><p>发放地址: ' +
