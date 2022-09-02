@@ -118,7 +118,8 @@ app.post('/api/proposal/mint/create', async (req, res) => {
     amount,
     description,
     transaction_hash,
-    propose_time
+    propose_time,
+    propose_type
   } = req.body
   if (!proposal_id) errors.push('No proposal id specified')
   if (!proposer) errors.push('No proposer specified')
@@ -135,6 +136,7 @@ app.post('/api/proposal/mint/create', async (req, res) => {
 
   try {
     await mintProposalModel.createMintProposal(
+      propose_type ? propose_type : 'mint',
       proposal_id,
       proposer,
       receiver,
@@ -144,11 +146,12 @@ app.post('/api/proposal/mint/create', async (req, res) => {
       transaction_hash
     )
 
-    const receivers = [receiver]
-    const newHolders = await holderModel.getNewHolders(receivers)
+    if (!propose_type || propose_type === 'mint') {
+      const receivers = [receiver]
+      const newHolders = await holderModel.getNewHolders(receivers)
 
-    await holderModel.addHolders(newHolders.addresses, newHolders.names)
-
+      await holderModel.addHolders(newHolders.addresses, newHolders.names)
+    }
     return res.json({
       message: 'success'
     })

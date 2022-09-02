@@ -32,10 +32,13 @@
   <h3 id="tokens"></h3>
   <span>
     <button id="setDelegates" type="button" onclick="startSetDelegates()" hidden>
-      投票代理人变更</button>&nbsp;&nbsp;<button id="createProposal" type="button" onclick="startCreateProposal()" hidden>
+      投票代理人变更</button>&nbsp;&nbsp;
+    <button id="createProposal" type="button" onclick="startCreateProposal()" hidden>
       提案: 发放积分</button>&nbsp;
     <button id="createBatchMintProposal" type="button" onclick="startCreateBatchMintProposal()" hidden>
       提案: 批量发放积分</button>&nbsp;
+    <button id="createGovernorProposal" type="button" onclick="startGovernorProposal()" hidden>
+      提案: 变更治理参数</button>&nbsp;
     <button id="viewProposals" type="button" onclick="startViewProposals()" hidden>
       提案一览</button>&nbsp;
     <button id="governParameters" type="button" onclick="startGovernParameters()" hidden>
@@ -43,31 +46,49 @@
   </span><button id="checkProposal" type="button" onclick="startCheckProposal()" hidden>
     提案查询</button>&nbsp;&nbsp;<button id="viewHolders" type="button" onclick="startViewHolders()" hidden>
     持有者列表</button>&nbsp;&nbsp;</span><br /><br />
+
   <form id="createProposalForm" hidden>
     <h3>提案发放积分</h3>
-    <span>发放地址<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAddress"
-        type="text" /></span><br /><br />
-    <span>发放数量<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAmount"
-        type="text" /></span><br />
+    <span>发放地址<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAddress" type="text" /></span><br /><br />
+    <span>发放数量<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAmount" type="text" /></span><br />
     <br />
     <span>提案描述:&nbsp;<textarea id="createProposalDescription" rows="5"></textarea></span><br /><br />
     <button id="createProposalFormSummit" type="button" onclick="runCreateProposal()">
       提案上链
     </button>
   </form>
+
   <form id="createBatchMintProposalForm" hidden>
     <h3>提案批量发放积分</h3>
     <span>提案描述:&nbsp;<textarea id="createBatchMintProposalDescription" rows="5"></textarea></span><br /><br />
     <div id="csvpreview"></div>
     <br />
     <span id="csvfileupload">CSV 档案<font color="red"><small>*</small></font>:&nbsp;
-      <input type="file" id="createBatchMintProposalFile" name="createBatchMintProposalFile"
-        onchange="uploadBatchMintFile()" /></span><br />
+      <input type="file" id="createBatchMintProposalFile" name="createBatchMintProposalFile" onchange="uploadBatchMintFile()" /></span><br />
     <br />
     <button id="createBatchMintProposalFormSummit" type="button" onclick="runCreateBatchMintProposal()">
       提案上链
     </button>
   </form>
+
+  <form id="createGovernorProposalForm" hidden>
+    <h3>提案变更治理参数</h3>
+    <span>治理参数<font color="red"><small>*</small></font>:&nbsp;
+      <select name="governorFunction" id="governorFunction">
+        <option value="setProposalThreshold">提案门槛（需要持有多少积分才能发起提案）</option>
+        <option value="setVotingDelay">投票延迟（提案上链后经过多少区块开始投票）</option>
+        <option value="setVotingPeriod">投票时长（开始投票后经过多少区块结束）</option>
+        <option value="updateQuorumNumerator">总投票有效门槛（代币持有百分比）</option>
+      </select>
+    </span><br /><br />
+    <span>变更为<font color="red"><small>*</small></font>:&nbsp;<input type="number" step="1" id="governorFunctionParam" type="text" value="0" /></span><br />
+    <br />
+    <span>提案描述:&nbsp;<textarea id="createGovernorProposalDescription" rows="5"></textarea></span><br /><br />
+    <button id="createGovernorProposalFormSummit" type="button" onclick="runCreateGovernorProposal()">
+      提案上链
+    </button>
+  </form>
+
   <small id="log"></small>
   <div id="viewProposalsBlock" hidden></div>
   <div id="governParametersBlock" hidden></div>

@@ -71,6 +71,7 @@ function createBatchMintProposal(
 }
 
 function createMintProposal(
+  type: IMintProposal['type'],
   proposalId: IMintProposal['proposalId'],
   proposer: IMintProposal['proposer'],
   receiver: IMintProposal['receivers'],
@@ -90,7 +91,7 @@ function createMintProposal(
           serialId = pmax.serialId + 1
         }
         new MintProposal({
-          type: 'mint',
+          type: type,
           proposalId,
           serialId,
           proposer,

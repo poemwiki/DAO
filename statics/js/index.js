@@ -123,6 +123,7 @@ function running() {
 function printErrorLog(error, elementId) {
   running()
   if (error) {
+    console.error(error)
     var log = document.getElementById(elementId)
     if (error.message.indexOf('execution reverted: Governor: proposer votes below proposal threshold') !== -1) {
       log.innerHTML = '<p>提案失败！您的积分低于最低提案门槛，详细请见 "治理参数"</p><br/>'
@@ -260,6 +261,13 @@ async function runCreateProposal() {
   running()
   cleanLog()
   createProposal().catch((error) => printErrorLog(error, 'log'))
+  done()
+}
+
+async function runCreateGovernorProposal() {
+  running()
+  cleanLog()
+  createGovernorProposal().catch((error) => printErrorLog(error, 'log'))
   done()
 }
 
@@ -506,6 +514,147 @@ async function createProposal() {
   done()
 }
 
+function validParam(functionName, params) {
+  if(['setVotingDelay', 'setVotingPeriod', 'setProposalThreshold'].includes(functionName)) {
+    if (typeof params === 'number' && params > 0) {
+      return true
+    } else {
+      throw new Error('新参数必须为正整数')
+    }
+  }
+  if (['updateQuorumNumerator'].includes(functionName)) {
+    if (typeof params === 'number' && params >= 1 && params <= 90) {
+      return true
+    } else {
+      throw new Error('总投票有效门槛应在1到90之间')
+    }
+  }
+  return false
+}
+
+// createGovernorProposal
+async function createGovernorProposal() {
+  running()
+  const functionName = document
+    .getElementById('governorFunction').value
+  const params = parseInt(document
+    .getElementById('governorFunctionParam')
+    .value.replace(/\s/g, ''), 10)
+
+  if(!validParam(functionName, params)) {
+    return
+  }
+  
+  const nowTime = new Date()
+  const description =
+        '[' +
+        nowTime.toISOString().replace(/[^0-9]/g, '') +
+        '] ' +
+        document.getElementById('createProposalDescription').value
+
+  document.getElementById('governorFunction').disabled = true
+  document.getElementById('governorFunctionParam').disabled = true
+  document.getElementById('createGovernorProposalDescription').disabled = true
+  document.getElementById('createGovernorProposalFormSummit').disabled = true
+
+  web3 = new Web3(window.ethereum)
+  const governor = new web3.eth.Contract(governorAbi(), GOVERNOR_ADDRESS)
+
+  const functionAbi = settingAbi(functionName)
+  console.log(functionName, functionAbi)
+  const encodedFunctionCall = web3.eth.abi.encodeFunctionCall(
+    functionAbi,
+    [params]
+  )
+
+  const accountsAddr = await web3.eth.requestAccounts()
+  const accountAddress = accountsAddr[0]
+
+  const proposalId = await governor.methods
+    .propose([GOVERNOR_ADDRESS], [0], [encodedFunctionCall], description)
+    .call({ from: accountAddress }, (error) => printErrorLog(error, 'log'))
+  console.log('proposalId: ' + proposalId)
+
+  const gasPrice = await web3.eth.getGasPrice()
+  const gasEstimate = await governor.methods
+    .propose([GOVERNOR_ADDRESS], [0], [encodedFunctionCall], description)
+    .estimateGas({ from: accountAddress, gas: 50000000 })
+  console.log('gasEstimate: ' + gasEstimate)
+  console.log('gasPrice: ' + gasPrice)
+
+  const $log = document.getElementById('log')
+  $log.style.color = ''
+  $log.innerHTML = '<p>上链中 ...</p>'
+
+  let transactionHash = '<none>'
+  const tx = await governor.methods
+    .propose([GOVERNOR_ADDRESS], [0], [encodedFunctionCall], description)
+    .send(
+      {
+        from: accountAddress,
+        gas: gasEstimate,
+        gasPrice
+      },
+      (error, hash) => {
+        printErrorLog(error, 'log')
+        transactionHash = hash
+        console.log('hash:', hash)
+      }
+    )
+    .catch((sendError) => {
+      console.log(sendError)
+    })
+
+  console.log('transactionHash:', transactionHash)
+  const res = await fetch(`${SERVER_URL}/api/proposal/mint/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      propose_type: 'governorSetting',
+      proposal_id: proposalId,
+      proposer: accountAddress,
+      receiver: functionName,
+      amount: params,
+      description,
+      transaction_hash: transactionHash,
+      propose_time: nowTime.getTime()
+    })
+  })
+  
+  // check for error response
+  if (!res.ok) {
+    const isJson = res.headers.get('content-type')?.includes('application/json')
+    const data = isJson ? await res.json() : null
+    // get error message from body or default to response status
+    const error = data ? data.error || data.message : res.status
+    alert(`Server error ${error}. Please try agian later.`)
+    console.error('createProposal error: ', data, res)
+  }
+
+  $log.innerHTML =
+        '<p>提案编号 (Proposal ID): ' +
+        proposalId +
+        '</p><p>治理参数: ' +
+        functionName +
+        '</p><p>变更为: ' +
+        params +
+        '</p><p>描述: ' +
+        description.slice(20) +
+        '</p>' +
+        '<a href="' +
+        ETHERSCAN_URL +
+        'tx/' +
+        transactionHash +
+        '" style="color:#59bfcf;" target="_blank">' +
+        ETHERSCAN_URL +
+        'tx/' +
+        transactionHash +
+        '</a>'
+
+  initCreateProposal(true)
+  done()
+}
+
 function i2hex(i) {
   return ('0' + i.toString(16)).slice(-2)
 }
@@ -628,13 +777,18 @@ async function executeProposal(proposalData, proposalElement, serialId) {
       batchMintInterface(),
       [proposalData.receivers, amountsWei]
     )
+  } else if (proposalData.type === 'governorSetting') {
+    encodedFunctionCall = web3.eth.abi.encodeFunctionCall(
+      settingAbi(proposalData.receiver),
+      [proposalData.amount]
+    )
   }
 
   console.log('encodedFunctionCall:', encodedFunctionCall)
 
   const gasPrice = await web3.eth.getGasPrice()
   const gasEstimate = await governor.methods
-    .execute([TOKEN_ADDRESS], [0], [encodedFunctionCall], descriptionHash)
+    .execute([proposalData.type === 'governorSetting' ? GOVERNOR_ADDRESS: TOKEN_ADDRESS], [0], [encodedFunctionCall], descriptionHash)
     .estimateGas({ from: accountAddress, gas: 50000000 })
 
   var log = document.createElement('div')
@@ -647,7 +801,7 @@ async function executeProposal(proposalData, proposalElement, serialId) {
   let transactionHash = '<none>'
   let error = null
   const tx = await governor.methods
-    .execute([TOKEN_ADDRESS], [0], [encodedFunctionCall], descriptionHash)
+    .execute([proposalData.type === 'governorSetting' ? GOVERNOR_ADDRESS: TOKEN_ADDRESS], [0], [encodedFunctionCall], descriptionHash)
     .send(
       {
         from: accountAddress,
@@ -1568,6 +1722,7 @@ function showProposal(
       let timeover = ''
       let voteResultStr = '投票结果'
       const isOver = ddlTimestamp - new Date().getTime() < 0
+      let ddlModeStr
       if (isOver && ddlTime !== null) {
         timeover = '(已结束)'
         voteResultStr = '最终' + voteResultStr
@@ -1584,7 +1739,7 @@ function showProposal(
         remainMinsStr = ', 即将完成'
       }
 
-      proposal.innerHTML += `<font size=\"2\">${ddlModeStr}截止时间: ${new Date(
+      proposal.innerHTML += `<font size="2">${ddlModeStr}截止时间: ${new Date(
         ddlTimestamp
       ).toLocaleString()} (区块: ${ddl}${remainMinsStr}) ${timeover}</font>`
 
@@ -1712,6 +1867,20 @@ function initCreateProposal(cleanup) {
     document.getElementById('createProposalAddress').value = ''
     document.getElementById('createProposalAmount').value = ''
     document.getElementById('createProposalDescription').value = ''
+  }
+  done()
+}
+
+function initCreateGovernorProposal(cleanup) {
+  running()
+  document.getElementById('governorFunction').disabled = false
+  document.getElementById('governorFunctionParam').disabled = false
+  document.getElementById('createGovernorProposalDescription').disabled = false
+  document.getElementById('createGovernorProposalFormSummit').disabled = false
+  if (cleanup) {
+    document.getElementById('governorFunction').value = ''
+    document.getElementById('governorFunctionParam').value = ''
+    document.getElementById('createGovernorProposalDescription').value = ''
   }
   done()
 }
@@ -1901,6 +2070,7 @@ async function startViewProposals() {
   cleanLog()
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = false
   document.getElementById('governParametersBlock').hidden = true
   document.getElementById('setDelegatesBlock').hidden = true
@@ -1915,6 +2085,7 @@ function startCreateProposal() {
   cleanLog()
   document.getElementById('createProposalForm').hidden = false
   document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = true
   document.getElementById('governParametersBlock').hidden = true
   document.getElementById('setDelegatesBlock').hidden = true
@@ -1929,12 +2100,28 @@ function startCreateBatchMintProposal() {
   cleanLog()
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = false
+  document.getElementById('createGovernorProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = true
   document.getElementById('governParametersBlock').hidden = true
   document.getElementById('setDelegatesBlock').hidden = true
   document.getElementById('viewHoldersBlock').hidden = true
   document.getElementById('checkProposalBlock').hidden = true
   initCreateBatchMintProposal(true)
+  done()
+}
+
+function startGovernorProposal() {
+  running()
+  cleanLog()
+  document.getElementById('createProposalForm').hidden = true
+  document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = false
+  document.getElementById('viewProposalsBlock').hidden = true
+  document.getElementById('governParametersBlock').hidden = true
+  document.getElementById('setDelegatesBlock').hidden = true
+  document.getElementById('viewHoldersBlock').hidden = true
+  document.getElementById('checkProposalBlock').hidden = true
+  initCreateGovernorProposal(true)
   done()
 }
 
@@ -2234,6 +2421,7 @@ async function startViewHolders() {
   cleanLog()
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = true
   document.getElementById('governParametersBlock').hidden = true
   document.getElementById('setDelegatesBlock').hidden = true
@@ -2247,6 +2435,7 @@ async function startCheckProposal() {
   cleanLog()
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = true
   document.getElementById('governParametersBlock').hidden = true
   document.getElementById('setDelegatesBlock').hidden = true
@@ -2260,6 +2449,7 @@ async function startSetDelegates() {
   cleanLog()
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = true
   document.getElementById('governParametersBlock').hidden = true
   document.getElementById('setDelegatesBlock').hidden = false
@@ -2341,6 +2531,7 @@ function createGovButtons() {
   const createBatchMintProposal = document.getElementById(
     'createBatchMintProposal'
   )
+  const createGovernorProposal = document.getElementById('createGovernorProposal')
   const viewProposals = document.getElementById('viewProposals')
   const governParameters = document.getElementById('governParameters')
   const setDelegates = document.getElementById('setDelegates')
@@ -2348,6 +2539,7 @@ function createGovButtons() {
   const checkProposal = document.getElementById('checkProposal')
   createProposal.hidden = false
   createBatchMintProposal.hidden = false
+  createGovernorProposal.hidden = false
   viewProposals.hidden = false
   governParameters.hidden = false
   setDelegates.hidden = false
