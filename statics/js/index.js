@@ -928,7 +928,7 @@ async function queryProposal() {
       proposalName = getHolderNameColor(holder.name)
     }
     proposal.innerHTML =
-            `<br/><font size=\"2\">提案序号: ${pState.emoji} Proposal #${p.serialId}<br/>` +
+            `<br/><font size="2">提案序号: ${pState.emoji} Proposal #${p.serialId}<br/>` +
             `提案人: ${proposalName}<br/>` +
             `状态: ${pState.text}<br/>` +
             `编号: ${p.proposalId}</font><br/>`
@@ -944,7 +944,7 @@ async function queryProposal() {
     console.log('startTimeSec:', startTimeSec)
 
     proposal.innerHTML +=
-            `<font size=\"2\">时间: ${new Date(
+            `<font size="2">时间: ${new Date(
               1000 * startTime.timestamp
             ).toLocaleString()} (区块: ${snapshot})<br/>` +
             `说明: <br/>${p.description.slice(200)}</font><br/>`
@@ -955,16 +955,16 @@ async function queryProposal() {
       if (holder !== undefined && holder !== null) {
         receiverMame = getHolderNameColor(holder.name)
       }
-      proposal.innerHTML += `<font size=\"2\">操作: 对 ${receiverMame} 发放积分 ${p.amount} $${symbol}</font><br/>`
+      proposal.innerHTML += `<font size="2">操作: 对 ${receiverMame} 发放积分 ${p.amount} $${symbol}</font><br/>`
     } else if (p.type === 'batchmint') {
-      proposal.innerHTML += '<font size=\"2\">操作:</font><br/>'
+      proposal.innerHTML += '<font size="2">操作:</font><br/>'
       p.receivers.forEach((r, idx) => {
         let receiverMame = r
         const holder = getHolder(holders, r)
         if (holder !== undefined && holder !== null) {
           if (holder.name != '') receiverMame = getHolderNameColor(holder.name)
         }
-        proposal.innerHTML += `<font size=\"2\">对 ${receiverMame} 发放积分 ${p.amounts[idx]} $${symbol}</font><br/>`
+        proposal.innerHTML += `<font size="2">对 ${receiverMame} 发放积分 ${p.amounts[idx]} $${symbol}</font><br/>`
       })
     }
 
@@ -1019,7 +1019,7 @@ async function queryProposal() {
       remainMinsStr = ', 即将完成'
     }
 
-    proposal.innerHTML += `<font size=\"2\">${ddlModeStr}截止时间: ${new Date(
+    proposal.innerHTML += `<font size="2">${ddlModeStr}截止时间: ${new Date(
       ddlTimestamp
     ).toLocaleString()} (区块: ${ddl}${remainMinsStr}) ${timeover}</font>`
 
@@ -1073,7 +1073,7 @@ async function queryProposal() {
     console.log(startTime.timestamp)
 
     proposal.innerHTML +=
-            `<font size=\"2\">${voteResultStr}: 同意: ${Web3.utils.fromWei(
+            `<font size="2">${voteResultStr}: 同意: ${Web3.utils.fromWei(
               votes.forVotes,
               'ether'
             )}, 反对: ${Web3.utils.fromWei(
@@ -1642,8 +1642,8 @@ function showProposal(
         proposalName = getHolderNameColor(holder.name)
       }
       proposal.innerHTML =
-                `<hr style=\"border: 1px dotted green;\" /><h5>${pState.emoji} Proposal #${p.serialId}</h5>` +
-                `<font size=\"2\">提案人: ${proposalName}<br/>` +
+                `<hr style="border: 1px dotted green;" /><h5>${pState.emoji} Proposal #${p.serialId}</h5>` +
+                `<font size="2">提案人: ${proposalName}<br/>` +
                 `提案状态: ${pState.text}<br/>` +
                 `提案编号: ${p.proposalId}</font><br/>`
 
@@ -1661,7 +1661,7 @@ function showProposal(
       console.log('startTimeSec:', startTimeSec)
 
       proposal.innerHTML +=
-                `<font size=\"2\">提案时间: ${new Date(
+                `<font size="2">提案时间: ${new Date(
                   1000 * startTime.timestamp
                 ).toLocaleString()} (区块: ${snapshot})<br/>` +
                 `提案说明: ${p.description.slice(20)}</font><br/>`
@@ -1674,7 +1674,7 @@ function showProposal(
             receiverMame = getHolderNameColor(holder.name)
           }
         }
-        proposal.innerHTML += `<font size=\"2\">提案操作: 对 ${receiverMame} 发放积分 ${p.amount} $${symbol}</font><br/>`
+        proposal.innerHTML += `<font size="2">提案操作: 对 ${receiverMame} 发放积分 ${p.amount} $${symbol}</font><br/>`
       } else if (p.type === 'batchmint') {
         proposal.innerHTML += '<font size=\"2\">提案操作:</font><br/>'
         p.receivers.forEach((r, idx) => {
@@ -1683,8 +1683,17 @@ function showProposal(
           if (holder !== undefined && holder !== null) {
             if (holder.name != '') receiverMame = getHolderNameColor(holder.name)
           }
-          proposal.innerHTML += `<font size=\"2\">对 ${receiverMame} 发放积分 ${p.amounts[idx]} $${symbol}</font><br/>`
+          proposal.innerHTML += `<font size="2">对 ${receiverMame} 发放积分 ${p.amounts[idx]} $${symbol}</font><br/>`
         })
+      } else if (p.type === 'governorSetting') {
+        let functionName = p.receiver
+        let paramName = {
+          'setProposalThreshold': '提案门槛（需要持有多少积分才能发起提案）',
+          'setVotingDelay': '投票延迟（提案上链后经过多少区块开始投票）',
+          'setVotingPeriod': '投票时长（开始投票后经过多少区块结束）',
+          'updateQuorumNumerator': '总投票有效门槛'
+        }[functionName]
+        proposal.innerHTML += `<font size="2">提案操作: 将 ${paramName ? paramName : functionName} 改为 ${p.amount}${paramName === 'updateQuorumNumerator' ? '%' : ''}</font><br/>`
       }
 
       const ddl = await governor.methods
