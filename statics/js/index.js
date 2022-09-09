@@ -13,6 +13,8 @@ const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://polyg
 // const GOVERNOR_ADDRESS = "0xB4B732007b174379D3B410D18Bb22b2B287AC7AE" // Polygon: "0x4634764d6DbD533b27CC764ad595f5585C8f607d"
 
 const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
+const TOKEN_SYMBOL = 'PWR'
+const TOKEN_DECIMALS = 18
 const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
 const SERVER_URL = window.location.origin
 const GOVERNOR_TYPE = 'NoTLGovernor'
@@ -2555,6 +2557,37 @@ function createGovButtons() {
   viewHolders.hidden = false
   checkProposal.hidden = false
   done()
+}
+
+function addToken2Wallet() {
+  const tokenAddress = TOKEN_ADDRESS
+  const tokenSymbol = TOKEN_SYMBOL
+  const tokenDecimals = TOKEN_DECIMALS
+  const tokenImage = 'https://dao.poemwiki.com/favicon.ico'
+  if (typeof window.ethereum !== 'undefined') {
+    const params = {
+      type: 'ERC20',
+      options: {
+        address: tokenAddress,
+        symbol: tokenSymbol,
+        decimals: tokenDecimals,
+        image: tokenImage,
+      },
+    }
+    
+    console.log({params})
+    const method = 'wallet_watchAsset'
+    window.ethereum
+      .request({
+        method,
+        params,
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  } else {
+    alert('暂不支持此钱包')
+  }
 }
 
 Connect()
