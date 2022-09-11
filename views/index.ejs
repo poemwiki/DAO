@@ -13,9 +13,17 @@
       font-family: Hack;
     }
 
+    #createBudgetProposalDescription,
     #createProposalDescription,
     #createBatchMintProposalDescription {
       vertical-align: text-top;
+    }
+
+    #createBudgetProposalAddress {
+      border: none;
+      background: none;
+      width: 100%;
+      color: #fff;
     }
 
     a {
@@ -37,6 +45,8 @@
   <span>
     <button id="setDelegates" type="button" onclick="startSetDelegates()" hidden>
       投票代理人变更</button>&nbsp;&nbsp;
+    <button id="createBudgetProposal" type="button" onclick="startCreateBudgetProposal()" hidden>
+      提案: 申请预算</button>&nbsp;
     <button id="createProposal" type="button" onclick="startCreateProposal()" hidden>
       提案: 发放积分</button>&nbsp;
     <button id="createBatchMintProposal" type="button" onclick="startCreateBatchMintProposal()" hidden>
@@ -51,12 +61,24 @@
     提案查询</button>&nbsp;&nbsp;<button id="viewHolders" type="button" onclick="startViewHolders()" hidden>
     持有者列表</button>&nbsp;&nbsp;</span><br /><br />
 
+  <form id="createBudgetProposalForm" hidden>
+    <h3>提案申请预算</h3>
+    <p>提案通过后，申请地址 将获得治理合约内 申请数量 积分的支配权。</p>
+    <span>申请地址<font color="red"><small>*</small></font>&nbsp;<input id="createBudgetProposalAddress" type="text" /></span><br /><br />
+    <span>申请数量<font color="red"><small>*</small></font>&nbsp;<input id="createBudgetProposalAmount" type="text" /></span><br />
+    <br />
+    <span>提案描述&nbsp;<textarea id="createBudgetProposalDescription" rows="5"></textarea></span><br /><br />
+    <button id="createBudgetProposalFormSummit" type="button" onclick="runCreateBudgetProposal()">
+      提案上链
+    </button>
+  </form>
+
   <form id="createProposalForm" hidden>
     <h3>提案发放积分</h3>
-    <span>发放地址<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAddress" type="text" /></span><br /><br />
-    <span>发放数量<font color="red"><small>*</small></font>:&nbsp;<input id="createProposalAmount" type="text" /></span><br />
+    <span>发放地址<font color="red"><small>*</small></font>&nbsp;<input id="createProposalAddress" type="text" /></span><br /><br />
+    <span>发放数量<font color="red"><small>*</small></font>&nbsp;<input id="createProposalAmount" type="text" /></span><br />
     <br />
-    <span>提案描述:&nbsp;<textarea id="createProposalDescription" rows="5"></textarea></span><br /><br />
+    <span>提案描述&nbsp;<textarea id="createProposalDescription" rows="5"></textarea></span><br /><br />
     <button id="createProposalFormSummit" type="button" onclick="runCreateProposal()">
       提案上链
     </button>
@@ -64,10 +86,10 @@
 
   <form id="createBatchMintProposalForm" hidden>
     <h3>提案批量发放积分</h3>
-    <span>提案描述:&nbsp;<textarea id="createBatchMintProposalDescription" rows="5"></textarea></span><br /><br />
+    <span>提案描述&nbsp;<textarea id="createBatchMintProposalDescription" rows="5"></textarea></span><br /><br />
     <div id="csvpreview"></div>
     <br />
-    <span id="csvfileupload">CSV 档案<font color="red"><small>*</small></font>:&nbsp;
+    <span id="csvfileupload">CSV 档案<font color="red"><small>*</small></font>&nbsp;
       <input type="file" id="createBatchMintProposalFile" name="createBatchMintProposalFile" onchange="uploadBatchMintFile()" /></span><br />
     <br />
     <button id="createBatchMintProposalFormSummit" type="button" onclick="runCreateBatchMintProposal()">
@@ -77,7 +99,7 @@
 
   <form id="createGovernorProposalForm" hidden>
     <h3>提案变更治理参数</h3>
-    <span>治理参数<font color="red"><small>*</small></font>:&nbsp;
+    <span>治理参数<font color="red"><small>*</small></font>&nbsp;
       <select name="governorFunction" id="governorFunction">
         <option value="setProposalThreshold">提案门槛（需要持有多少积分才能发起提案）</option>
         <option value="setVotingDelay">投票延迟（提案上链后经过多少区块开始投票）</option>
@@ -85,9 +107,9 @@
         <option value="updateQuorumNumerator">总投票有效门槛（代币持有百分比）</option>
       </select>
     </span><br /><br />
-    <span>变更为<font color="red"><small>*</small></font>:&nbsp;<input type="number" step="1" id="governorFunctionParam" type="text" value="0" /></span><br />
+    <span>变更为<font color="red"><small>*</small></font>&nbsp;<input type="number" step="1" id="governorFunctionParam" type="text" value="0" /></span><br />
     <br />
-    <span>提案描述:&nbsp;<textarea id="createGovernorProposalDescription" rows="5"></textarea></span><br /><br />
+    <span>提案描述&nbsp;<textarea id="createGovernorProposalDescription" rows="5"></textarea></span><br /><br />
     <button id="createGovernorProposalFormSummit" type="button" onclick="runCreateGovernorProposal()">
       提案上链
     </button>

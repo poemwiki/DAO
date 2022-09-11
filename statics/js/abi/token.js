@@ -19,6 +19,27 @@ function batchMintInterface() {
   }
 }
 
+function mintAndApproveInterface() {
+  return {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'spender',
+        type: 'address'
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256'
+      }
+    ],
+    name: 'mintAndApprove',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+}
+
 function mintInterface() {
   return {
     inputs: [

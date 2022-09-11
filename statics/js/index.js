@@ -9,13 +9,15 @@ const CHAIN_NAME = 'Goerli' // Polygon, Rinkeby
 const CHAIN_ID = 5 // Polygon: 137, Rinkeby: 4, Goerli: 5
 const NATIVE_CURRENCY = 'RIN' // Polygon: MATIC, Rinkeby: RIN
 const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://polygon-rpc.com/'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
-// const TOKEN_ADDRESS = "0x074DA668CE35dF9bc4CF66129c5A4302f15016f4" // Polygon: "0x8A1e48a84579F2239cB8383fC556b04D84b09E30"
-// const GOVERNOR_ADDRESS = "0xB4B732007b174379D3B410D18Bb22b2B287AC7AE" // Polygon: "0x4634764d6DbD533b27CC764ad595f5585C8f607d"
 
-const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
+// production env addresses
+const TOKEN_ADDRESS='0xC10B6CB9F4276D13F0D67FdbF719B15a75b8C5D6'
+const GOVERNOR_ADDRESS='0x027480d6B1948CA051EF2b25c139CEc2BCF3F89B'
+
+// const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
 const TOKEN_SYMBOL = 'PWR'
 const TOKEN_DECIMALS = 18
-const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
+// const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
 const SERVER_URL = window.location.origin
 const GOVERNOR_TYPE = 'NoTLGovernor'
 
@@ -259,6 +261,13 @@ function createQueuedButton(proposalData, proposalElement, serialId) {
   done()
 }
 
+async function runCreateBudgetProposal() {
+  running()
+  cleanLog()
+  createBudgetProposal().catch((error) => printErrorLog(error, 'log'))
+  done()
+}
+
 async function runCreateProposal() {
   running()
   cleanLog()
@@ -397,6 +406,122 @@ async function createBatchMintProposal() {
 
   initCreateBatchMintProposal(true)
   done()
+}
+
+async function createBudgetProposal() {
+  const address = document
+    .getElementById('createBudgetProposalAddress')
+    .value.replace(/\s/g, '')
+  const amount = document
+    .getElementById('createBudgetProposalAmount')
+    .value.replace(/\s/g, '')
+  const nowTime = new Date()
+  const description =
+        '[' +
+        nowTime.toISOString().replace(/[^0-9]/g, '') +
+        '] ' +
+        document.getElementById('createBudgetProposalDescription').value
+
+  document.getElementById('createBudgetProposalAddress').disabled = true
+  document.getElementById('createBudgetProposalAmount').disabled = true
+  document.getElementById('createBudgetProposalDescription').disabled = true
+  document.getElementById('createBudgetProposalFormSummit').disabled = true
+
+  web3 = new Web3(window.ethereum)
+  const governor = new web3.eth.Contract(governorAbi(), GOVERNOR_ADDRESS)
+  const token = new web3.eth.Contract(tokenAbi(), TOKEN_ADDRESS)
+  const amountWei = web3.utils.toWei(amount)
+
+  const encodedFunctionCall = web3.eth.abi.encodeFunctionCall(
+    mintAndApproveInterface(),
+    [address, amountWei]
+  )
+
+  const accountsAddr = await web3.eth.requestAccounts()
+  const accountAddress = accountsAddr[0]
+
+  const proposalId = await governor.methods
+    .propose([TOKEN_ADDRESS], [0], [encodedFunctionCall], description)
+    .call({ from: accountAddress }, (error) => printErrorLog(error, 'log'))
+  console.log('proposalId: ' + proposalId)
+
+  const gasPrice = await web3.eth.getGasPrice()
+  const gasEstimate = await governor.methods
+    .propose([TOKEN_ADDRESS], [0], [encodedFunctionCall], description)
+    .estimateGas({ from: accountAddress, gas: 50000000 })
+  console.log('gasEstimate: ' + gasEstimate)
+  console.log('gasPrice: ' + gasPrice)
+
+  const $log = document.getElementById('log')
+  $log.style.color = ''
+  $log.innerHTML = '<p>上链中 ...</p>'
+
+  let transactionHash = '<none>'
+  const tx = await governor.methods
+    .propose([TOKEN_ADDRESS], [0], [encodedFunctionCall], description)
+    .send(
+      {
+        from: accountAddress,
+        gas: gasEstimate,
+        gasPrice
+      },
+      (error, hash) => {
+        printErrorLog(error, 'log')
+        transactionHash = hash
+        console.log('hash:', hash)
+      }
+    )
+    .catch((sendError) => {
+      console.log(sendError)
+    })
+
+  console.log('transactionHash:', transactionHash)
+  const res = await fetch(`${SERVER_URL}/api/proposal/mint/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      propose_type: 'budget',
+      proposal_id: proposalId,
+      proposer: accountAddress,
+      receiver: address,
+      amount,
+      description,
+      transaction_hash: transactionHash,
+      propose_time: nowTime.getTime()
+    })
+  })
+  
+  // check for error response
+  if (!res.ok) {
+    const isJson = res.headers.get('content-type')?.includes('application/json')
+    const data = isJson ? await res.json() : null
+    // get error message from body or default to response status
+    const error = data ? data.error || data.message : res.status
+    alert(`Server error ${error}. Please try agian later.`)
+    console.error('createProposal error: ', data, res)
+  }
+
+  $log.innerHTML =
+        '<p>提案编号 (Proposal ID): ' +
+        proposalId +
+        '</p><p>申请地址: ' +
+        address +
+        '</p><p>申请数量: ' +
+        amount +
+        '</p><p>描述: ' +
+        description.slice(20) +
+        '</p>' +
+        '<a href="' +
+        ETHERSCAN_URL +
+        'tx/' +
+        transactionHash +
+        '" style="color:#59bfcf;" target="_blank">' +
+        ETHERSCAN_URL +
+        'tx/' +
+        transactionHash +
+        '</a>'
+
+  initCreateBudgetProposal(true)
 }
 
 async function createProposal() {
@@ -760,7 +885,13 @@ async function executeProposal(proposalData, proposalElement, serialId) {
   console.log('proposalData.type:', proposalData.type)
 
   let encodedFunctionCall
-  if (proposalData.type === 'mint') {
+  if (proposalData.type === 'budget') {
+    const amountWei = web3.utils.toWei(proposalData.amount)
+    encodedFunctionCall = web3.eth.abi.encodeFunctionCall(mintAndApproveInterface(), [
+      proposalData.receiver,
+      amountWei
+    ])
+  } else if (proposalData.type === 'mint') {
     const amountWei = web3.utils.toWei(proposalData.amount)
     encodedFunctionCall = web3.eth.abi.encodeFunctionCall(mintInterface(), [
       proposalData.receiver,
@@ -951,7 +1082,14 @@ async function queryProposal() {
             ).toLocaleString()} (区块: ${snapshot})<br/>` +
             `说明: <br/>${p.description.slice(200)}</font><br/>`
 
-    if (p.type === 'mint') {
+    if (p.type === 'budget') {
+      let receiverMame = p.receiver
+      const holder = getHolder(holders, p.receiver)
+      if (holder !== undefined && holder !== null) {
+        receiverMame = getHolderNameColor(holder.name)
+      }
+      proposal.innerHTML += `<font size="2">操作: ${receiverMame} 申请预算 ${p.amount} $${symbol}</font><br/>`
+    } else if (p.type === 'mint') {
       let receiverMame = p.receiver
       const holder = getHolder(holders, p.receiver)
       if (holder !== undefined && holder !== null) {
@@ -1668,7 +1806,16 @@ function showProposal(
                 ).toLocaleString()} (区块: ${snapshot})<br/>` +
                 `提案说明: ${p.description.slice(20)}</font><br/>`
 
-      if (p.type === 'mint') {
+      if (p.type === 'budget') {
+        let receiverMame = p.receiver
+        const holder = getHolder(holders, p.receiver)
+        if (holder !== undefined && holder !== null) {
+          if (holder.name !== '') {
+            receiverMame = getHolderNameColor(holder.name)
+          }
+        }
+        proposal.innerHTML += `<font size="2">提案操作: ${receiverMame} 申请预算 ${p.amount} $${symbol}</font><br/>`
+      } else if (p.type === 'mint') {
         let receiverMame = p.receiver
         const holder = getHolder(holders, p.receiver)
         if (holder !== undefined && holder !== null) {
@@ -1868,6 +2015,22 @@ function showProposal(
   done()
 }
 
+function initCreateBudgetProposal(cleanup) {
+  running()
+  const $address = document.getElementById('createBudgetProposalAddress')
+  $address.disabled = true
+  document.getElementById('createBudgetProposalAmount').disabled = false
+  document.getElementById('createBudgetProposalDescription').disabled = false
+  document.getElementById('createBudgetProposalFormSummit').disabled = false
+  if (cleanup) {
+    $address.value = accountAddress
+    console.log('accountAddress:', accountAddress, $address.value)
+    document.getElementById('createBudgetProposalAmount').value = ''
+    document.getElementById('createBudgetProposalDescription').value = ''
+  }
+  done()
+}
+
 function initCreateProposal(cleanup) {
   running()
   document.getElementById('createProposalAddress').disabled = false
@@ -1973,6 +2136,7 @@ async function callProxy(contract, method, from, args) {
   return res
 }
 
+let accountAddress = ''
 async function Connect() {
   running()
   const accounts = await window.ethereum.request({
@@ -1992,7 +2156,7 @@ async function Connect() {
 
   var account = document.getElementById('account')
   const accountsAddr = await web3.eth.requestAccounts()
-  const accountAddress = accountsAddr[0]
+  accountAddress = accountsAddr[0]
   account.innerHTML = '钱包: ' + accountAddress + ` (${CHAIN_NAME})`
   if (CHAIN_ID === 4) {
     account.innerHTML +=
@@ -2058,7 +2222,7 @@ async function Connect() {
     const voteRatio = ` (${(
       Number(100 * getVotes) / Number(totalSupply)
     ).toFixed(2)} %)`
-    tokens.innerHTML += `<p style=\"font-size: 12px;\">我的投票权: ${getVotes} $${symbol}${voteRatio} ${extra}</p>`
+    tokens.innerHTML += `<p style="font-size: 12px;">我的投票权: ${getVotes} $${symbol}${voteRatio} ${extra}</p>`
 
     if (noDelegates) {
       tokens.innerHTML +=
@@ -2079,6 +2243,7 @@ async function startViewProposals() {
   proposalOffset = 0
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('createGovernorProposalForm').hidden = true
@@ -2091,9 +2256,26 @@ async function startViewProposals() {
   done()
 }
 
+function startCreateBudgetProposal() {
+  running()
+  cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = false
+  document.getElementById('createProposalForm').hidden = true
+  document.getElementById('createBatchMintProposalForm').hidden = true
+  document.getElementById('createGovernorProposalForm').hidden = true
+  document.getElementById('viewProposalsBlock').hidden = true
+  document.getElementById('governParametersBlock').hidden = true
+  document.getElementById('setDelegatesBlock').hidden = true
+  document.getElementById('viewHoldersBlock').hidden = true
+  document.getElementById('checkProposalBlock').hidden = true
+  initCreateBudgetProposal(true)
+  done()
+}
+
 function startCreateProposal() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = false
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('createGovernorProposalForm').hidden = true
@@ -2109,6 +2291,7 @@ function startCreateProposal() {
 function startCreateBatchMintProposal() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = false
   document.getElementById('createGovernorProposalForm').hidden = true
@@ -2124,6 +2307,7 @@ function startCreateBatchMintProposal() {
 function startGovernorProposal() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('createGovernorProposalForm').hidden = false
@@ -2430,6 +2614,7 @@ async function initViewHolders(cleanup) {
 async function startViewHolders() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('createGovernorProposalForm').hidden = true
@@ -2444,6 +2629,7 @@ async function startViewHolders() {
 async function startCheckProposal() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('createGovernorProposalForm').hidden = true
@@ -2458,6 +2644,7 @@ async function startCheckProposal() {
 async function startSetDelegates() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('createGovernorProposalForm').hidden = true
@@ -2518,6 +2705,7 @@ async function startSetDelegates() {
 async function startGovernParameters() {
   running()
   cleanLog()
+  document.getElementById('createBudgetProposalForm').hidden = true
   document.getElementById('createProposalForm').hidden = true
   document.getElementById('createBatchMintProposalForm').hidden = true
   document.getElementById('viewProposalsBlock').hidden = true
@@ -2538,6 +2726,7 @@ function createNoDelegatesGovButtons() {
 
 function createGovButtons() {
   running()
+  const createBudgetProposal = document.getElementById('createBudgetProposal')
   const createProposal = document.getElementById('createProposal')
   const createBatchMintProposal = document.getElementById(
     'createBatchMintProposal'
@@ -2548,6 +2737,7 @@ function createGovButtons() {
   const setDelegates = document.getElementById('setDelegates')
   const viewHolders = document.getElementById('viewHolders')
   const checkProposal = document.getElementById('checkProposal')
+  createBudgetProposal.hidden = false
   createProposal.hidden = false
   createBatchMintProposal.hidden = false
   createGovernorProposal.hidden = false
