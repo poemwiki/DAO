@@ -5,19 +5,19 @@ var web3
 var TYPEING_ID
 const ETHERSCAN_URL = 'https://goerli.etherscan.io/' // Polygon: https://polygonscan.com/, Rinkeby: https://rinkeby.etherscan.io/
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-const CHAIN_NAME = 'Goerli' // Polygon, Rinkeby
+const CHAIN_NAME = 'Goerli' // Polygon Mainnet, Rinkeby
 const CHAIN_ID = 5 // Polygon: 137, Rinkeby: 4, Goerli: 5
-const NATIVE_CURRENCY = 'RIN' // Polygon: MATIC, Rinkeby: RIN
-const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://polygon-rpc.com/'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
+const NATIVE_CURRENCY = 'GETH' // Polygon: MATIC, Rinkeby: RIN
+const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
 
 // production env addresses
-const TOKEN_ADDRESS='0xC10B6CB9F4276D13F0D67FdbF719B15a75b8C5D6'
-const GOVERNOR_ADDRESS='0x027480d6B1948CA051EF2b25c139CEc2BCF3F89B'
+// const TOKEN_ADDRESS='0x023D7505B15f15e1D33b77C171F870fD5445F35A'
+// const GOVERNOR_ADDRESS='0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
 
-// const TOKEN_ADDRESS = '0xCf20d4559a168aaea8F6781ddFbDD67Ced8948F0'
+const TOKEN_ADDRESS = '0x7659f27043FA6b98FE91Ddd39CfAFa78613e1fAf'
 const TOKEN_SYMBOL = 'PWR'
 const TOKEN_DECIMALS = 18
-// const GOVERNOR_ADDRESS = '0xa1be8702A4dFC78251B5DDDD5B3A52AfA536b9fb'
+const GOVERNOR_ADDRESS = '0x55d9A177EabD0F7024Bce9DaFED16549B8690e6e'
 const SERVER_URL = window.location.origin
 const GOVERNOR_TYPE = 'NoTLGovernor'
 
@@ -73,7 +73,7 @@ async function switchNetworkCheck() {
     } catch (err) {
       // This error code indicates that the chain has not been added to MetaMask
       if (err.code === 4902) {
-        await web3.request({
+        await window.ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [
             {
@@ -1736,7 +1736,7 @@ async function initViewProposals(cleanup) {
     done()
   } else {
     viewProposalsBlock.innerHTML +=
-            '<p>还没有任何提案，当创世提案的幸运儿！</p>'
+            '<p>还没有任何提案。</p>'
   }
 }
 
