@@ -9,10 +9,10 @@ cp .env.example .env
 // install dependencies
 yarn install
 
-// TODO database initialize
+// run dev server
+yarn run dev
 
-// run server
+
+// run production server using pm2
 pm2 start 'yarn run start' --name=govzero
 ```
-
-
