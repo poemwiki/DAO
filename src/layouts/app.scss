@@ -31,7 +31,7 @@
   
   nav>ul>li{
     display: inline-block;
-    margin: 0 1em;
+    margin: .2em 1em;
     a{
       // color: #000000;
       text-decoration: none;
@@ -49,6 +49,7 @@
 }
 
 .main {
+  padding         : 15px 2vw;
   min-height: calc(100vh - 100px);
 }
 

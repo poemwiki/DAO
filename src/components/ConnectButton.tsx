@@ -20,9 +20,9 @@ export default function ConnectWallet() {
 
   async function login() {
     let connected = await autoConnect()
-    console.log('connected', connected)
     if (!connected.length) connected = await connect()
     if (!connected.length) return
+
     const chain = chains[0]
     await setChain({ chainId: chain.id })
   }
@@ -32,7 +32,6 @@ export default function ConnectWallet() {
       window.localStorage.getItem('connectedWallets') || '[]'
     )
     if (previouslyConnectedWallets.length) {
-      console.log('previouslyConnectedWallets', previouslyConnectedWallets)
       return await connect({
         autoSelect: {
           label: previouslyConnectedWallets[0],
@@ -42,8 +41,6 @@ export default function ConnectWallet() {
     }
     return previouslyConnectedWallets
   }
-
-  console.log({ wallet, connecting })
 
   // auto connect wallet on load
   useEffect(() => {
@@ -83,7 +80,7 @@ export default function ConnectWallet() {
   }
 
   return (
-    <Button sx={{ width: '160px' }}
+    <Button sx={{ width: '230px' }}
       size='lg'
       variant="outline"
       leftIcon={<SlWallet />}
