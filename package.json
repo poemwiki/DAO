@@ -18,21 +18,24 @@
   },
   "homepage": "https://github.com/fatfingererr/govzero#readme",
   "dependencies": {
+    "@apollo/client": "^3.7.1",
     "@chakra-ui/react": "^2.3.6",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
+    "@unipasswallet/web3-onboard": "^1.1.0",
     "@vanilla-extract/css": "^1.9.1",
-    "@web3-onboard/core": "^2.10.0",
+    "@web3-onboard/core": "^2.16.0",
     "@web3-onboard/injected-wallets": "^2.2.4",
     "@web3-onboard/react": "^2.4.0",
-    "@web3-onboard/web3auth": "^2.1.3",
     "@web3uikit/core": "^0.2.4",
     "@web3uikit/icons": "^0.2.4",
     "framer-motion": "^7.6.2",
+    "graphql": "^16.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
-    "react-router-dom": "^6.4.2"
+    "react-router-dom": "^6.4.2",
+    "wagmi": "^0.8.1"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
@@ -60,6 +63,6 @@
     "vite": "^3.1.0"
   },
   "engines": {
-    "node": "^16"
+    "node": "^18"
   }
 }

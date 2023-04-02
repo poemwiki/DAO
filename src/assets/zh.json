@@ -5,7 +5,7 @@
       "sidebar": {
         "heading": "👋欢迎",
         "subheading": "连接到您的钱包",
-        "paragraph": "连接钱包类似于 Web3 的“登录”。请在右边选择一个钱包连接。如果您还没有钱包，可以选择 Web3Auth 用您熟悉的 Web2 账号登录。"
+        "paragraph": "连接钱包类似于 Web3 的“登录”。请在右边选择一个钱包连接。如果您还没有钱包，可以选择 Unipass 用您熟悉的 Web2 账号登录。"
       },
       "recommendedWalletsPart1": "{app} only supports",
       "recommendedWalletsPart2": "on this platform. Please use or install one of the supported wallets to continue",

@@ -33,28 +33,53 @@ const theme = extendTheme({
   }
 })
 
+const alchemyKey = import.meta.env.VITE_ALCHEMY_KEY
+
+// wagmi init
+import { configureChains, createClient, chain, allChains, WagmiConfig } from 'wagmi'
+import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { publicProvider } from 'wagmi/providers/public'
+import { InjectedConnector } from 'wagmi/connectors/injected'
+
+const configChains = allChains.filter(chain => chain.id === parseInt(import.meta.env.VITE_CHAIN_ID, 16))
+console.log(configChains)
+const { chains, provider, webSocketProvider } = configureChains(configChains, [
+  alchemyProvider({ apiKey: alchemyKey }),
+  publicProvider(),
+])
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  provider,
+  webSocketProvider,
+})
+
+
+// onboard init
 import { Web3OnboardProvider, init } from '@web3-onboard/react'
 import injectedModule from '@web3-onboard/injected-wallets'
-import web3authModule from '@web3-onboard/web3auth'
-import { InitOptions } from '@web3-onboard/core'
+import { AppMetadata } from '@web3-onboard/common'
+import unipassModule from '@unipasswallet/web3-onboard'
 
-const web3auth = web3authModule({
-  clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID,
-  modalConfig: {
+// initialize the module with options
+const unipass = unipassModule({
+  chainId: Number.parseInt(import.meta.env.VITE_CHAIN_ID),
+  returnEmail: true,
+  appSettings: {
+    appName: 'web3-onboard test for unipass',
+    appIcon: 'https://p-1254719278.cos.ap-hongkong.myqcloud.com/img/common/poemwiki-3x.png',
+    // theme: UniPassTheme.DARK
   },
-  uiConfig: {
-    appLogo: logo,
-    theme: 'light',
-  }
 })
-const wallets = [injectedModule(), web3auth]
 
-const alchemyId = import.meta.env.VITE_ALCHEMY_KEY
-const allChains = [{
+
+const wallets = [injectedModule(), unipass]
+
+const defaultChains = [{
   id: '0x5',
   token: 'goerliETH',
   label: 'Goerli Testnet',
-  rpcUrl: `https://eth-goerli.g.alchemy.com/v2/${alchemyId}`
+  rpcUrl: `https://eth-goerli.g.alchemy.com/v2/${alchemyKey}`
 },
 {
   id: '0x89',
@@ -62,10 +87,10 @@ const allChains = [{
   label: 'Matic Mainnet',
   rpcUrl: 'https://matic-mainnet.chainstacklabs.com'
 }]
-console.log(import.meta.env.NODE_ENV)
-const chains = allChains.filter(chain => chain.id === import.meta.env.VITE_CHAIN_ID)
+console.log('NODE_ENV', import.meta.env.NODE_ENV)
+const onboardChains = defaultChains.filter(chain => chain.id === import.meta.env.VITE_CHAIN_ID)
 
-const appMetadata: InitOptions['appMetadata'] = {
+const appMetadata: AppMetadata = {
   name: 'PoemWiki',
   icon: logo,
   logo: logo,
@@ -77,7 +102,7 @@ const appMetadata: InitOptions['appMetadata'] = {
 
 const web3Onboard = init({
   wallets,
-  chains,
+  chains: onboardChains,
   appMetadata,
   accountCenter: {
     desktop: {
@@ -97,21 +122,32 @@ const web3Onboard = init({
 
 const walletsSub = web3Onboard.state.select('wallets')
 const { unsubscribe } = walletsSub.subscribe(wallets => {
-  console.log('wallets sub:', wallets)
   const connectedWallets = wallets.map(({ label }) => label)
+  console.log('wallets sub:', connectedWallets)
   window.localStorage.setItem(
     'connectedWallets',
     JSON.stringify(connectedWallets)
   )
 })
 
+
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
+const apolloClient = new ApolloClient({
+  uri: import.meta.env.VITE_SUBGRAPH_ENDPOINT,
+  cache: new InMemoryCache(),
+})
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ChakraProvider theme={theme}>
-      <Web3OnboardProvider web3Onboard={web3Onboard}>
-        <App />
-      </Web3OnboardProvider>
-    </ChakraProvider>
+    <ApolloProvider client={apolloClient}>
+      <ChakraProvider theme={theme}>
+        <WagmiConfig client={wagmiClient}>
+          <Web3OnboardProvider web3Onboard={web3Onboard}>
+            <App />
+          </Web3OnboardProvider>
+        </WagmiConfig>
+      </ChakraProvider>
+    </ApolloProvider>
   </React.StrictMode>
 )
 
@@ -119,7 +155,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 //   window.localStorage.getItem('connectedWallets') || '[]'
 // )
 // if (previouslyConnectedWallets.length) {
-//   console.log('previouslyConnectedWallets:', previouslyConnectedWallets)
 //   await web3Onboard.connectWallet({
 //     autoSelect: {
 //       label: previouslyConnectedWallets[0],
