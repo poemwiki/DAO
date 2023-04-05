@@ -3,18 +3,18 @@ var proposalOffset = 0
 var uploadBatchMintData = []
 var web3
 var TYPEING_ID
-const ETHERSCAN_URL = 'https://goerli.etherscan.io/' // Polygon: https://polygonscan.com/, Rinkeby: https://rinkeby.etherscan.io/
+const ETHERSCAN_URL = 'https://polygonscan.com/' // Rinkeby: https://rinkeby.etherscan.io/
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-const CHAIN_NAME = 'Goerli' // Polygon Mainnet, Rinkeby
-const CHAIN_ID = 5 // Polygon: 137, Rinkeby: 4, Goerli: 5
-const NATIVE_CURRENCY = 'GETH' // Polygon: MATIC, Rinkeby: RIN
-const RPC_URLS = ['https://rpc.ankr.com/eth_goerli'] // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
+const CHAIN_NAME = 'Polygon Mainnet' // Polygon Mainnet, Rinkeby
+const CHAIN_ID = 137 // Polygon: 137, Rinkeby: 4, Goerli: 5
+const NATIVE_CURRENCY = 'MATIC' // Polygon: MATIC, Rinkeby: RIN
+const RPC_URLS = ['https://rpc-mainnet.matic.quiknode.pro'] // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
 
 // production env addresses
-// const TOKEN_ADDRESS='0x023D7505B15f15e1D33b77C171F870fD5445F35A'
-// const GOVERNOR_ADDRESS='0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
+const TOKEN_ADDRESS='0x023D7505B15f15e1D33b77C171F870fD5445F35A'
+const GOVERNOR_ADDRESS='0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
 
-const TOKEN_ADDRESS = '0x7659f27043FA6b98FE91Ddd39CfAFa78613e1fAf'
+// const TOKEN_ADDRESS = '0x7659f27043FA6b98FE91Ddd39CfAFa78613e1fAf'
 const TOKEN_SYMBOL = 'PWR'
 const TOKEN_DECIMALS = 18
 const GOVERNOR_ADDRESS = '0x55d9A177EabD0F7024Bce9DaFED16549B8690e6e'
