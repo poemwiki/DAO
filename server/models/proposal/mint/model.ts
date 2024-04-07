@@ -53,7 +53,7 @@ function createBatchMintProposal(
           serialId = pmax.serialId + 1
         }
         new MintProposal({
-          type: 'batchmint',
+          type: 'batchMint',
           proposalId,
           serialId,
           proposer,

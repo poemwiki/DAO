@@ -161,7 +161,7 @@ app.post('/api/proposal/mint/create', async (req, res) => {
   }
 })
 
-app.post('/api/proposal/batchmint/create', async (req, res) => {
+app.post('/api/proposal/batchMint/create', async (req, res) => {
   const errors: string[] = []
   //const data = JSON.parse(Object.keys(req.body)[0])
   const {

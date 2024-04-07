@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import dotenv from 'dotenv'
+dotenv.config()
 
 // DDAO
 // mongodb+srv://<user></user>:<password>@ddao.n7b87r2.mongodb.net/?retryWrites=true&w=majority
@@ -25,5 +27,7 @@ export default async function connect() {
     console.log('MongoDB connection established')
   })
   await mongoose.connect(connectionStr)
+
+  return db
 }
 
