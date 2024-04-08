@@ -6,6 +6,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "tsc && cp -r src/statics dist/statics",
+    "vercel-build": "echo hello",
     "pre-prod": "rimraf dist && yarn run build",
     "prepare": "yarn run build",
     "start": "nodemon src/server/index.ts prod",
