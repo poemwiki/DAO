@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "tsc",
+    "build": "tsc && cp -r src/statics dist/statics",
     "pre-prod": "rimraf dist && yarn run build",
     "prepare": "yarn run build",
     "start": "nodemon src/server/index.ts prod",
