@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "tsc && cp -r src/statics dist/statics",
+    "build": "tsc",
     "vercel-build": "echo hello",
     "pre-prod": "rimraf dist && yarn run build",
     "prepare": "yarn run build",
