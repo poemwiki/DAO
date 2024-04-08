@@ -1,11 +1,4 @@
 {
-  "version": 2,
   "devCommand": "yarn run dev",
-  "builds": [
-    {
-      "src": "src/server/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
   "rewrites": [{ "source": "/(.*)", "destination": "src/server/index.ts" }]
 }
