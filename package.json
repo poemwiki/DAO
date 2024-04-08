@@ -4,8 +4,11 @@
   "description": "I hate almost all web3 projects have a fancy frontend design.",
   "main": "dist/server.js",
   "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "pre-prod": "rimraf dist && yarn run build",
+    "prepare": "yarn run build",
     "start": "nodemon server/index.ts prod",
-    "build": "rimraf dist && tsc",
     "dev": "nodemon --watch ./ --exec ts-node server/index.ts dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
