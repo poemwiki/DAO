@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "devCommand": "yarn run dev",
+  "builds": [
+    {
+      "src": "server/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server/index.js"
+    }
+  ]
+}

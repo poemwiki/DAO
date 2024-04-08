@@ -198,12 +198,12 @@ const updateProposals = async () => {
 
 const runMain = async () => {
   try {
-    const db = await connect()
+    // const db = await connect()
 
     // await restoreProposals()
-    await updateProposals()
+    // await updateProposals()
 
-    return db.close()
+    // return db.close()
     
   } catch (error) {
     console.log(error)

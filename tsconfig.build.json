@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "server/restoreDB.ts",
+    "**/__tests__/*"
+  ]
+}
