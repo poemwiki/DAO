@@ -4,7 +4,7 @@
   "description": "I hate almost all web3 projects have a fancy frontend design.",
   "main": "dist/server.js",
   "scripts": {
-    "prebuild": "rimraf dist && cp src/statics dist/statics",
+    "prebuild": "rimraf dist",
     "build": "tsc",
     "pre-prod": "rimraf dist && yarn run build",
     "prepare": "yarn run build",
