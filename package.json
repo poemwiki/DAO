@@ -4,12 +4,12 @@
   "description": "I hate almost all web3 projects have a fancy frontend design.",
   "main": "dist/server.js",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist && cp src/statics dist/statics",
     "build": "tsc",
     "pre-prod": "rimraf dist && yarn run build",
     "prepare": "yarn run build",
-    "start": "nodemon server/index.ts prod",
-    "dev": "nodemon --watch ./ --exec ts-node server/index.ts dev",
+    "start": "nodemon src/server/index.ts prod",
+    "dev": "nodemon --watch ./ --exec ts-node src/server/index.ts dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

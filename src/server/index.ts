@@ -15,6 +15,7 @@ import holderModel from './models/holder/model'
 const port = process.env.PORT || 3000
 
 app.set('view engine', 'ejs')
+app.set('views', 'src/server/views')
 
 app.use(express.static(path.join(__dirname, '../statics')))
 
@@ -265,3 +266,5 @@ app.post('/api/proposal/batchMint/create', async (req, res) => {
 app.listen(port, function () {
   console.log(`Example app listening on: ${serverUrl}`)
 })
+
+export default app

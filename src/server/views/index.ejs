@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>
+    <%=daoname%>
+  </title>
+  <link rel="icon" type="image/png" href="favicon.ico" />
+  <link rel="stylesheet" href="//cdn.staticfile.org/hack-font/3.3.0/web/hack.min.css" />
+  <style>
+    body {
+      font-family: Hack;
+    }
+
+    #createBudgetProposalDescription,
+    #createProposalDescription,
+    #createBatchMintProposalDescription {
+      vertical-align: text-top;
+    }
+
+    #createBudgetProposalAddress {
+      border: none;
+      background: none;
+      width: 100%;
+      color: #fff;
+    }
+
+    a {
+      color: #808080
+    }
+  </style>
+</head>
+
+<body bgcolor="#000000" text="#1BFF69">
+  <h1>
+    <a style="text-decoration: none; color: #1bff69" href=".">
+      <%=daoname%>
+    </a>
+  </h1>
+  <input id="connectWallet" type="button" value="链结钱包" onclick="Connect()" />
+  <!-- | <input id="transfer"  type="button" value="Action2" onclick="Transfer()"> -->
+  <h4 id="account"></h4>
+  <h3 id="tokens"></h3>
+  <span>
+    <button id="setDelegates" type="button" onclick="startSetDelegates()" hidden>
+      投票代理人变更</button>&nbsp;&nbsp;
+    <button id="createBudgetProposal" type="button" onclick="startCreateBudgetProposal()" hidden>
+      提案: 申请预算</button>&nbsp;
+    <button id="createProposal" type="button" onclick="startCreateProposal()" hidden>
+      提案: 发放积分</button>&nbsp;
+    <button id="createBatchMintProposal" type="button" onclick="startCreateBatchMintProposal()" hidden>
+      提案: 批量发放积分</button>&nbsp;
+    <button id="createGovernorProposal" type="button" onclick="startGovernorProposal()" hidden>
+      提案: 变更治理参数</button>&nbsp;
+    <button id="viewProposals" type="button" onclick="startViewProposals()" hidden>
+      提案一览</button>&nbsp;
+    <button id="governParameters" type="button" onclick="startGovernParameters()" hidden>
+      治理参数</button>&nbsp;
+  </span><button id="checkProposal" type="button" onclick="startCheckProposal()" hidden>
+    提案查询</button>&nbsp;&nbsp;<button id="viewHolders" type="button" onclick="startViewHolders()" hidden>
+    持有者列表</button>&nbsp;&nbsp;</span><br /><br />
+
+  <form id="createBudgetProposalForm" hidden>
+    <h3>提案申请预算</h3>
+    <p>提案通过后，申请地址 将获得治理合约内 申请数量 积分的支配权。</p>
+    <span>申请地址<font color="red"><small>*</small></font>&nbsp;<input id="createBudgetProposalAddress" type="text" /></span><br /><br />
+    <span>申请数量<font color="red"><small>*</small></font>&nbsp;<input id="createBudgetProposalAmount" type="text" /></span><br />
+    <br />
+    <span>提案描述&nbsp;<textarea id="createBudgetProposalDescription" rows="5"></textarea></span><br /><br />
+    <button id="createBudgetProposalFormSummit" type="button" onclick="runCreateBudgetProposal()">
+      提案上链
+    </button>
+  </form>
+
+  <form id="createProposalForm" hidden>
+    <h3>提案发放积分</h3>
+    <span>发放地址<font color="red"><small>*</small></font>&nbsp;<input id="createProposalAddress" type="text" /></span><br /><br />
+    <span>发放数量<font color="red"><small>*</small></font>&nbsp;<input id="createProposalAmount" type="text" /></span><br />
+    <br />
+    <span>提案描述&nbsp;<textarea id="createProposalDescription" rows="5"></textarea></span><br /><br />
+    <button id="createProposalFormSummit" type="button" onclick="runCreateProposal()">
+      提案上链
+    </button>
+  </form>
+
+  <form id="createBatchMintProposalForm" hidden>
+    <h3>提案批量发放积分</h3>
+    <span>提案描述&nbsp;<textarea id="createBatchMintProposalDescription" rows="5"></textarea></span><br /><br />
+    <div id="csvpreview"></div>
+    <br />
+    <span id="csvfileupload">CSV 档案<font color="red"><small>*</small></font>&nbsp;
+      <input type="file" id="createBatchMintProposalFile" name="createBatchMintProposalFile" onchange="uploadBatchMintFile()" /></span><br />
+    <br />
+    <button id="createBatchMintProposalFormSummit" type="button" onclick="runCreateBatchMintProposal()">
+      提案上链
+    </button>
+  </form>
+
+  <form id="createGovernorProposalForm" hidden>
+    <h3>提案变更治理参数</h3>
+    <span>治理参数<font color="red"><small>*</small></font>&nbsp;
+      <select name="governorFunction" id="governorFunction">
+        <option value="setProposalThreshold">提案门槛（需要持有多少积分才能发起提案）</option>
+        <option value="setVotingDelay">投票延迟（提案上链后经过多少区块开始投票）</option>
+        <option value="setVotingPeriod">投票时长（开始投票后经过多少区块结束）</option>
+        <option value="updateQuorumNumerator">总投票有效门槛（代币持有百分比）</option>
+      </select>
+    </span><br /><br />
+    <span>变更为<font color="red"><small>*</small></font>&nbsp;<input type="number" step="1" id="governorFunctionParam" type="text" value="0" /></span><br />
+    <br />
+    <span>提案描述&nbsp;<textarea id="createGovernorProposalDescription" rows="5"></textarea></span><br /><br />
+    <button id="createGovernorProposalFormSummit" type="button" onclick="runCreateGovernorProposal()">
+      提案上链
+    </button>
+  </form>
+
+  <small id="log"></small>
+  <div id="viewProposalsBlock" hidden></div>
+  <div id="governParametersBlock" hidden></div>
+  <div id="setDelegatesBlock" hidden></div>
+  <div id="viewHoldersBlock" hidden></div>
+  <div id="checkProposalBlock" hidden></div>
+  <span>
+    <font id="typing"></font>
+  </span>
+  <br /><br /><br /><br /><br /><br /><br /><br />
+  <h5 style="color: #808080">
+    Powered by
+    <a href="https://github.com/fatfingererr/govzero">Govzero</a>
+    <button onclick="addToken2Wallet()">导入 $PWR 代币到钱包</button>
+    <a href="/intro.html" target="_blank">教程</a>
+  </h5>
+</body>
+<script src="//cdn.staticfile.org/web3/1.9.0/web3.min.js"></script>
+<script src="js/abi/erc20.js"></script>
+<script src="js/abi/transfer.js"></script>
+<script src="js/abi/governor.js"></script>
+<script src="js/abi/token.js"></script>
+<script src="js/utils/governor.js"></script>
+<script src="js/index.js"></script>
+
+</html>
