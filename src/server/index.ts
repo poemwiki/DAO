@@ -36,6 +36,13 @@ app.get('/', function (req, res) {
   })
 })
 
+app.get('/api/hello', function (req, res) {
+  res.json({
+    message: 'success',
+    data: 'hello world'
+  }) 
+})
+
 app.post('/api/holder/update', (req, res) => {
   holderModel
     .updateHolder(req.body)
