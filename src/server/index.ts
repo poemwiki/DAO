@@ -23,15 +23,9 @@ const mode = process.argv[2]
 let serverUrl = `http://localhost:${port}`
 if (mode === 'prod') serverUrl = process.env.SERVER_URL ? process.env.SERVER_URL : serverUrl
 
-// app.get('/', function (req, res) {
-//   res.render('index', {
-//     daoname: process.env.DAO_NAME,
-//     serverUrl,
-//     token: process.env.TOKEN_ADDRESS,
-//     governor: process.env.GOVERNOR_ADDRESS,
-//     governorType: process.env.GOVERNOR_TYPE
-//   })
-// })
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, '../../public/index.html'))
+})
 
 app.get('/api/hello', function (req, res) {
   res.json({
