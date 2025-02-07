@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useConnectWallet, useSetChain } from '@web3-onboard/react'
 import { Account } from '@web3-onboard/core/dist/types'
-import { ethers } from 'ethers'
-import { Box, Button, IconButton } from '@chakra-ui/react'
 import { SlWallet } from 'react-icons/sl'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function ConnectWallet() {
-  const [{ wallet, connecting }, connect, disconnect, updateBalances, setWalletModules, setPrimaryWallet] = useConnectWallet()
-  const [
-    {
-      chains, // the list of chains that web3-onboard was initialized with
-      connectedChain, // the current chain the user's wallet is connected to
-      settingChain // boolean indicating if the chain is in the process of being set
-    },
-    setChain // function to call to initiate user to switch chains in their wallet
-  ] = useSetChain()
-  const [ethersProvider, setProvider] = useState<ethers.providers.Web3Provider | null>(null)
+  const { t } = useTranslation()
+  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet()
+  const [{ chains }, setChain] = useSetChain()
   const [account, setAccount] = useState<Account | null>(null)
 
   async function login() {
@@ -35,60 +34,76 @@ export default function ConnectWallet() {
       return await connect({
         autoSelect: {
           label: previouslyConnectedWallets[0],
-          disableModals: true
+          disableModals: true,
         },
       })
     }
     return previouslyConnectedWallets
   }
 
-  // auto connect wallet on load
-  useEffect(() => {
-    autoConnect()
-  }, [])
+  async function handleDisconnect() {
+    if (wallet) {
+      await disconnect(wallet)
+      window.localStorage.removeItem('connectedWallets')
+      setAccount(null)
+    }
+  }
 
+  useEffect(() => {
+    const init = async () => {
+      const connected = await autoConnect()
+      if (connected.length) {
+        const chain = chains[0]
+        await setChain({ chainId: chain.id })
+      }
+    }
+    init()
+  }, [])
 
   useEffect(() => {
     if (wallet && wallet?.provider) {
-      // const { name, avatar } = wallet.accounts[0].ens ?? {}
-      const address = wallet?.accounts[0].address
+      const walletAccount = wallet?.accounts[0]
       setAccount({
-        address: address,
-        balance: wallet.accounts[0].balance,
-        ens: wallet.accounts[0].ens
+        address: walletAccount.address,
+        balance: walletAccount.balance,
+        ens: walletAccount.ens,
+        uns: null,
       })
+      // 保存连接的钱包信息到 localStorage
+      window.localStorage.setItem('connectedWallets', JSON.stringify([wallet.label]))
     }
   }, [wallet])
 
-  useEffect(() => {
-    // If the wallet has a provider than the wallet is connected
-    if (wallet?.provider) {
-      setProvider(new ethers.providers.Web3Provider(wallet.provider, 'any'))
-    }
-  }, [wallet])
+  function formatAddress(address: string) {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
 
   if (wallet?.provider && account) {
     return (
-      <div>
-        <Box id='account-center' sx={{ width: '60px' }}></Box>
-        {/* <img src={account.ens?.avatar?.url} alt="ENS Avatar" />
-        <div>{account.ens?.name ? account.ens.name : account.address}</div>
-        <div>Connected to {wallet.label}</div>
-        <Button onClick={() => disconnect({ label: wallet.label })}>Disconnect</Button> */}
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm" className="w-[160px]">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-sm font-medium">
+                {account.ens?.name || formatAddress(account.address)}
+              </span>
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleDisconnect}>
+            {t('accountCenter.disconnectWallet')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     )
   }
 
   return (
-    <Button sx={{ width: '230px' }}
-      size='lg'
-      variant="outline"
-      leftIcon={<SlWallet />}
-      aria-label="连接钱包"
-      disabled={connecting}
-      onClick={login}
-    >
-      连接钱包
+    <Button variant="outline" size="lg" className="w-[230px]" disabled={connecting} onClick={login}>
+      <SlWallet className="mr-2 h-4 w-4" />
+      {t('accountCenter.connectWallet')}
     </Button>
   )
 }

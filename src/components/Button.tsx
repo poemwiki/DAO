@@ -4,7 +4,7 @@ const outline = defineStyle({
   borderRadius: 'xl',
   fontSize: 'xl',
   fontWeight: 'normal',
-  background: 'transparent'
+  background: 'transparent',
 })
 
 export const buttonTheme = defineStyleConfig({

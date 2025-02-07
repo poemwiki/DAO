@@ -5,21 +5,21 @@ function trasferAbi() {
       inputs: [
         {
           name: '_to',
-          type: 'address'
+          type: 'address',
         },
         {
           name: '_value',
-          type: 'uint256'
-        }
+          type: 'uint256',
+        },
       ],
       name: 'transfer',
       outputs: [
         {
           name: '',
-          type: 'bool'
-        }
+          type: 'bool',
+        },
       ],
-      type: 'function'
-    }
+      type: 'function',
+    },
   ]
 }

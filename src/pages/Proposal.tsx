@@ -1,197 +1,53 @@
-import React, { useState, useEffect } from 'react'
-import './pages.css'
-import { Tag, Widget, Tooltip, Form, Table } from '@web3uikit/core'
-import { Checkmark, ArrowCircleDown, ChevronLeft } from '@web3uikit/icons'
-import { Link } from 'react-router-dom'
-import { useLocation } from 'react-router'
+import React from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useQuery } from '@apollo/client'
+import { PROPOSAL_QUERY } from '@/graphql'
+import { ROUTES } from '@/constants'
 
-type Vote = { votesUp: string, votesDown: string }
-type Proposal = {
-  vote: Vote, votesDown: string, votesUp: string,
-  voter: string, votedFor: string,
-}
+export default function Proposal() {
+  const { id } = useParams()
+  const { loading, error, data } = useQuery(PROPOSAL_QUERY, {
+    variables: { id },
+  })
 
-const Proposal = () => {
-  const { state: proposalDetails } = useLocation()
-  const [latestVote, setLatestVote] = useState<Vote>()
-  const [percUp, setPercUp] = useState('0')
-  const [percDown, setPercDown] = useState('0')
-  const [votes, setVotes] = useState<any[]>([])
-  const [sub, setSub] = useState(false)
-  const isInitialized = false
-
-  useEffect(() => {
-    if (isInitialized) {
-
-      getVotes()
-
-    }
-
-    async function getVotes() {
-      // const query = new Moralis.Query(Votes)
-      // query.equalTo('proposal', proposalDetails.id)
-      // query.descending('createdAt')
-      const results: Array<{ attributes: Proposal }> = [] // await query.find()
-      if (results.length > 0) {
-        setLatestVote(results[0].attributes.vote)
-        setPercDown(
-          (
-            (Number(results[0].attributes.votesDown) /
-              (Number(results[0].attributes.votesDown) +
-                Number(results[0].attributes.votesUp))) *
-            100
-          ).toFixed(0)
-        )
-        setPercUp(
-          (
-            (Number(results[0].attributes.votesUp) /
-              (Number(results[0].attributes.votesDown) +
-                Number(results[0].attributes.votesUp))) *
-            100
-          ).toFixed(0)
-        )
-      }
-
-
-      const votesDirection = results.map((e) => [
-        e.attributes.voter,
-        e.attributes.votedFor
-          ? <Checkmark color="#2cc40a" height={24} />
-          : <ArrowCircleDown color="#d93d3d" height={24} />
-      ])
-
-      setVotes(votesDirection)
-
-    }
-  }, [isInitialized])
-
-
-
-  async function castVote(upDown: boolean) {
-
-    const options = {
-      contractAddress: '0xF304Ddf294d05c80995FB0702b40DfEA8E48582a',
-      functionName: 'voteOnProposal',
-      abi: [
-        {
-          inputs: [
-            {
-              internalType: 'uint256',
-              name: '_id',
-              type: 'uint256',
-            },
-            {
-              internalType: 'bool',
-              name: '_vote',
-              type: 'bool',
-            },
-          ],
-          name: 'voteOnProposal',
-          outputs: [],
-          stateMutability: 'nonpayable',
-          type: 'function',
-        },
-      ],
-      params: {
-        _id: proposalDetails.id,
-        _vote: upDown,
-      },
-    }
-
-
-  }
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+  if (!data?.proposal) return <div>Proposal not found</div>
 
   return (
-    <>
-      <div className="contentProposal">
-        <div className="proposal">
-          <Link to="/">
-            <div className="backHome">
-              <ChevronLeft fill="#ffffff" height={20} />
-              Overview
-            </div>
-          </Link>
-          <div>{proposalDetails.description}</div>
-          <div className="proposalOverview">
-            <Tag color={proposalDetails.color} text={proposalDetails.text} />
-            <div className="proposer">
-              <span>Proposed By </span>
-              <Tooltip content={proposalDetails.proposer} position={'top'}>
-                {/* <Blockie seed={proposalDetails.proposer} /> */}
-              </Tooltip>
-            </div>
-          </div>
-        </div>
-        {latestVote && (
-          <div className="widgets">
-            <Widget info={latestVote.votesUp} title="Votes For">
-              <div className="extraWidgetInfo">
-                <div className="extraTitle">{percUp}%</div>
-                <div className="progress">
-                  <div
-                    className="progressPercentage"
-                    style={{ width: `${percUp}%` }}
-                  ></div>
-                </div>
-              </div>
-            </Widget>
-            <Widget info={latestVote.votesDown} title="Votes Against">
-              <div className="extraWidgetInfo">
-                <div className="extraTitle">{percDown}%</div>
-                <div className="progress">
-                  <div
-                    className="progressPercentage"
-                    style={{ width: `${percDown}%` }}
-                  ></div>
-                </div>
-              </div>
-            </Widget>
-          </div>
-        )}
-        <div className="votesDiv">
-          <Table
-            columnsConfig="90% 10%"
-            data={votes}
-            header={[<span key={0}>Address</span>, <span key={1}>Vote</span>]}
-            pageSize={5}
-          />
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Link to={ROUTES.HOME} className="text-sm text-muted-foreground hover:text-primary">
+          ← Back to proposals
+        </Link>
+      </div>
 
-          <Form
-            id='vote'
-            isDisabled={proposalDetails.text !== 'Ongoing'}
-            buttonConfig={{
-              isLoading: sub,
-              loadingText: 'Casting Vote',
-              text: 'Vote',
-              theme: 'secondary',
-            }}
-            data={[
-              {
-                value: '',
-                inputWidth: '100%',
-                name: 'Cast Vote',
-                options: ['For', 'Against'],
-                type: 'radios',
-                validation: {
-                  required: true,
-                },
-              },
-            ]}
-            onSubmit={(e) => {
-              if (e.data[0].inputResult === 'For') {
-                castVote(true)
-              } else {
-                castVote(false)
-              }
-              setSub(true)
-            }}
-            title="Cast Vote"
-          />
+      <div>
+        <h1 className="text-3xl font-bold mb-6">{data.proposal.serialId}</h1>
+        <div className="space-y-6">
+          <div className="p-4 border rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">Description</h2>
+            <p className="text-muted-foreground">{data.proposal.description}</p>
+          </div>
+
+          <div className="p-4 border rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">Status</h2>
+            <p className="text-muted-foreground">{data.proposal.status}</p>
+          </div>
+
+          <div className="p-4 border rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">Timeline</h2>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Created: {new Date(data.proposal.createdAt).toLocaleString()}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Updated: {new Date(data.proposal.updatedAt).toLocaleString()}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="voting"></div>
-    </>
+    </div>
   )
 }
-
-export default Proposal

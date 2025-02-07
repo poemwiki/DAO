@@ -7,5 +7,5 @@ const outline = defineStyle({
 })
 
 export const iconButtonTheme = defineStyleConfig({
-  variants: { outline }
+  variants: { outline },
 })
