@@ -19,3 +19,5 @@ export const CHAIN_IDS = {
   MAINNET: '1',
   TESTNET: '5',
 } as const
+
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const

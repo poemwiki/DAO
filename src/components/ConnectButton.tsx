@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useConnectWallet, useSetChain } from '@web3-onboard/react'
-import { useAccount, useReadContract } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { Account } from '@web3-onboard/core/dist/types'
 import { SlWallet } from 'react-icons/sl'
 import { Button } from '@/components/ui/button'
@@ -12,12 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import DelegateModal from '@/components/DelegateModal'
-import { config } from '@/config'
-
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-
-// ABI for checking delegate
-const tokenABI = ['function delegates(address account) view returns (address)'] as const
+import { ZERO_ADDRESS } from '@/constants'
+import { useDelegate } from '@/hooks/useDelegate'
 
 export default function ConnectWallet() {
   const { t } = useTranslation()
@@ -28,28 +24,22 @@ export default function ConnectWallet() {
   const [showDelegateModal, setShowDelegateModal] = useState(false)
 
   // Check delegate status
-  const { data: _delegateAddress } = useReadContract({
-    address: config.contracts.token as `0x${string}`,
-    abi: tokenABI,
-    functionName: 'delegates',
-    args: address ? [address as `0x${string}`] : undefined,
-    query: { enabled: !!address },
-  })
+  const { delegateAddress, isLoading } = useDelegate(address)
 
   // Watch delegate status and show modal
   useEffect(() => {
-    console.log('Delegate check:', {
-      isConnected,
-      address,
-      delegateAddress: _delegateAddress,
-      isZeroAddress: _delegateAddress === ZERO_ADDRESS,
-    })
+    if (!isConnected || !address || isLoading) {
+      setShowDelegateModal(false)
+      return
+    }
 
-    if (isConnected && address && (!_delegateAddress || _delegateAddress === ZERO_ADDRESS)) {
+    if (!delegateAddress || delegateAddress === ZERO_ADDRESS) {
       console.log('Opening delegate modal')
       setShowDelegateModal(true)
+    } else {
+      setShowDelegateModal(false)
     }
-  }, [isConnected, address, _delegateAddress])
+  }, [isConnected, address, delegateAddress, isLoading])
 
   // Add debug log for modal state
   useEffect(() => {
@@ -137,7 +127,7 @@ export default function ConnectWallet() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <DelegateModal open={showDelegateModal} onOpenChange={setShowDelegateModal} />
+        <DelegateModal open={showDelegateModal} onClose={() => setShowDelegateModal(false)} />
       </>
     )
   }

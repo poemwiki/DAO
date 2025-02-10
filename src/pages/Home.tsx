@@ -14,7 +14,7 @@ export default function Home() {
       console.error('GraphQL error:', error)
     },
     onCompleted: data => {
-      console.log('GraphQL data:', data)
+      console.log('proposals:', data)
     },
   })
 
@@ -38,9 +38,6 @@ export default function Home() {
       </div>
     )
   }
-
-  // Add debug log
-  console.log('Rendering Home with data:', { config, data })
 
   return (
     <div className="space-y-8">
@@ -94,10 +91,10 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${proposal.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : proposal.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
+                      ? 'bg-green-100 text-green-800'
+                      : proposal.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
                       }`}
                   >
                     {proposal.status}
