@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import ConnectWallet from '@/components/ConnectButton'
+import LanguageSwitch from '@/components/LanguageSwitch'
 
 export default function AppLayout() {
   return (
@@ -13,7 +14,10 @@ export default function AppLayout() {
             </a>
           </div>
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-            <ConnectWallet />
+            <div className="flex items-center gap-4">
+              <LanguageSwitch />
+              <ConnectWallet />
+            </div>
           </div>
         </div>
       </header>

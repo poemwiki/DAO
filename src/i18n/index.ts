@@ -1,8 +1,8 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
-import zhJSON from '@/assets/zh.json'
-import enJSON from '@/assets/en.json'
+import zhJSON from './zh.json'
+import enJSON from './en.json'
 
 const resources = {
   zh: {
@@ -19,8 +19,13 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
+    lng: localStorage.getItem('i18nextLng') || 'en',
     interpolation: {
       escapeValue: false,
+    },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
     },
   })
 

@@ -8,6 +8,7 @@ import AppLayout from '@/layouts/app'
 // Pages
 import Home from '@/pages/Home'
 import Proposal from '@/pages/Proposal'
+import CreateProposal from '@/pages/CreateProposal'
 import NotFound from '@/pages/NotFound'
 
 export const AppRoutes: React.FC = () => {
@@ -16,6 +17,7 @@ export const AppRoutes: React.FC = () => {
       <Route path={ROUTES.HOME} element={<AppLayout />}>
         <Route index element={<Home />} />
         <Route path={ROUTES.PROPOSAL} element={<Proposal />} />
+        <Route path={ROUTES.CREATE_PROPOSAL} element={<CreateProposal />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

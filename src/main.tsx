@@ -6,8 +6,8 @@ import { ApolloClient, InMemoryCache, ApolloProvider, from, HttpLink } from '@ap
 import { onError } from '@apollo/client/link/error'
 import { web3Onboard } from './config/web3'
 import { config } from './config'
-import App from './App'
 import './i18n'
+import App from './App'
 import './index.css'
 
 // Log any GraphQL errors or network error that occurred

@@ -1,0 +1,44 @@
+{
+  "accountCenter": {
+    "connectWallet": "连接钱包",
+    "connectAnotherWallet": "连接其他钱包",
+    "disconnectAllWallets": "断开所有钱包",
+    "disconnectWallet": "断开",
+    "currentNetwork": "当前网络",
+    "appInfo": "应用信息",
+    "learnMore": "了解更多",
+    "gettingStartedGuide": "入门指南",
+    "smartContracts": "智能合约",
+    "explore": "探索",
+    "backToApp": "返回应用",
+    "poweredBy": "由",
+    "addAccount": "添加账户",
+    "setPrimaryAccount": "设置主账户",
+    "copyAddress": "复制地址"
+  },
+  "common": {
+    "cancel": "取消",
+    "submit": "提交",
+    "submitting": "提交中...",
+    "loading": "加载中...",
+    "backToHome": "返回首页"
+  },
+  "proposal": {
+    "create": "创建提案",
+    "createDescription": "创建一个提案供社区投票",
+    "connectWalletFirst": "请先连接钱包",
+    "type": "提案类型",
+    "types": {
+      "mint": "代币分发",
+      "budget": "预算请求"
+    },
+    "recipientAddress": "接收地址",
+    "requestAddress": "请求地址（你的地址）",
+    "amount": "数量",
+    "description": "描述",
+    "enterAddress": "输入钱包地址",
+    "enterAmount": "输入数量",
+    "enterDescription": "输入提案描述",
+    "submit": "创建提案"
+  }
+}

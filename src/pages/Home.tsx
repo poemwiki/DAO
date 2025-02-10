@@ -1,12 +1,13 @@
 import React from 'react'
 import { useQuery } from '@apollo/client'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { PROPOSALS_QUERY } from '@/graphql'
 import { ROUTES } from '@/constants'
 import { config } from '@/config'
 import type { Proposal } from '@/types'
 
 export default function Home() {
+  const navigate = useNavigate()
   const { loading, error, data } = useQuery<{ proposals: Proposal[] }>(PROPOSALS_QUERY, {
     onError: error => {
       console.error('GraphQL error:', error)
@@ -70,7 +71,10 @@ export default function Home() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Governance Proposals</h2>
-          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+          <button
+            onClick={() => navigate(ROUTES.CREATE_PROPOSAL)}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          >
             Create Proposal
           </button>
         </div>
@@ -89,10 +93,10 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${proposal.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : proposal.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
+                        ? 'bg-green-100 text-green-800'
+                        : proposal.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-gray-100 text-gray-800'
                       }`}
                   >
                     {proposal.status}

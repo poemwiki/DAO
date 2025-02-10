@@ -4,9 +4,15 @@ export const PROPOSAL_STATUS = {
   PENDING: 'pending',
 } as const
 
+export const PROPOSAL_TYPE = {
+  MINT: 'mint',
+  BUDGET: 'budget',
+} as const
+
 export const ROUTES = {
   HOME: '/',
   PROPOSAL: '/proposal/:id',
+  CREATE_PROPOSAL: '/proposals/create',
 } as const
 
 export const CHAIN_IDS = {

@@ -1,0 +1,44 @@
+{
+  "accountCenter": {
+    "connectWallet": "Connect Wallet",
+    "connectAnotherWallet": "Connect Another Wallet",
+    "disconnectAllWallets": "Disconnect All Wallets",
+    "disconnectWallet": "Disconnect",
+    "currentNetwork": "Current Network",
+    "appInfo": "App Info",
+    "learnMore": "Learn More",
+    "gettingStartedGuide": "Getting Started Guide",
+    "smartContracts": "Smart Contracts",
+    "explore": "Explore",
+    "backToApp": "Back to App",
+    "poweredBy": "powered by",
+    "addAccount": "Add Account",
+    "setPrimaryAccount": "Set Primary Account",
+    "copyAddress": "Copy Address"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "loading": "Loading...",
+    "backToHome": "Back to Home"
+  },
+  "proposal": {
+    "create": "Create Proposal",
+    "createDescription": "Create a new proposal for the community to vote on",
+    "connectWalletFirst": "Please connect your wallet first",
+    "type": "Proposal Type",
+    "types": {
+      "mint": "Token Distribution",
+      "budget": "Budget Request"
+    },
+    "recipientAddress": "Recipient Address",
+    "requestAddress": "Request Address (Your Address)",
+    "amount": "Amount",
+    "description": "Description",
+    "enterAddress": "Enter wallet address",
+    "enterAmount": "Enter amount",
+    "enterDescription": "Enter proposal description",
+    "submit": "Create Proposal"
+  }
+}
