@@ -6,9 +6,12 @@ import { ApolloClient, InMemoryCache, ApolloProvider, from, HttpLink } from '@ap
 import { onError } from '@apollo/client/link/error'
 import { web3Onboard } from './config/web3'
 import { config } from './config'
+import { wagmiConfig } from './config/wagmi'
 import './i18n'
 import App from './App'
 import './index.css'
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // Log any GraphQL errors or network error that occurred
 const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -36,12 +39,19 @@ console.log('App configuration:', {
   network: config.network,
 })
 
+// 创建 QueryClient 实例
+const queryClient = new QueryClient()
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
       <ApolloProvider client={apolloClient}>
         <Web3OnboardProvider web3Onboard={web3Onboard}>
-          <App />
+          <WagmiProvider config={wagmiConfig}>
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </WagmiProvider>
         </Web3OnboardProvider>
       </ApolloProvider>
     </BrowserRouter>

@@ -52,5 +52,12 @@
     "noData": "暂无数据",
     "totalHolders": "个持有人",
     "notSet": "未设置"
+  },
+  "delegate": {
+    "title": "设置投票代理人",
+    "description": "请选择一个地址作为您的投票代理人。代理人将代表您的积分进行投票。",
+    "selectPlaceholder": "选择代理人地址",
+    "self": "我自己",
+    "submit": "确认设置"
   }
 }

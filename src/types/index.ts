@@ -7,7 +7,12 @@ export interface Proposal {
   updatedAt: string
 }
 
-export interface User {
-  address: string
+export interface Member {
+  /** address */
+  id: string
   balance: string
+  /** the address that the member delegate to */
+  delegate: string
+  /** the balance that the member be delegated, including self delegate */
+  delegateBalance: string
 }

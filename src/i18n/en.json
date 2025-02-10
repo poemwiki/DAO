@@ -52,5 +52,12 @@
     "noData": "No data available",
     "totalHolders": "holders",
     "notSet": "Not Set"
+  },
+  "delegate": {
+    "title": "Set Voting Delegate",
+    "description": "Please choose an address as your voting delegate. The delegate will vote on your behalf with your balance.",
+    "selectPlaceholder": "Select delegate address",
+    "self": "Me",
+    "submit": "Confirm"
   }
 }

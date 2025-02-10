@@ -10,6 +10,10 @@ export const config = {
   network: {
     chainId: import.meta.env.VITE_CHAIN_ID || '1',
     name: import.meta.env.VITE_NETWORK_NAME || 'mainnet',
-    token: import.meta.env.VITE_NETWORK_TOKEN_NAME || '',
+    token: import.meta.env.VITE_NETWORK_TOKEN_NAME || 'ETH',
+  },
+  contracts: {
+    token: import.meta.env.VITE_TOKEN_ADDRESS || '',
+    governor: import.meta.env.VITE_GOVERNOR_ADDRESS || '',
   },
 }
