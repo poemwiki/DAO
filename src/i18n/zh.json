@@ -29,7 +29,7 @@
     "connectWalletFirst": "请先连接钱包",
     "type": "提案类型",
     "types": {
-      "mint": "代币分发",
+      "mint": "积分发放",
       "budget": "预算请求"
     },
     "recipientAddress": "接收地址",
@@ -40,5 +40,17 @@
     "enterAmount": "输入数量",
     "enterDescription": "输入提案描述",
     "submit": "创建提案"
+  },
+  "tokenHolders": {
+    "title": "积分持有人",
+    "holder": "持有人",
+    "delegate": "投票代理人",
+    "balance": "积分",
+    "votes": "投票权",
+    "holderAddress": "持有人地址",
+    "delegateAddress": "投票代理人地址",
+    "noData": "暂无数据",
+    "totalHolders": "个持有人",
+    "notSet": "未设置"
   }
 }

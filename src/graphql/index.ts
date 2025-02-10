@@ -24,6 +24,26 @@ export const PROPOSAL_QUERY = gql`
   }
 `
 
+export const TOKEN_HOLDERS_QUERY = gql`
+  query GetTokenHolders {
+    members(
+      first: 100, 
+      orderBy: balance, 
+      orderDirection: desc,
+      where: {
+        id_not: "0x0000000000000000000000000000000000000000",
+        balance_gt: "0"
+      }
+    ) {
+      id
+      balance
+      delegateBalance
+      delegate
+      updatedAt
+    }
+  }
+`
+
 export const getProposals = async (): Promise<Proposal[]> => {
   console.log('Fetching proposals from:', config.api.baseUrl)
   const response = await fetch(config.api.baseUrl, {

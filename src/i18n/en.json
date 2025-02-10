@@ -40,5 +40,17 @@
     "enterAmount": "Enter amount",
     "enterDescription": "Enter proposal description",
     "submit": "Create Proposal"
+  },
+  "tokenHolders": {
+    "title": "Token Holders",
+    "holder": "Holder",
+    "delegate": "Delegate",
+    "balance": "Balance",
+    "votes": "Votes",
+    "holderAddress": "Holder Address",
+    "delegateAddress": "Delegate Address",
+    "noData": "No data available",
+    "totalHolders": "holders",
+    "notSet": "Not Set"
   }
 }

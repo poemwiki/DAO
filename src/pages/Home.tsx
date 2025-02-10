@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { PROPOSALS_QUERY } from '@/graphql'
 import { ROUTES } from '@/constants'
 import { config } from '@/config'
+import TokenHoldersList from '@/components/TokenHoldersList'
 import type { Proposal } from '@/types'
 
 export default function Home() {
@@ -112,6 +113,9 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Token Holders List */}
+      <TokenHoldersList />
     </div>
   )
 }
