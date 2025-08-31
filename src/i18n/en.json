@@ -94,6 +94,8 @@
     "submit": "Confirm",
     "confirming": "Confirming...",
     "confirmed": "Confirmed ✓",
-    "viewTransaction": "View transaction on explorer"
+    "viewTransaction": "View transaction on explorer",
+    "setButton": "Set Delegate",
+    "changeButton": "Change Delegate"
   }
 }

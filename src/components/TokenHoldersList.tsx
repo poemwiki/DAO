@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next'
-import { formatAddress } from '@/utils/format'
+import { formatAddress, short } from '@/utils/format'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenHolders, type TokenHoldersResponseData } from '@/graphql'
 import type { Member } from '@/types'
 import { formatEther } from 'viem'
-
-
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+import { ZERO_ADDRESS } from '@/constants'
+import DelegateButton from './DelegateButton'
 
 export default function TokenHoldersList() {
   const { t } = useTranslation()
@@ -39,12 +38,15 @@ export default function TokenHoldersList() {
 
   return (
     <section className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">
-        {t('tokenHolders.title')}
-        <span className="ml-2 text-sm text-muted-foreground">
-          ({members.length} {t('tokenHolders.totalHolders')})
-        </span>
-      </h2>
+      <div className='flex items-center justify-between'>
+        <h2 className="text-2xl font-bold mb-4">
+          {t('tokenHolders.title')}
+          <span className="ml-2 text-sm text-muted-foreground">
+            ({members.length} {t('tokenHolders.totalHolders')})
+          </span>
+        </h2>
+        <DelegateButton />
+      </div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left">
           <thead className="text-xs pt-2 uppercase bg-muted/50">
@@ -64,7 +66,6 @@ export default function TokenHoldersList() {
               <th scope="col" className="px-6 py-3">
                 {t('tokenHolders.holderAddress')}
               </th>
-              <th scope="col" className="px-6 py-3">{t('tokenHolders.delegateAddress')}</th>
             </tr>
           </thead>
           <tbody>
@@ -108,8 +109,7 @@ function MemberRow({
       <td className="px-6 py-4">{formatDelegateAddress(member.delegate)}</td>
       <td className="px-6 py-4">{formatEther(BigInt(member.balance))}</td>
       <td className="px-6 py-4">{formatEther(BigInt(member.delegateBalance))}</td>
-      <td className="px-6 py-4">{member.id}</td>
-      <td className="px-6 py-4">{formatFullDelegateAddress(member.delegate)}</td>
+      <td className="px-6 py-4">{short(member.id)}</td>
     </tr>
   )
 }

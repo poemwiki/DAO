@@ -10,10 +10,18 @@ import { ROUTES } from '@/constants'
 import { config } from '@/config'
 import TokenHoldersList from '@/components/TokenHoldersList'
 import type { Proposal } from '@/types'
+import { Button } from '@/components/ui/button'
+import { FaPlus } from "react-icons/fa";
+import { useState } from 'react'
+import DelegateModal from '@/components/DelegateModal'
+import { useIsDelegated } from '@/hooks/useIsDelegated'
 
 export default function Home() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { isMember, isDelegated } = useIsDelegated()
+  const [delegateModalOpen, setDelegateModalOpen] = useState(false)
+  const [postDelegateNavigate, setPostDelegateNavigate] = useState<string | null>(null)
   const { isLoading, error, data } = useQuery<ProposalsResponseData>({
     queryKey: ['proposals'],
     queryFn: getProposals,
@@ -74,14 +82,20 @@ export default function Home() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">{t('home.governanceProposals')}</h2>
-          <button
-            onClick={() => navigate(ROUTES.CREATE_PROPOSAL)}
-            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          <Button
+            onClick={() => {
+              if (isMember && !isDelegated) {
+                setPostDelegateNavigate(ROUTES.CREATE_PROPOSAL)
+                setDelegateModalOpen(true)
+                return
+              }
+              navigate(ROUTES.CREATE_PROPOSAL)
+            }}
           >
-            {t('proposal.create')}
-          </button>
+            <FaPlus /> {t('proposal.create')}
+          </Button>
         </div>
-        <div className="grid gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {proposals.map((proposal: Proposal) => {
             const desc = proposal.description || ''
             const code = extractBracketCode(desc)
@@ -96,7 +110,7 @@ export default function Home() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1 flex-1 min-w-0">
                       <h3 className="text-lg font-semibold truncate">{code}</h3>
-                      <p className="text-muted-foreground line-clamp-2 break-words">{desc.replace(/^\[.*?\]\s*/, '')}</p>
+                      <p className="text-muted-foreground line-clamp-3 break-words">{desc.replace(/^\[.*?\]\s*/, '')}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
@@ -114,8 +128,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Token Holders List */}
+      {/* Token Holders List with Delegate button */}
       <TokenHoldersList />
+      {delegateModalOpen && (
+        <DelegateModal
+          open={delegateModalOpen}
+          onClose={() => {
+            setDelegateModalOpen(false)
+            setPostDelegateNavigate(null)
+          }}
+          onDelegated={() => {
+            const target = postDelegateNavigate
+            setDelegateModalOpen(false)
+            setPostDelegateNavigate(null)
+            if (target) navigate(target)
+          }}
+        />
+      )}
     </div>
   )
 }

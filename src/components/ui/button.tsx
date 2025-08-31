@@ -14,6 +14,7 @@ const buttonVariants = cva(
         outline:
           'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
         secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
+        soft: 'text-primary bg-primary/10 hover:bg-primary/15 active:bg-primary/15 focus:outline-none focus-visible:bg-primary/15 disabled:bg-primary/10 aria-disabled:bg-primary/10',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
       },
@@ -25,7 +26,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: 'soft',
       size: 'default',
     },
   }

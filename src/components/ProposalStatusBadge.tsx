@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { getDisplayStatusInfo } from '@/utils/proposal'
 import type { Proposal } from '@/types'
 import type { GovernorStateCode } from '@/utils/governor'
+import Badge from '@/components/ui/Badge'
 
 interface ProposalStatusBadgeProps {
   proposal: Proposal
@@ -22,13 +23,15 @@ export const ProposalStatusBadge: React.FC<ProposalStatusBadgeProps> = ({
   const detail = info.detailI18nKey ? t(info.detailI18nKey) : ''
   const emoji = info.emoji ? `${info.emoji} ` : ''
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-100 ${className}`}
+    <Badge
+      color={info.badgeColor || 'neutral'}
+      className={className}
       title={detail}
       data-status={info.status}
+      leftIcon={emoji ? <span>{emoji}</span> : undefined}
     >
-      {emoji}{label}
-    </span>
+      {label}
+    </Badge>
   )
 }
 

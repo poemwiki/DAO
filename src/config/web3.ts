@@ -1,7 +1,6 @@
 import injectedModule from '@web3-onboard/injected-wallets'
 import { init } from '@web3-onboard/react'
 import { config } from './index'
-import logo from '../assets/poemWiki.svg'
 
 const injected = injectedModule()
 
@@ -17,7 +16,7 @@ export const web3Onboard = init({
   ],
   appMetadata: {
     name: config.app.name,
-    icon: logo,
+    icon: import.meta.env.VITE_APP_LOGO || undefined,
     description: 'DAO governance platform',
   },
 })

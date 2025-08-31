@@ -94,6 +94,8 @@
     "submit": "确认设置",
     "confirming": "确认中...",
     "confirmed": "已确认 ✓",
-    "viewTransaction": "在区块浏览器中查看"
+    "viewTransaction": "在区块浏览器中查看",
+    "setButton": "设置代理人",
+    "changeButton": "更改代理人"
   }
 }

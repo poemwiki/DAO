@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useConnectWallet, useSetChain } from '@web3-onboard/react'
-import { useAccount } from 'wagmi'
 import { Account } from '@web3-onboard/core/dist/types'
 import { SlWallet } from 'react-icons/sl'
 import { Button } from '@/components/ui/button'
@@ -11,40 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import DelegateModal from '@/components/DelegateModal'
-import { ZERO_ADDRESS } from '@/constants'
-import { useDelegate } from '@/hooks/useDelegate'
+// Removed DelegateModal and delegation gating per requirement
 
 export default function ConnectWallet() {
   const { t } = useTranslation()
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet()
   const [{ chains }, setChain] = useSetChain()
-  const { address, isConnected } = useAccount()
   const [account, setAccount] = useState<Account | null>(null)
-  const [showDelegateModal, setShowDelegateModal] = useState(false)
-
-  // Check delegate status
-  const { delegateAddress, isLoading } = useDelegate(address)
-
-  // Watch delegate status and show modal
-  useEffect(() => {
-    if (!isConnected || !address || isLoading) {
-      setShowDelegateModal(false)
-      return
-    }
-
-    if (!delegateAddress || delegateAddress === ZERO_ADDRESS) {
-      console.log('Opening delegate modal')
-      setShowDelegateModal(true)
-    } else {
-      setShowDelegateModal(false)
-    }
-  }, [isConnected, address, delegateAddress, isLoading])
-
-  // Add debug log for modal state
-  useEffect(() => {
-    console.log('Modal state:', showDelegateModal)
-  }, [showDelegateModal])
+  // Removed delegate related state/effects
 
   async function login() {
     let connected = await autoConnect()
@@ -127,7 +100,6 @@ export default function ConnectWallet() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <DelegateModal open={showDelegateModal} onClose={() => setShowDelegateModal(false)} />
       </>
     )
   }

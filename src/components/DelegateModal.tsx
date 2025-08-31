@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   useAccount,
@@ -23,13 +23,15 @@ import { Button } from '@/components/ui/button'
 import { Member } from '@/types'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { short } from '@/utils/format'
+import { ZERO_ADDRESS } from '@/constants'
 
 interface DelegateModalProps {
   open: boolean
   onClose: () => void
+  onDelegated?: (delegate: string, txHash: string) => void
 }
 
-export default function DelegateModal({ open, onClose }: DelegateModalProps) {
+export default function DelegateModal({ open, onClose, onDelegated }: DelegateModalProps) {
   const { t } = useTranslation()
   const { address } = useAccount()
   const wagmiConfig = useConfig()
@@ -44,6 +46,18 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
   })
 
   const members: Member[] = tokenHoldersData?.members || []
+  const selfMember = members.find(m => m.id.toLowerCase() === address?.toLowerCase())
+
+  // initialize selection: existing delegate if set (and not zero & not self), else blank
+  useEffect(() => {
+    if (!selfMember) return
+    if (
+      selfMember.delegate &&
+      selfMember.delegate !== ZERO_ADDRESS
+    ) {
+      setSelectedDelegate(prev => (prev ? prev : selfMember.delegate))
+    }
+  }, [selfMember])
 
   // Get block explorer URL
   const blockExplorer = wagmiConfig.chains[0].blockExplorers?.default
@@ -59,12 +73,7 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
 
   // Add debug log for simulation data
   useEffect(() => {
-    console.log('Simulate data:', {
-      selectedDelegate,
-      simulateData,
-      simulateError,
-      tokenAddress: config.contracts.token,
-    })
+    console.log('Simulate data:', { selectedDelegate, simulateData, simulateError })
   }, [selectedDelegate, simulateData, simulateError])
 
   const { writeContractAsync, isPending: isWritePending } = useWriteContract()
@@ -73,6 +82,9 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash as `0x${string}`,
   })
+
+  // trigger callback when confirmed
+  useOnDelegatedEffect(isConfirmed, selectedDelegate, txHash, onDelegated)
 
   const handleDelegate = async () => {
     console.log('Handle delegate called', {
@@ -92,7 +104,6 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
     console.log('Delegating to:', selectedDelegate)
     try {
       const hash = await writeContractAsync(simulateData.request)
-      console.log('Delegation transaction sent, hash:', hash)
       setTxHash(hash)
     } catch (error) {
       console.error('Delegation error:', error)
@@ -116,6 +127,13 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
     return !selectedDelegate || isWritePending || isConfirming || isConfirmed
   }
 
+  // find self member to check delegation status
+  // hide entirely if user not a member
+  if (!selfMember) return null
+
+  // reorder so self is first
+  const orderedMembers = [selfMember, ...members.filter(m => m.id.toLowerCase() !== selfMember.id.toLowerCase())]
+
   return (
     <Modal
       open={open}
@@ -138,15 +156,29 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
               <SelectValue placeholder={t('delegate.selectPlaceholder')} />
             </SelectTrigger>
             <SelectContent className="max-h-64 overflow-y-auto">
-              {members.map(member => (
-                <DelegateOption
-                  key={member.id}
-                  member={member}
-                  self={member.id.toLowerCase() === address?.toLowerCase()}
-                  selfLabel={t('delegate.self')}
-                  selectOpen={selectOpen}
-                />
-              ))}
+              <div className="px-1 py-1 space-y-1">
+                {orderedMembers.map(member => {
+                  const isSelf = member.id.toLowerCase() === address?.toLowerCase()
+                  const displayName = useDisplayName({ address: member.id })
+                  const primaryLabel = isSelf ? t('delegate.self') : (displayName || short(member.id))
+                  const secondary = isSelf ? short(member.id) : member.id
+                  return (
+                    <SelectItem
+                      key={member.id}
+                      value={member.id}
+                      className={`flex flex-col items-start gap-0 p-3 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground ${isSelf ? 'border-primary/50' : 'border-transparent'}`}
+                    >
+                      <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>{primaryLabel}</span>
+                      <span className="text-[11px] mt-0.5 font-mono text-muted-foreground tracking-tight">{secondary}</span>
+                      {member.delegate && member.delegate !== ZERO_ADDRESS && member.delegate !== member.id && (
+                        <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                          {t('delegate.currentDelegateShort', 'Delegating to')} {short(member.delegate)}
+                        </span>
+                      )}
+                    </SelectItem>
+                  )
+                })}
+              </div>
             </SelectContent>
           </Select>
         </div>
@@ -164,6 +196,7 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
             </Button>
           )}
         </div>
+        {/* onDelegated side-effect handled in effect below */}
         {txHash && blockExplorer && (
           <div className="text-sm text-center text-muted-foreground">
             <a
@@ -181,39 +214,18 @@ export default function DelegateModal({ open, onClose }: DelegateModalProps) {
   )
 }
 
-function DelegateOption({
-  member,
-  self,
-  selfLabel,
-  selectOpen,
-}: {
-  member: Member
-  self: boolean
-  selfLabel: string
-  selectOpen: boolean
-}) {
-  const displayName = useDisplayName({ address: member.id })
-  const lowerFull = member.id.toLowerCase()
-  const isShortLike = displayName && displayName.includes('...')
-  const isNickname = displayName && displayName.toLowerCase() !== lowerFull && !isShortLike
-  const label = isNickname ? `${displayName} (${short(member.id)})` : member.id
-  const selfRef = useRef<HTMLDivElement | null>(null)
-
+// invoke onDelegated through effect to avoid JSX return type issues
+// (placed after component to keep component body cleaner)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function useOnDelegatedEffect(
+  isConfirmed: boolean,
+  selectedDelegate: string,
+  txHash: string,
+  onDelegated?: (delegate: string, txHash: string) => void
+) {
   useEffect(() => {
-    if (selectOpen && self && selfRef.current) {
-      // Scroll so that self item is near the top/visible
-      selfRef.current.scrollIntoView({ block: 'nearest' })
+    if (isConfirmed && selectedDelegate && txHash && onDelegated) {
+      onDelegated(selectedDelegate, txHash)
     }
-  }, [selectOpen, self])
-
-  return (
-    <SelectItem
-      ref={self ? selfRef : undefined}
-      value={member.id}
-      className={self ? 'font-bold' : ''}
-    >
-      {label}
-      {self && ` (${selfLabel})`}
-    </SelectItem>
-  )
+  }, [isConfirmed, selectedDelegate, txHash, onDelegated])
 }

@@ -18,6 +18,17 @@ export interface StatusInfo {
   emoji?: string
   i18nKey: string // proposalStatus.<status>
   detailI18nKey?: string // proposalStatusDetail.<status>
+  badgeColor?:
+    | 'neutral'
+    | 'gray'
+    | 'blue'
+    | 'green'
+    | 'red'
+    | 'yellow'
+    | 'orange'
+    | 'purple'
+    | 'slate'
+    | 'cyan'
 }
 
 // Map numeric codes (if contract/state is later supplied) to statuses
@@ -27,48 +38,56 @@ export const NUMERIC_STATUS_MAP: Record<GovernorStateCode, StatusInfo> = {
     emoji: '⚪',
     i18nKey: 'proposalStatus.pending',
     detailI18nKey: 'proposalStatusDetail.pending',
+    badgeColor: 'gray',
   },
   1: {
     status: 'active',
     emoji: '🔵',
     i18nKey: 'proposalStatus.active',
     detailI18nKey: 'proposalStatusDetail.active',
+    badgeColor: 'blue',
   },
   2: {
     status: 'canceled',
     emoji: '❌',
     i18nKey: 'proposalStatus.canceled',
     detailI18nKey: 'proposalStatusDetail.canceled',
+    badgeColor: 'red',
   },
   3: {
     status: 'defeated',
     emoji: '🔴',
     i18nKey: 'proposalStatus.defeated',
     detailI18nKey: 'proposalStatusDetail.defeated',
+    badgeColor: 'red',
   },
   4: {
     status: 'succeeded',
     emoji: '🟢',
     i18nKey: 'proposalStatus.succeeded',
     detailI18nKey: 'proposalStatusDetail.succeeded',
+    badgeColor: 'green',
   },
   5: {
     status: 'queued',
     emoji: '⏸',
     i18nKey: 'proposalStatus.queued',
     detailI18nKey: 'proposalStatusDetail.queued',
+    badgeColor: 'yellow',
   },
   6: {
     status: 'expired',
     emoji: '➖',
     i18nKey: 'proposalStatus.expired',
     detailI18nKey: 'proposalStatusDetail.expired',
+    badgeColor: 'slate',
   },
   7: {
     status: 'executed',
     emoji: '✅',
     i18nKey: 'proposalStatus.executed',
     detailI18nKey: 'proposalStatusDetail.executed',
+    badgeColor: 'green',
   },
 }
 

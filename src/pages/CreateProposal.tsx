@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useConnectWallet } from '@web3-onboard/react'
 import { ROUTES, PROPOSAL_TYPE } from '@/constants'
+import { useIsDelegated } from '@/hooks/useIsDelegated'
+import DelegateModal from '@/components/DelegateModal'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -19,30 +21,33 @@ export default function CreateProposal() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [{ wallet }] = useConnectWallet()
-  const [proposalType, setProposalType] = useState(PROPOSAL_TYPE.MINT)
+  const [proposalType, setProposalType] = useState<(typeof PROPOSAL_TYPE)[keyof typeof PROPOSAL_TYPE]>(
+    PROPOSAL_TYPE.MINT
+  )
   const [formData, setFormData] = useState({
     address: '',
     amount: '',
     description: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { isMember, isDelegated } = useIsDelegated()
+  const [delegateModalOpen, setDelegateModalOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!wallet) return
 
-    try {
-      setIsSubmitting(true)
-      // TODO: Implement contract interaction
-      console.log('Submitting proposal:', {
-        type: proposalType,
-        ...formData,
-      })
-    } catch (error) {
-      console.error('Error creating proposal:', error)
-    } finally {
-      setIsSubmitting(false)
+    if (isMember && !isDelegated) {
+      setDelegateModalOpen(true)
+      return
     }
+    setIsSubmitting(true)
+    // TODO: Implement contract interaction
+    console.log('Submitting proposal:', {
+      type: proposalType,
+      ...formData,
+    })
+    setIsSubmitting(false)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -63,6 +68,13 @@ export default function CreateProposal() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
+      {delegateModalOpen && (
+        <DelegateModal
+          open={delegateModalOpen}
+          onClose={() => setDelegateModalOpen(false)}
+          onDelegated={() => setDelegateModalOpen(false)}
+        />
+      )}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">{t('proposal.create')}</h2>
@@ -95,7 +107,7 @@ export default function CreateProposal() {
 
           <div className="space-y-2">
             <Label>
-              {proposalType === PROPOSAL_TYPE.MINT
+              {proposalType === PROPOSAL_TYPE.BUDGET
                 ? t('proposal.recipientAddress')
                 : t('proposal.requestAddress')}
             </Label>

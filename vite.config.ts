@@ -10,7 +10,8 @@ export default defineConfig({
   //   'process.env': {}
   // },
   server: {
-    host: true,
+    host: '0.0.0.0',
+    allowedHosts: ['.dao.com', 'localhost', '.poemwiki.org'],
   },
 
   optimizeDeps: {
