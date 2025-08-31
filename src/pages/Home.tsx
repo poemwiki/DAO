@@ -1,7 +1,8 @@
 import React from 'react'
-import { useQuery } from '@apollo/client'
+import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
-import { PROPOSALS_QUERY } from '@/graphql'
+import { getProposals, ProposalsResponseData } from '@/graphql'
+import { formatGraphTimestamp } from '@/utils/format'
 import { ROUTES } from '@/constants'
 import { config } from '@/config'
 import TokenHoldersList from '@/components/TokenHoldersList'
@@ -9,16 +10,13 @@ import type { Proposal } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
-  const { loading, error, data } = useQuery<{ proposals: Proposal[] }>(PROPOSALS_QUERY, {
-    onError: error => {
-      console.error('GraphQL error:', error)
-    },
-    onCompleted: data => {
-      console.log('proposals:', data)
-    },
+  const { isLoading, error, data } = useQuery<ProposalsResponseData>({
+    queryKey: ['proposals'],
+    queryFn: getProposals,
   })
+  const proposals = data?.proposals || []
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -33,7 +31,9 @@ export default function Home() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="text-lg text-red-500">Error loading proposals</div>
-          <div className="text-sm text-muted-foreground">{error.message}</div>
+          <div className="text-sm text-muted-foreground">
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </div>
         </div>
       </div>
     )
@@ -47,18 +47,18 @@ export default function Home() {
         <p className="text-xl text-muted-foreground">{config.app.description}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">{data?.proposals?.length || 0}</div>
+            <div className="text-2xl font-bold">{proposals.length}</div>
             <div className="text-sm text-muted-foreground">Total Proposals</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">
-              {data?.proposals?.filter((p: Proposal) => p.status === 'active').length || 0}
+              {proposals.filter((p: Proposal) => p.status === 'active').length}
             </div>
             <div className="text-sm text-muted-foreground">Active Proposals</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">
-              {data?.proposals?.filter((p: Proposal) => p.status === 'closed').length || 0}
+              {proposals.filter((p: Proposal) => p.status === 'closed').length}
             </div>
             <div className="text-sm text-muted-foreground">Closed Proposals</div>
           </div>
@@ -77,7 +77,7 @@ export default function Home() {
           </button>
         </div>
         <div className="grid gap-4">
-          {data?.proposals?.map((proposal: Proposal) => (
+          {proposals.map((proposal: Proposal) => (
             <Link
               key={proposal.id}
               to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
@@ -85,7 +85,7 @@ export default function Home() {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <h3 className="text-xl font-semibold">{proposal.serialId}</h3>
+                  <h3 className="text-xl font-semibold">{proposal.id}</h3>
                   <p className="text-muted-foreground line-clamp-2">{proposal.description}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -102,9 +102,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
-                <span>Created: {new Date(proposal.createdAt).toLocaleDateString()}</span>
+                <span>Created: {formatGraphTimestamp(proposal.createdAt)}</span>
                 <span>•</span>
-                <span>Updated: {new Date(proposal.updatedAt).toLocaleDateString()}</span>
+                <span>Updated: {formatGraphTimestamp(proposal.updatedAt)}</span>
               </div>
             </Link>
           ))}

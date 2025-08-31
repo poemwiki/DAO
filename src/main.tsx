@@ -2,8 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { Web3OnboardProvider } from '@web3-onboard/react'
-import { ApolloClient, InMemoryCache, ApolloProvider, from, HttpLink } from '@apollo/client'
-import { onError } from '@apollo/client/link/error'
 import { web3Onboard } from './config/web3'
 import { config } from './config'
 import { wagmiConfig } from './config/wagmi'
@@ -13,25 +11,6 @@ import './index.css'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-// Log any GraphQL errors or network error that occurred
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) =>
-      console.error(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
-    )
-  if (networkError) console.error(`[Network error]: ${networkError}`)
-})
-
-const httpLink = new HttpLink({
-  uri: config.api.baseUrl,
-})
-
-const apolloClient = new ApolloClient({
-  link: from([errorLink, httpLink]),
-  cache: new InMemoryCache(),
-  connectToDevTools: true, // Enable Apollo dev tools
-})
-
 // Log the configuration
 console.log('App configuration:', {
   baseUrl: config.api.baseUrl,
@@ -39,21 +18,26 @@ console.log('App configuration:', {
   network: config.network,
 })
 
-// 创建 QueryClient 实例
-const queryClient = new QueryClient()
+// Create QueryClient instance with default options
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // 禁用窗口聚焦时自动重新获取
+      retry: 1, // 失败时最多重试1次
+    },
+  },
+})
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ApolloProvider client={apolloClient}>
+      <QueryClientProvider client={queryClient}>
         <Web3OnboardProvider web3Onboard={web3Onboard}>
           <WagmiProvider config={wagmiConfig}>
-            <QueryClientProvider client={queryClient}>
-              <App />
-            </QueryClientProvider>
+            <App />
           </WagmiProvider>
         </Web3OnboardProvider>
-      </ApolloProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>
 )

@@ -1,6 +1,5 @@
 export interface Proposal {
   id: string
-  title: string
   description: string
   status: 'active' | 'closed' | 'pending'
   createdAt: string
