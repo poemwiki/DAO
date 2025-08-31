@@ -4,6 +4,7 @@
     "connectAnotherWallet": "连接其他钱包",
     "disconnectAllWallets": "断开所有钱包",
     "disconnectWallet": "断开",
+    "setDelegate": "设置投票代理人",
     "currentNetwork": "当前网络",
     "appInfo": "应用信息",
     "learnMore": "了解更多",
@@ -21,7 +22,8 @@
     "submit": "提交",
     "submitting": "提交中...",
     "loading": "加载中...",
-    "backToHome": "返回首页"
+    "backToHome": "返回首页",
+    "close": "关闭"
   },
   "proposal": {
     "create": "创建提案",
@@ -53,11 +55,45 @@
     "totalHolders": "个持有人",
     "notSet": "未设置"
   },
+  "home": {
+    "governanceProposals": "提案",
+    "totalProposals": "提案总数",
+    "activeProposals": "进行中",
+    "closedProposals": "已结束",
+    "created": "创建时间",
+    "updated": "更新时间",
+    "backToProposals": "返回提案列表"
+  },
+  "proposalStatus": {
+    "pending": "未开始",
+    "active": "投票中",
+    "canceled": "已取消",
+    "defeated": "不通过",
+    "succeeded": "投票通过",
+    "queued": "已排程",
+    "expired": "已过期",
+    "executed": "已执行",
+    "closed": "已结束"
+  },
+  "proposalStatusDetail": {
+    "pending": "投票尚未开始，等待到达投票起始区块。",
+    "active": "投票进行中，在截止区块前可继续投票。",
+    "canceled": "提案已被取消，不再继续流程。",
+    "defeated": "投票已结束，未达到通过所需的支持或法定人数。",
+    "succeeded": "投票已结束并通过，可进入排程/执行阶段。",
+    "queued": "提案已进入时间锁队列，等待执行时间窗口。",
+    "expired": "在允许的执行窗口内未执行，已过期失效。",
+    "executed": "提案的所有链上操作已成功执行。",
+    "closed": "提案生命周期已结束。"
+  },
   "delegate": {
     "title": "设置投票代理人",
     "description": "请选择一个地址作为您的投票代理人。代理人将代表您的积分进行投票。",
     "selectPlaceholder": "选择代理人地址",
     "self": "我自己",
-    "submit": "确认设置"
+    "submit": "确认设置",
+    "confirming": "确认中...",
+    "confirmed": "已确认 ✓",
+    "viewTransaction": "在区块浏览器中查看"
   }
 }

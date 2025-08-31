@@ -4,6 +4,7 @@
     "connectAnotherWallet": "Connect Another Wallet",
     "disconnectAllWallets": "Disconnect All Wallets",
     "disconnectWallet": "Disconnect",
+    "setDelegate": "Set Voting Delegate",
     "currentNetwork": "Current Network",
     "appInfo": "App Info",
     "learnMore": "Learn More",
@@ -21,7 +22,8 @@
     "submit": "Submit",
     "submitting": "Submitting...",
     "loading": "Loading...",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "close": "Close"
   },
   "proposal": {
     "create": "Create Proposal",
@@ -53,11 +55,45 @@
     "totalHolders": "holders",
     "notSet": "Not Set"
   },
+  "home": {
+    "governanceProposals": "Proposals",
+    "totalProposals": "Total Proposals",
+    "activeProposals": "Active",
+    "closedProposals": "Closed",
+    "created": "Created",
+    "updated": "Updated",
+    "backToProposals": "Back to proposals"
+  },
+  "proposalStatus": {
+    "pending": "Pending",
+    "active": "Active",
+    "canceled": "Canceled",
+    "defeated": "Defeated",
+    "succeeded": "Succeeded",
+    "queued": "Queued",
+    "expired": "Expired",
+    "executed": "Executed",
+    "closed": "Closed"
+  },
+  "proposalStatusDetail": {
+    "pending": "Voting has not started yet. Waiting for the voting start block.",
+    "active": "Voting is currently open. Votes are being accepted until the deadline block.",
+    "canceled": "Proposal was canceled before completion and will not proceed.",
+    "defeated": "Voting ended and the proposal did not reach the required support/quorum.",
+    "succeeded": "Voting ended with sufficient support and quorum. It can proceed to queue/execute.",
+    "queued": "Proposal is queued/timelocked and will be executable after the delay.",
+    "expired": "Proposal was not executed within the allowed time window and has expired.",
+    "executed": "All proposal actions have been successfully executed on-chain.",
+    "closed": "Proposal lifecycle is finished (generic terminal state)."
+  },
   "delegate": {
     "title": "Set Voting Delegate",
     "description": "Please choose an address as your voting delegate. The delegate will vote on your behalf with your balance.",
     "selectPlaceholder": "Select delegate address",
     "self": "Me",
-    "submit": "Confirm"
+    "submit": "Confirm",
+    "confirming": "Confirming...",
+    "confirmed": "Confirmed ✓",
+    "viewTransaction": "View transaction on explorer"
   }
 }

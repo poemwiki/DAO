@@ -5,7 +5,19 @@ const PROPOSALS_QUERY = `
   query GetProposals {
     proposals(first: 100, orderBy: createdAt, orderDirection: desc) {
       id
+      proposalId
       description
+      canceled
+      executed
+      startBlock
+      endBlock
+      proposeTx
+      executeTx
+      executeBlock
+      executeTime
+      cancelTx
+      cancelBlock
+      cancelTime
       createdAt
       updatedAt
     }
@@ -16,7 +28,19 @@ const PROPOSAL_QUERY = `
   query GetProposal($id: ID!) {
     proposal(id: $id) {
       id
+      proposalId
       description
+      canceled
+      executed
+      startBlock
+      endBlock
+      proposeTx
+      executeTx
+      executeBlock
+      executeTime
+      cancelTx
+      cancelBlock
+      cancelTime
       createdAt
       updatedAt
     }
@@ -50,10 +74,8 @@ export interface ProposalsResponseData {
   proposals: Proposal[]
 }
 
-interface ProposalResponse {
-  data: {
-    proposal: Proposal
-  }
+export interface ProposalResponseData {
+  proposal: Proposal
 }
 
 export async function getTokenHolders() {
@@ -68,9 +90,9 @@ export async function getProposals(): Promise<ProposalsResponseData> {
   return response.data
 }
 
-export async function getProposal(id: string) {
+export async function getProposal(id: string): Promise<ProposalResponseData> {
   const query = PROPOSAL_QUERY
-  const response = await fetchGraphQL<ProposalResponse>(query, { id })
+  const response = await fetchGraphQL<ProposalResponseData>(query, { id })
   return response.data
 }
 

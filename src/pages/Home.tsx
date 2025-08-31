@@ -1,8 +1,11 @@
-import React from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { getProposals, ProposalsResponseData } from '@/graphql'
-import { formatGraphTimestamp } from '@/utils/format'
+import { formatRelativeTime } from '@/utils/format'
+import { extractBracketCode } from '@/utils/proposal'
+import ProposalStatusBadge from '@/components/ProposalStatusBadge'
+import { useProposalStates } from '@/hooks/useProposalStates'
 import { ROUTES } from '@/constants'
 import { config } from '@/config'
 import TokenHoldersList from '@/components/TokenHoldersList'
@@ -10,11 +13,13 @@ import type { Proposal } from '@/types'
 
 export default function Home() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { isLoading, error, data } = useQuery<ProposalsResponseData>({
     queryKey: ['proposals'],
     queryFn: getProposals,
   })
   const proposals = data?.proposals || []
+  const { statuses } = useProposalStates(proposals)
 
   if (isLoading) {
     return (
@@ -48,19 +53,19 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">{proposals.length}</div>
-            <div className="text-sm text-muted-foreground">Total Proposals</div>
+            <div className="text-sm text-muted-foreground">{t('home.totalProposals')}</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">
               {proposals.filter((p: Proposal) => p.status === 'active').length}
             </div>
-            <div className="text-sm text-muted-foreground">Active Proposals</div>
+            <div className="text-sm text-muted-foreground">{t('home.activeProposals')}</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">
               {proposals.filter((p: Proposal) => p.status === 'closed').length}
             </div>
-            <div className="text-sm text-muted-foreground">Closed Proposals</div>
+            <div className="text-sm text-muted-foreground">{t('home.closedProposals')}</div>
           </div>
         </div>
       </section>
@@ -68,46 +73,44 @@ export default function Home() {
       {/* Proposals List */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Governance Proposals</h2>
+          <h2 className="text-2xl font-bold">{t('home.governanceProposals')}</h2>
           <button
             onClick={() => navigate(ROUTES.CREATE_PROPOSAL)}
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
           >
-            Create Proposal
+            {t('proposal.create')}
           </button>
         </div>
         <div className="grid gap-4">
-          {proposals.map((proposal: Proposal) => (
-            <Link
-              key={proposal.id}
-              to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
-              className="block p-6 border rounded-lg hover:border-primary transition-colors bg-card"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-xl font-semibold">{proposal.id}</h3>
-                  <p className="text-muted-foreground line-clamp-2">{proposal.description}</p>
+          {proposals.map((proposal: Proposal) => {
+            const desc = proposal.description || ''
+            const code = extractBracketCode(desc)
+            const numericCode = statuses[proposal.id]?.code ?? null
+            return (
+              <Link
+                key={proposal.id}
+                to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
+                className="block p-6 border rounded-lg hover:border-primary transition-colors bg-card"
+              >
+                <div className="flex flex-col h-full gap-2">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold truncate">{code}</h3>
+                      <p className="text-muted-foreground line-clamp-2 break-words">{desc.replace(/^\[.*?\]\s*/, '')}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
+                    </div>
+                  </div>
+                  <div className="mt-1 flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span>{t('home.created')}: {formatRelativeTime(proposal.createdAt, t('lang') as string)}</span>
+                    <span>•</span>
+                    <span>{t('home.updated')}: {formatRelativeTime(proposal.updatedAt, t('lang') as string)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${proposal.status === 'active'
-                      ? 'bg-green-100 text-green-800'
-                      : proposal.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
-                      }`}
-                  >
-                    {proposal.status}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
-                <span>Created: {formatGraphTimestamp(proposal.createdAt)}</span>
-                <span>•</span>
-                <span>Updated: {formatGraphTimestamp(proposal.updatedAt)}</span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       </section>
 

@@ -19,7 +19,8 @@ i18n
   .init({
     resources,
     fallbackLng: 'en',
-    lng: localStorage.getItem('i18nextLng') || 'en',
+    // Priority: explicit stored choice -> env default -> navigator -> 'en'
+    lng: localStorage.getItem('i18nextLng') || import.meta.env.VITE_DEFAULT_LANG || 'en',
     interpolation: {
       escapeValue: false,
     },
