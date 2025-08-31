@@ -64,10 +64,8 @@ const TOKEN_HOLDERS_QUERY = `
   }
 `
 
-interface TokenHoldersResponse {
-  data: {
-    members: Member[]
-  }
+export interface TokenHoldersResponseData {
+  members: Member[]
 }
 
 export interface ProposalsResponseData {
@@ -78,9 +76,9 @@ export interface ProposalResponseData {
   proposal: Proposal
 }
 
-export async function getTokenHolders() {
+export async function getTokenHolders(): Promise<TokenHoldersResponseData> {
   const query = TOKEN_HOLDERS_QUERY
-  const response = await fetchGraphQL<TokenHoldersResponse>(query)
+  const response = await fetchGraphQL<TokenHoldersResponseData>(query)
   return response.data
 }
 

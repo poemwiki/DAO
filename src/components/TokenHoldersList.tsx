@@ -1,23 +1,20 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatAddress } from '@/utils/format'
-import { useQuery } from '@apollo/client'
-import { TOKEN_HOLDERS_QUERY } from '@/graphql'
+import { useDisplayName } from '@/hooks/useDisplayName'
+import { useQuery } from '@tanstack/react-query'
+import { getTokenHolders, type TokenHoldersResponseData } from '@/graphql'
+import type { Member } from '@/types'
 import { formatEther } from 'viem'
 
-interface Member {
-  id: string // address
-  balance: string // BigInt string
-  delegateBalance: string // BigInt string
-  delegate: string // address
-  updatedAt: string // BigInt string
-}
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export default function TokenHoldersList() {
   const { t } = useTranslation()
-  const { loading, error, data } = useQuery(TOKEN_HOLDERS_QUERY)
+  const { data, isLoading, error } = useQuery<TokenHoldersResponseData>({
+    queryKey: ['tokenHolders'],
+    queryFn: getTokenHolders,
+  })
 
   if (error) {
     console.error('Error fetching token holders:', error)
@@ -29,9 +26,8 @@ export default function TokenHoldersList() {
     )
   }
 
-  const members = (data?.members || []).filter(
-    (member: Member) => member.id !== ZERO_ADDRESS && BigInt(member.balance) > 0n
-  ) as Member[]
+  const members: Member[] = (data?.members || [])
+    .filter(m => m.id !== ZERO_ADDRESS && BigInt(m.balance) > 0n)
 
   const formatDelegateAddress = (delegate: string) => {
     return delegate === ZERO_ADDRESS ? t('tokenHolders.notSet') : formatAddress(delegate)
@@ -51,7 +47,7 @@ export default function TokenHoldersList() {
       </h2>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left">
-          <thead className="text-xs uppercase bg-muted/50">
+          <thead className="text-xs pt-2 uppercase bg-muted/50">
             <tr>
               <th scope="col" className="px-6 py-3">
                 {t('tokenHolders.holder')}
@@ -68,13 +64,11 @@ export default function TokenHoldersList() {
               <th scope="col" className="px-6 py-3">
                 {t('tokenHolders.holderAddress')}
               </th>
-              <th scope="col" className="px-6 py-3">
-                {t('tokenHolders.delegateAddress')}
-              </th>
+              <th scope="col" className="px-6 py-3">{t('tokenHolders.delegateAddress')}</th>
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {isLoading ? (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center">
                   {t('common.loading')}
@@ -88,19 +82,34 @@ export default function TokenHoldersList() {
               </tr>
             ) : (
               members.map(member => (
-                <tr key={member.id} className="bg-background border-b hover:bg-muted/50">
-                  <td className="px-6 py-4">{formatAddress(member.id)}</td>
-                  <td className="px-6 py-4">{formatDelegateAddress(member.delegate)}</td>
-                  <td className="px-6 py-4">{formatEther(BigInt(member.balance))}</td>
-                  <td className="px-6 py-4">{formatEther(BigInt(member.delegateBalance))}</td>
-                  <td className="px-6 py-4">{member.id}</td>
-                  <td className="px-6 py-4">{formatFullDelegateAddress(member.delegate)}</td>
-                </tr>
+                <MemberRow key={member.id} member={member} formatDelegateAddress={formatDelegateAddress} formatFullDelegateAddress={formatFullDelegateAddress} />
               ))
             )}
           </tbody>
         </table>
       </div>
     </section>
+  )
+}
+
+function MemberRow({
+  member,
+  formatDelegateAddress,
+  formatFullDelegateAddress,
+}: {
+  member: Member
+  formatDelegateAddress: (a: string) => string
+  formatFullDelegateAddress: (a: string) => string
+}) {
+  const displayName = useDisplayName({ address: member.id })
+  return (
+    <tr className="bg-background border-b hover:bg-muted/50">
+      <td className="px-6 py-4">{displayName}</td>
+      <td className="px-6 py-4">{formatDelegateAddress(member.delegate)}</td>
+      <td className="px-6 py-4">{formatEther(BigInt(member.balance))}</td>
+      <td className="px-6 py-4">{formatEther(BigInt(member.delegateBalance))}</td>
+      <td className="px-6 py-4">{member.id}</td>
+      <td className="px-6 py-4">{formatFullDelegateAddress(member.delegate)}</td>
+    </tr>
   )
 }

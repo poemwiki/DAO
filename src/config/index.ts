@@ -7,6 +7,10 @@ export const config = {
     name: import.meta.env.VITE_DAO_NAME || 'DAO',
     description: import.meta.env.VITE_DAO_DESCRIPTION || 'A decentralized autonomous organization',
   },
+  features: {
+    enableEns: (import.meta.env.VITE_ENABLE_ENS || 'true') !== 'false',
+    addressBookUrl: import.meta.env.VITE_ADDRESS_BOOK_URL || '/addressBook.json',
+  },
   network: {
     chainId: import.meta.env.VITE_CHAIN_ID || '1',
     name: import.meta.env.VITE_NETWORK_NAME || 'mainnet',

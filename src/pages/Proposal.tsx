@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getProposal, ProposalResponseData } from '@/graphql'
 import { useTranslation } from 'react-i18next'
-import { formatGraphTimestamp, formatRelativeTime } from '@/utils/format'
+import { formatGraphTimestamp, formatRelativeTime, short } from '@/utils/format'
 import { extractBracketCode } from '@/utils/proposal'
 import { useProposalState } from '@/hooks/useProposalState'
 import ProposalStatusBadge from '@/components/ProposalStatusBadge'
@@ -32,7 +32,7 @@ export default function Proposal() {
   const code = extractBracketCode(proposal.description) || proposal.id.slice(0, 10) + '…'
   const txUrl = getExplorerTxUrl(proposal.proposeTx)
   const shortTx = proposal.proposeTx
-    ? proposal.proposeTx.slice(0, 8) + '...' + proposal.proposeTx.slice(-6)
+    ? short(proposal.proposeTx)
     : ''
 
   return (

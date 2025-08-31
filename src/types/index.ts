@@ -35,4 +35,6 @@ export interface Member {
   delegate: string
   /** the balance that the member be delegated, including self delegate */
   delegateBalance: string
+  /** last updated timestamp (subgraph) */
+  updatedAt?: string
 }

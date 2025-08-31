@@ -3,6 +3,10 @@ export const formatAddress = (address: string): string => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
+
 // short() duplicate merged here for consistency
 export const short = (str: string): string => {
   if (!str) return ''

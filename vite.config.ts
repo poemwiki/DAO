@@ -9,6 +9,9 @@ export default defineConfig({
   //   global: {},
   //   'process.env': {}
   // },
+  server: {
+    host: true,
+  },
 
   optimizeDeps: {
     esbuildOptions: {

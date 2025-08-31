@@ -115,3 +115,4 @@ dist
 *.sw?
 
 .vercel
+public/addressBook.json

@@ -2,13 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="https://p-1254719278.cos.ap-hongkong.myqcloud.com/img/common/favicon.svg"
-    />
+    <!-- Favicon: prefer VITE_APP_FAVICON then VITE_APP_LOGO then fallback -->
+    <link id="dynamic-favicon" rel="icon" type="image/png" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PoemWiki</title>
+    <script type="module">
+      const fav = import.meta.env.VITE_APP_FAVICON || import.meta.env.VITE_APP_LOGO
+      if (fav) {
+        const el = document.getElementById('dynamic-favicon')
+        if (el) el.setAttribute('href', fav)
+      }
+    </script>
   </head>
 
   <body>

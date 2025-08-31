@@ -17,9 +17,17 @@ export function useDelegate(address?: string) {
     },
   })
 
+  // Add debug logs
+  console.log('useDelegate:', {
+    address,
+    delegateAddress,
+    readError,
+    isLoading,
+    tokenAddress: config.contracts.token,
+  })
+
   return {
     delegateAddress,
-    // delegateAddress: undefined,
     readError,
     isLoading,
   }
