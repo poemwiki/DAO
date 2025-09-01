@@ -16,14 +16,11 @@ export default function DelegateButton() {
   return (
     <>
       <Button variant={isDelegated ? 'ghost' : 'default'} onClick={() => setOpen(true)}>
-        {isDelegated ? t('delegate.changeButton', 'Change Delegate') : t('delegate.setButton', 'Set Delegate')}
+        {isDelegated
+          ? t('delegate.changeButton', 'Change Delegate')
+          : t('delegate.setButton', 'Set Delegate')}
       </Button>
-      {open && (
-        <DelegateModal
-          open={open}
-          onClose={() => setOpen(false)}
-        />
-      )}
+      {open && <DelegateModal open={open} onClose={() => setOpen(false)} />}
     </>
   )
 }

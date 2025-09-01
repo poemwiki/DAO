@@ -25,15 +25,51 @@ const badgeVariants = cva(
       },
     },
     compoundVariants: [
-      { color: 'blue', outline: true, class: 'text-blue-600 dark:text-blue-300 ring-blue-400/50 dark:ring-blue-400/40' },
-      { color: 'green', outline: true, class: 'text-green-600 dark:text-green-300 ring-green-400/50 dark:ring-green-400/40' },
-      { color: 'red', outline: true, class: 'text-red-600 dark:text-red-300 ring-red-400/50 dark:ring-red-400/40' },
-      { color: 'yellow', outline: true, class: 'text-yellow-700 dark:text-yellow-200 ring-yellow-400/60 dark:ring-yellow-400/40' },
-      { color: 'purple', outline: true, class: 'text-purple-600 dark:text-purple-300 ring-purple-400/50 dark:ring-purple-400/40' },
-      { color: 'orange', outline: true, class: 'text-orange-600 dark:text-orange-300 ring-orange-400/50 dark:ring-orange-400/40' },
-      { color: 'slate', outline: true, class: 'text-slate-500 dark:text-slate-300 ring-slate-400/50 dark:ring-slate-400/40' },
-      { color: 'cyan', outline: true, class: 'text-cyan-600 dark:text-cyan-300 ring-cyan-400/50 dark:ring-cyan-400/40' },
-      { color: 'gray', outline: true, class: 'text-gray-700 dark:text-gray-300 ring-gray-400/50 dark:ring-gray-400/30' },
+      {
+        color: 'blue',
+        outline: true,
+        class: 'text-blue-600 dark:text-blue-300 ring-blue-400/50 dark:ring-blue-400/40',
+      },
+      {
+        color: 'green',
+        outline: true,
+        class: 'text-green-600 dark:text-green-300 ring-green-400/50 dark:ring-green-400/40',
+      },
+      {
+        color: 'red',
+        outline: true,
+        class: 'text-red-600 dark:text-red-300 ring-red-400/50 dark:ring-red-400/40',
+      },
+      {
+        color: 'yellow',
+        outline: true,
+        class: 'text-yellow-700 dark:text-yellow-200 ring-yellow-400/60 dark:ring-yellow-400/40',
+      },
+      {
+        color: 'purple',
+        outline: true,
+        class: 'text-purple-600 dark:text-purple-300 ring-purple-400/50 dark:ring-purple-400/40',
+      },
+      {
+        color: 'orange',
+        outline: true,
+        class: 'text-orange-600 dark:text-orange-300 ring-orange-400/50 dark:ring-orange-400/40',
+      },
+      {
+        color: 'slate',
+        outline: true,
+        class: 'text-slate-500 dark:text-slate-300 ring-slate-400/50 dark:ring-slate-400/40',
+      },
+      {
+        color: 'cyan',
+        outline: true,
+        class: 'text-cyan-600 dark:text-cyan-300 ring-cyan-400/50 dark:ring-cyan-400/40',
+      },
+      {
+        color: 'gray',
+        outline: true,
+        class: 'text-gray-700 dark:text-gray-300 ring-gray-400/50 dark:ring-gray-400/30',
+      },
     ],
     defaultVariants: {
       color: 'neutral',
@@ -46,7 +82,7 @@ type VariantColor = NonNullable<VariantProps<typeof badgeVariants>['color']>
 
 export interface BadgeProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'>,
-  VariantProps<typeof badgeVariants> {
+    VariantProps<typeof badgeVariants> {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
 }

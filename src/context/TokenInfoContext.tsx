@@ -45,14 +45,26 @@ export const TokenInfoProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           decimals: 18,
           address,
           loading: false,
-          error: new Error('No contract bytecode')
+          error: new Error('No contract bytecode'),
         })
         return
       }
       const results = await Promise.allSettled([
-        publicClient.readContract({ address, abi: tokenABI, functionName: 'name' }) as Promise<string>,
-        publicClient.readContract({ address, abi: tokenABI, functionName: 'symbol' }) as Promise<string>,
-        publicClient.readContract({ address, abi: tokenABI, functionName: 'decimals' }) as Promise<number>,
+        publicClient.readContract({
+          address,
+          abi: tokenABI,
+          functionName: 'name',
+        }) as Promise<string>,
+        publicClient.readContract({
+          address,
+          abi: tokenABI,
+          functionName: 'symbol',
+        }) as Promise<string>,
+        publicClient.readContract({
+          address,
+          abi: tokenABI,
+          functionName: 'decimals',
+        }) as Promise<number>,
       ])
 
       console.debug('[TokenInfo] fetched token info', results)
@@ -86,7 +98,11 @@ export const TokenInfoProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     load()
   }, [load])
 
-  return <TokenInfoContext.Provider value={{ ...state, refresh: load }}>{children}</TokenInfoContext.Provider>
+  return (
+    <TokenInfoContext.Provider value={{ ...state, refresh: load }}>
+      {children}
+    </TokenInfoContext.Provider>
+  )
 }
 
 export function useTokenInfoCache() {

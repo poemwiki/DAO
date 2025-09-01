@@ -19,7 +19,11 @@ export const wagmiConfig = createConfig({
   transports: {
     [mainnet.id]: http(),
     [polygon.id]: http(),
-    [polygonAmoy.id]: http(),
+    [polygonAmoy.id]: http(
+      chain.id === polygonAmoy.id && config.network.rpcUrl ? config.network.rpcUrl : undefined
+    ),
     [sepolia.id]: http(),
+    // override active chain with custom rpc if provided (works for any selected chain)
+    [chain.id]: http(config.network.rpcUrl ? config.network.rpcUrl : undefined),
   },
 })

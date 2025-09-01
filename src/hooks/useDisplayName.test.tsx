@@ -11,7 +11,7 @@ vi.mock('wagmi', () => ({
 // Provide a mock fetch
 const originalFetch = globalThis.fetch
 // reset module between tests to clear cache
-vi.mock('./useDisplayName', async (orig) => {
+vi.mock('./useDisplayName', async orig => {
   const actual = await (orig() as any)
   return actual
 })
@@ -25,11 +25,11 @@ describe('useDisplayName', () => {
         '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': 'Alice',
       }),
     })
-      ; (globalThis.fetch as any) = mockFn
+    ;(globalThis.fetch as any) = mockFn
   })
 
   afterEach(() => {
-    ; (globalThis.fetch as any) = originalFetch
+    ;(globalThis.fetch as any) = originalFetch
   })
 
   it('returns static address book name when present', async () => {
@@ -40,7 +40,9 @@ describe('useDisplayName', () => {
   })
 
   it('falls back to short address when no static and ENS disabled', async () => {
-    const { result } = renderHook(() => useDisplayName({ address: '0x1234567890abcdef1234567890abcdef12345678', disableEns: true }))
+    const { result } = renderHook(() =>
+      useDisplayName({ address: '0x1234567890abcdef1234567890abcdef12345678', disableEns: true })
+    )
     await waitFor(() => expect(result.current).toBe('0x1234...5678'))
   })
 

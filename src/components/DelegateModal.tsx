@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   useAccount,
@@ -38,12 +38,17 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
   const [selectedDelegate, setSelectedDelegate] = useState<string>('')
   const [txHash, setTxHash] = useState<string>('')
   const [selectOpen, setSelectOpen] = useState(false)
+  const [txStatus, setTxStatus] = useState<'idle' | 'signing' | 'pending' | 'success' | 'error'>(
+    'idle'
+  )
+  const [txError, setTxError] = useState<string | null>(null)
 
   // Query token holders
-  const { data: tokenHoldersData, isLoading: isLoadingHolders } = useQuery<TokenHoldersResponseData>({
-    queryKey: ['tokenHolders'],
-    queryFn: getTokenHolders,
-  })
+  const { data: tokenHoldersData, isLoading: isLoadingHolders } =
+    useQuery<TokenHoldersResponseData>({
+      queryKey: ['tokenHolders'],
+      queryFn: getTokenHolders,
+    })
 
   const members: Member[] = tokenHoldersData?.members || []
   const selfMember = members.find(m => m.id.toLowerCase() === address?.toLowerCase())
@@ -51,10 +56,7 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
   // initialize selection: existing delegate if set (and not zero & not self), else blank
   useEffect(() => {
     if (!selfMember) return
-    if (
-      selfMember.delegate &&
-      selfMember.delegate !== ZERO_ADDRESS
-    ) {
+    if (selfMember.delegate && selfMember.delegate !== ZERO_ADDRESS) {
       setSelectedDelegate(prev => (prev ? prev : selfMember.delegate))
     }
   }, [selfMember])
@@ -63,12 +65,14 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
   const blockExplorer = wagmiConfig.chains[0].blockExplorers?.default
 
   // Prepare the contract write
+  const activeChain = wagmiConfig.chains[0]
   const { data: simulateData, error: simulateError } = useSimulateContract({
     address: config.contracts.token as `0x${string}`,
     abi: tokenABI,
     functionName: 'delegate',
     args: selectedDelegate ? [selectedDelegate as `0x${string}`] : undefined,
     account: address,
+    chainId: activeChain?.id,
   })
 
   // Add debug log for simulation data
@@ -79,9 +83,24 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
   const { writeContractAsync, isPending: isWritePending } = useWriteContract()
 
   // Watch transaction status
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isTxError,
+  } = useWaitForTransactionReceipt({
     hash: txHash as `0x${string}`,
   })
+
+  // derive unified txStatus
+  useEffect(() => {
+    if (isConfirmed) {
+      setTxStatus('success')
+    } else if (isConfirming && txStatus !== 'success') {
+      setTxStatus('pending')
+    } else if (isTxError && txStatus === 'pending') {
+      setTxStatus('error')
+    }
+  }, [isConfirming, isConfirmed, isTxError])
 
   // trigger callback when confirmed
   useOnDelegatedEffect(isConfirmed, selectedDelegate, txHash, onDelegated)
@@ -93,6 +112,15 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
       hasRequest: !!simulateData?.request,
     })
 
+    // If already delegated to this target, short-circuit to success UI
+    if (
+      selfMember?.delegate &&
+      selfMember.delegate.toLowerCase() === selectedDelegate.toLowerCase()
+    ) {
+      setTxStatus('success')
+      return
+    }
+
     if (!selectedDelegate || !simulateData?.request) {
       console.log('Early return due to:', {
         hasDelegate: !!selectedDelegate,
@@ -102,11 +130,16 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
     }
 
     console.log('Delegating to:', selectedDelegate)
+    setTxError(null)
+    setTxStatus('signing')
     try {
-      const hash = await writeContractAsync(simulateData.request)
+      const hash = await writeContractAsync({ ...simulateData.request, chainId: activeChain?.id })
       setTxHash(hash)
-    } catch (error) {
+      setTxStatus('pending')
+    } catch (error: any) {
       console.error('Delegation error:', error)
+      setTxError(error?.shortMessage || error?.message || 'Unknown error')
+      setTxStatus('error')
     }
   }
 
@@ -114,17 +147,29 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
     onClose()
     setTxHash('')
     setSelectedDelegate('')
+    setTxStatus('idle')
+    setTxError(null)
   }
 
   const getButtonText = () => {
-    if (isWritePending) return t('common.submitting')
-    if (isConfirming) return t('delegate.confirming')
-    if (isConfirmed) return t('delegate.confirmed')
-    return t('delegate.submit')
+    switch (txStatus) {
+      case 'signing':
+        return t('delegate.signing', 'Signing…')
+      case 'pending':
+        return t('delegate.confirming')
+      case 'success':
+        return t('delegate.confirmed')
+      case 'error':
+        return t('delegate.retry', 'Retry')
+      default:
+        return t('delegate.submit')
+    }
   }
 
   const getButtonDisabled = () => {
-    return !selectedDelegate || isWritePending || isConfirming || isConfirmed
+    if (txStatus === 'success') return true
+    if (txStatus === 'signing' || txStatus === 'pending') return true
+    return !selectedDelegate || isWritePending
   }
 
   // find self member to check delegation status
@@ -132,7 +177,16 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
   if (!selfMember) return null
 
   // reorder so self is first
-  const orderedMembers = [selfMember, ...members.filter(m => m.id.toLowerCase() !== selfMember.id.toLowerCase())]
+  const orderedMembers = [
+    selfMember,
+    ...members.filter(m => m.id.toLowerCase() !== selfMember.id.toLowerCase()),
+  ]
+
+  // derive selected member for display
+  const selectedMember = useMemo(
+    () => orderedMembers.find(m => m.id.toLowerCase() === selectedDelegate.toLowerCase()),
+    [orderedMembers, selectedDelegate]
+  )
 
   return (
     <Modal
@@ -153,49 +207,46 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
               disabled={isWritePending || isConfirming || isLoadingHolders}
               className="max-h-12"
             >
-              <SelectValue placeholder={t('delegate.selectPlaceholder')} />
+              {selectedMember ? (
+                <SelectedDelegateDisplay member={selectedMember} selfAddress={address} />
+              ) : (
+                <SelectValue placeholder={t('delegate.selectPlaceholder')} />
+              )}
             </SelectTrigger>
             <SelectContent className="max-h-64 overflow-y-auto">
               <div className="px-1 py-1 space-y-1">
-                {orderedMembers.map(member => {
-                  const isSelf = member.id.toLowerCase() === address?.toLowerCase()
-                  const displayName = useDisplayName({ address: member.id })
-                  const primaryLabel = isSelf ? t('delegate.self') : (displayName || short(member.id))
-                  const secondary = isSelf ? short(member.id) : member.id
-                  return (
-                    <SelectItem
-                      key={member.id}
-                      value={member.id}
-                      className={`flex flex-col items-start gap-0 p-3 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground ${isSelf ? 'border-primary/50' : 'border-transparent'}`}
-                    >
-                      <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>{primaryLabel}</span>
-                      <span className="text-[11px] mt-0.5 font-mono text-muted-foreground tracking-tight">{secondary}</span>
-                      {member.delegate && member.delegate !== ZERO_ADDRESS && member.delegate !== member.id && (
-                        <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                          {t('delegate.currentDelegateShort', 'Delegating to')} {short(member.delegate)}
-                        </span>
-                      )}
-                    </SelectItem>
-                  )
-                })}
+                {orderedMembers.map(member => (
+                  <MemberSelectItem key={member.id} member={member} selfAddress={address} t={t} />
+                ))}
               </div>
             </SelectContent>
           </Select>
         </div>
         <div className="flex gap-4">
           <Button
-            onClick={handleDelegate}
+            onClick={txStatus === 'error' ? handleDelegate : handleDelegate}
             disabled={getButtonDisabled()}
-            className={`flex-1 ${isConfirmed ? 'bg-green-500 hover:bg-green-600' : ''}`}
+            className={`flex-1 relative ${txStatus === 'success' ? 'bg-green-500 hover:bg-green-600' : ''}`}
           >
             {getButtonText()}
+            {(txStatus === 'signing' || txStatus === 'pending') && (
+              <span className="ml-2 h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
+            )}
           </Button>
-          {isConfirmed && (
+          {txStatus === 'success' && (
             <Button variant="outline" onClick={handleClose}>
               {t('common.close')}
             </Button>
           )}
         </div>
+        {txStatus === 'error' && txError && (
+          <div className="text-xs text-red-500 whitespace-pre-wrap break-all">{txError}</div>
+        )}
+        {selectedDelegate && simulateError && (
+          <div className="text-xs text-amber-600 whitespace-pre-wrap break-all">
+            {t('delegate.simulateError', 'Simulation failed')}: {simulateError.message}
+          </div>
+        )}
         {/* onDelegated side-effect handled in effect below */}
         {txHash && blockExplorer && (
           <div className="text-sm text-center text-muted-foreground">
@@ -228,4 +279,60 @@ function useOnDelegatedEffect(
       onDelegated(selectedDelegate, txHash)
     }
   }, [isConfirmed, selectedDelegate, txHash, onDelegated])
+}
+
+// Separate component for member item to safely use hooks
+function MemberSelectItem({
+  member,
+  selfAddress,
+  t,
+}: {
+  member: Member
+  selfAddress?: string
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  t: any
+}) {
+  const isSelf = member.id.toLowerCase() === selfAddress?.toLowerCase()
+  const displayName = useDisplayName({ address: member.id })
+  const primaryLabel = isSelf ? t('delegate.self') : displayName || short(member.id)
+  const secondary = isSelf ? short(member.id) : member.id
+  return (
+    <SelectItem
+      value={member.id}
+      className={`flex flex-col items-start gap-0 p-3 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground ${isSelf ? 'border-primary/50' : 'border-transparent'}`}
+    >
+      <div className="w-full flex items-center justify-between gap-2">
+        <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>
+          {primaryLabel}
+        </span>
+        <span className="text-[11px] mt-0.5 font-mono text-muted-foreground tracking-tight">
+          {secondary}
+        </span>
+        {member.delegate && member.delegate !== ZERO_ADDRESS && member.delegate !== member.id && (
+          <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+            {t('delegate.currentDelegateShort', 'Delegating to')} {short(member.delegate)}
+          </span>
+        )}
+      </div>
+    </SelectItem>
+  )
+}
+
+function SelectedDelegateDisplay({
+  member,
+  selfAddress,
+}: {
+  member: Member
+  selfAddress?: string
+}) {
+  const { t } = useTranslation()
+  const isSelf = member.id.toLowerCase() === selfAddress?.toLowerCase()
+  const displayName = useDisplayName({ address: member.id })
+  const primaryLabel = isSelf ? t('delegate.self') : displayName || short(member.id)
+  return (
+    <div className="flex items-center gap-2 truncate">
+      <span className="text-sm font-medium truncate">{primaryLabel}</span>
+      <span className="text-xs font-mono text-muted-foreground truncate">{short(member.id)}</span>
+    </div>
+  )
 }

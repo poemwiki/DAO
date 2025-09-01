@@ -31,8 +31,8 @@
     "connectWalletFirst": "请先连接钱包",
     "type": "提案类型",
     "types": {
-      "mint": "积分发放",
-      "budget": "预算请求"
+      "mint": "发放积分",
+      "budget": "申请预算"
     },
     "recipientAddress": "接收地址",
     "requestAddress": "请求地址（你的地址）",
@@ -50,7 +50,19 @@
       "mintAndApprove": "申请预算",
       "governorSetting": "治理参数调整",
       "default": "治理提案"
+    },
+    "status": {
+      "building": "构建交易中...",
+      "signing": "等待钱包签名...",
+      "pending": "交易确认中...",
+      "success": "提案创建成功! 即将跳转...",
+      "error": "创建提案失败。",
+      "proposalId": "提案ID: {{id}}"
     }
+  },
+  "proposalThreshold": {
+    "notEnough": "需要至少 {{needed}} 积分才能创建提案。",
+    "currentVsNeeded": "当前持有: {{current}} / 需要: {{needed}}"
   },
   "tokenHolders": {
     "title": "积分持有人",

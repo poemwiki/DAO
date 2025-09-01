@@ -52,17 +52,17 @@ export default function ConnectWallet() {
     }
   }
 
-  // disable auto connect on mount
-  // useEffect(() => {
-  //   const init = async () => {
-  //     const connected = await autoConnect()
-  //     if (connected.length) {
-  //       const chain = chains[0]
-  //       await setChain({ chainId: chain.id })
-  //     }
-  //   }
-  //   init()
-  // }, [])
+  // auto connect on mount if connected before
+  useEffect(() => {
+    const init = async () => {
+      const connected = await autoConnect()
+      if (connected.length) {
+        const chain = chains[0]
+        await setChain({ chainId: chain.id })
+      }
+    }
+    init()
+  }, [])
 
   useEffect(() => {
     if (wallet && wallet?.provider) {

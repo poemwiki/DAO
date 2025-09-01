@@ -50,7 +50,19 @@
       "mintAndApprove": "Budget Request",
       "governorSetting": "Governance Parameter Update",
       "default": "Governance Proposal"
+    },
+    "status": {
+      "building": "Building transaction...",
+      "signing": "Awaiting wallet signature...",
+      "pending": "Transaction pending...",
+      "success": "Proposal created successfully! Redirecting...",
+      "error": "Failed to create proposal.",
+      "proposalId": "Proposal ID: {{id}}"
     }
+  },
+  "proposalThreshold": {
+    "notEnough": "You need at least {{needed}} tokens to create a proposal.",
+    "currentVsNeeded": "Your balance: {{current}} / Required: {{needed}}"
   },
   "tokenHolders": {
     "title": "Token Holders",
