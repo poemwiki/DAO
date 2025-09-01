@@ -1,13 +1,13 @@
-var pagination = 10
-var proposalOffset = 0
-var uploadBatchMintData = []
-var web3
-var TYPEING_ID
-const ETHERSCAN_URL = 'https://polygonscan.com/' // Rinkeby: https://rinkeby.etherscan.io/
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-const CHAIN_NAME = 'Polygon Mainnet' // Polygon Mainnet, Rinkeby
-const CHAIN_ID = 137 // Polygon: 137, Amoy: 80002, Rinkeby: 4, Goerli: 5
-const NATIVE_CURRENCY = 'POL' // Polygon: MATIC, Rinkeby: RIN
+var pagination = 10;
+var proposalOffset = 0;
+var uploadBatchMintData = [];
+var web3;
+var TYPEING_ID;
+const ETHERSCAN_URL = 'https://polygonscan.com/'; // Rinkeby: https://rinkeby.etherscan.io/
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const CHAIN_NAME = 'Polygon Mainnet'; // Polygon Mainnet, Rinkeby
+const CHAIN_ID = 137; // Polygon: 137, Amoy: 80002, Rinkeby: 4, Goerli: 5
+const NATIVE_CURRENCY = 'POL'; // Polygon: MATIC, Rinkeby: RIN
 // RPC endpoints: { [chainId]: string[] }
 // Extend with other networks as required. First endpoint should be most reliable.
 const RPC_URLS = {
@@ -25,11 +25,11 @@ const RPC_URLS = {
   ],
   // 1: ['https://eth.llamarpc.com','https://rpc.ankr.com/eth']
   // 5: ['https://rpc.ankr.com/eth_goerli']
-}
+};
 
 // production env addresses
-const TOKEN_ADDRESS = '0x023D7505B15f15e1D33b77C171F870fD5445F35A'
-const GOVERNOR_ADDRESS = '0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
+const TOKEN_ADDRESS = '0x023D7505B15f15e1D33b77C171F870fD5445F35A';
+const GOVERNOR_ADDRESS = '0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402';
 
 // test env addresses
 // const TOKEN_ADDRESS = '0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
