@@ -1,18 +1,39 @@
-var pagination = 10;
-var proposalOffset = 0;
-var uploadBatchMintData = [];
-var web3;
-var TYPEING_ID;
-const ETHERSCAN_URL = "https://polygonscan.com/"; // Rinkeby: https://rinkeby.etherscan.io/
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-const CHAIN_NAME = "Polygon Mainnet"; // Polygon Mainnet, Rinkeby
-const CHAIN_ID = 137; // Polygon: 137, Rinkeby: 4, Goerli: 5
-const NATIVE_CURRENCY = "POL"; // Polygon: MATIC, Rinkeby: RIN
-const RPC_URLS = ["https://polygon-rpc.com"]; // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
+var pagination = 10
+var proposalOffset = 0
+var uploadBatchMintData = []
+var web3
+var TYPEING_ID
+const ETHERSCAN_URL = 'https://polygonscan.com/' // Rinkeby: https://rinkeby.etherscan.io/
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+const CHAIN_NAME = 'Polygon Mainnet' // Polygon Mainnet, Rinkeby
+const CHAIN_ID = 137 // Polygon: 137, Amoy: 80002, Rinkeby: 4, Goerli: 5
+const NATIVE_CURRENCY = 'POL' // Polygon: MATIC, Rinkeby: RIN
+// RPC endpoints: { [chainId]: string[] }
+// Extend with other networks as required. First endpoint should be most reliable.
+const RPC_URLS = {
+  137: [
+    'https://polygon-rpc.com',
+    'https://rpc-mainnet.matic.quiknode.pro',
+    'https://rpc.ankr.com/polygon',
+    'https://1rpc.io/matic',
+    'https://polygon-bor-rpc.publicnode.com',
+  ],
+  80002: [
+    // Amoy testnet (example list; adjust if you have preferred endpoints)
+    'https://rpc-amoy.polygon.technology',
+    'https://polygon-amoy-bor-rpc.publicnode.com',
+  ],
+  // 1: ['https://eth.llamarpc.com','https://rpc.ankr.com/eth']
+  // 5: ['https://rpc.ankr.com/eth_goerli']
+}
 
 // production env addresses
-const TOKEN_ADDRESS = "0x023D7505B15f15e1D33b77C171F870fD5445F35A";
-const GOVERNOR_ADDRESS = "0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402";
+const TOKEN_ADDRESS = '0x023D7505B15f15e1D33b77C171F870fD5445F35A'
+const GOVERNOR_ADDRESS = '0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
+
+// test env addresses
+// const TOKEN_ADDRESS = '0x8650Ce5eB77DD43629c9EAaf461F339A4FC90402'
+// const GOVERNOR_ADDRESS = '0x384CE091068508d72d12C982B0eFf51A4857AA73'
 
 // const TOKEN_ADDRESS = '0x7659f27043FA6b98FE91Ddd39CfAFa78613e1fAf'
 const TOKEN_SYMBOL = "PWR";
@@ -84,7 +105,7 @@ async function switchNetworkCheck() {
                 decimals: 18,
                 symbol: NATIVE_CURRENCY,
               },
-              rpcUrls: RPC_URLS,
+              rpcUrls: RPC_URLS[CHAIN_ID] || [],
             },
           ],
         });
@@ -1221,9 +1242,7 @@ async function queryProposal() {
       .hasVoted(p.proposalId, accountAddress)
       .call();
     console.log("hasVoted:", hasVoted);
-    const myVotesWei = await governor.methods
-      .getVotes(accountAddress, snapshot)
-      .call();
+    const myVotesWei = await safeGetVotes(governor, accountAddress, snapshot);
     console.log("myVotesWei:", myVotesWei);
     const quorum = await governor.methods.quorum(snapshot).call();
 
@@ -1934,9 +1953,7 @@ function showProposal(
         .hasVoted(p.proposalId, accountAddress)
         .call();
       console.log("hasVoted:", hasVoted);
-      const myVotesWei = await governor.methods
-        .getVotes(accountAddress, snapshot)
-        .call();
+      const myVotesWei = await safeGetVotes(governor, accountAddress, snapshot);
       console.log("myVotesWei:", myVotesWei);
       const quorum = await governor.methods.quorum(snapshot).call();
 
@@ -2199,16 +2216,36 @@ async function Connect() {
     const currentBlock = await web3.eth.getBlockNumber();
     const governor = new web3.eth.Contract(governorAbi(), GOVERNOR_ADDRESS);
     let getVotesWei = -1;
+    // Some public RPC endpoints (non-archive) cannot serve historical state -> "missing trie node".
+    // We attempt a small window backwards; if all fail with that specific issue, fallback to latest block.
     for (var i = 1; i < 10; i++) {
+      const targetBlock = currentBlock - i;
       try {
         getVotesWei = await governor.methods
-          .getVotes(accountAddress, currentBlock - i)
+          .getVotes(accountAddress, targetBlock)
           .call();
-        console.log("try getVotesWei from block", currentBlock - i);
+        console.log("try getVotesWei from block", targetBlock);
       } catch (e) {
-        console.error(e);
+        const msg = (e && (e.message || e.toString())).toLowerCase();
+        if (msg.includes("missing trie node")) {
+          console.warn("Non-archive RPC missing state at block", targetBlock);
+        } else {
+          console.error(e);
+        }
       }
       if (getVotesWei >= 0) break;
+    }
+    if (getVotesWei < 0) {
+      // Fallback: use current block (may slightly differ from intended snapshot, but better than failure)
+      try {
+        getVotesWei = await governor.methods
+          .getVotes(accountAddress, currentBlock)
+          .call();
+        console.log("fallback getVotesWei from current block", currentBlock);
+      } catch (e) {
+        console.error("final getVotes fallback failed", e);
+        getVotesWei = 0;
+      }
     }
 
     const getVotes = toDecial(getVotesWei, decimals);
@@ -2485,6 +2522,39 @@ async function initHolderNameUpdate(viewHoldersBlock, holders, address) {
 
 function getHolderNameColor(name) {
   return `<font color=\"cccccc\">${name}</font>`;
+}
+
+// Fetch voting power without requiring an archive node.
+// Tries snapshot (if provided) then several recent blocks; returns '0' if all attempts fail.
+async function safeGetVotes(governor, address, preferredBlock) {
+  const blocks = [];
+  if (preferredBlock !== undefined && preferredBlock !== null)
+    blocks.push(preferredBlock);
+  try {
+    const latest = await web3.eth.getBlockNumber();
+    for (let i = 0; i < 4; i++) blocks.push(latest - i);
+  } catch (e) {}
+  const seen = new Set();
+  for (const b of blocks) {
+    if (b < 0 || seen.has(b)) continue;
+    seen.add(b);
+    try {
+      const v = await governor.methods.getVotes(address, b).call();
+      if (v && v !== "0") return v;
+    } catch (err) {
+      const msg = (
+        (err && (err.message || err.toString())) ||
+        ""
+      ).toLowerCase();
+      if (msg.includes("missing trie node")) {
+        if (b === preferredBlock)
+          console.warn("Missing trie node at block", b, "for", address);
+      } else {
+        console.error(err);
+      }
+    }
+  }
+  return "0";
 }
 
 async function initViewHolders(cleanup) {
