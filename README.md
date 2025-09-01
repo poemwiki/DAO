@@ -83,7 +83,6 @@ VITE_NETWORK_NAME=polygon-amoy
 VITE_SUBGRAPH_URL=your_subgraph_url
 
 # Web3
-VITE_ALCHEMY_KEY=your_alchemy_key
 VITE_TOKEN_ADDRESS=your_token_address
 VITE_GOVERNOR_ADDRESS=your_governor_address
 ```
