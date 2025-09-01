@@ -12,9 +12,13 @@ const app = express()
 import mintProposalModel from './models/proposal/mint/model'
 import holderModel from './models/holder/model'
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3008
 
-app.use(express.static(path.join(__dirname, '../../../public')))
+// Serve static assets. Mount the directory so that requests like /public/js/index.js
+// map to the actual files inside the public folder. Also expose the root path '/' for convenience.
+const publicDir = path.join(__dirname, '../../public')
+app.use('/public', express.static(publicDir))
+app.use(express.static(publicDir))
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -24,14 +28,14 @@ let serverUrl = `http://localhost:${port}`
 if (mode === 'prod') serverUrl = process.env.SERVER_URL ? process.env.SERVER_URL : serverUrl
 
 app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, '../../public/index.html'))
+  res.sendFile(path.join(publicDir, 'index.html'))
 })
 
 app.get('/api/hello', function (req, res) {
   res.json({
     message: 'success',
     data: 'hello world'
-  }) 
+  })
 })
 
 app.post('/api/holder/update', (req, res) => {
