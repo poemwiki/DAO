@@ -7,7 +7,7 @@ const ETHERSCAN_URL = "https://polygonscan.com/"; // Rinkeby: https://rinkeby.et
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const CHAIN_NAME = "Polygon Mainnet"; // Polygon Mainnet, Rinkeby
 const CHAIN_ID = 137; // Polygon: 137, Rinkeby: 4, Goerli: 5
-const NATIVE_CURRENCY = "MATIC"; // Polygon: MATIC, Rinkeby: RIN
+const NATIVE_CURRENCY = "POL"; // Polygon: MATIC, Rinkeby: RIN
 const RPC_URLS = ["https://polygon-rpc.com"]; // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
 
 // production env addresses
