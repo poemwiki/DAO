@@ -11,7 +11,11 @@ export default function AppLayout() {
           <div className="mr-4 flex">
             <a className="mr-6 flex items-center space-x-2" href="/">
               <span className="font-bold"></span>
-              <img src={import.meta.env.VITE_APP_LOGO} alt="Logo" className="h-16 w-16 rounded-sm" />
+              <img
+                src={import.meta.env.VITE_APP_LOGO}
+                alt="Logo"
+                className="h-16 w-16 rounded-sm"
+              />
             </a>
           </div>
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
@@ -23,7 +27,7 @@ export default function AppLayout() {
           </div>
         </div>
       </header>
-      <main className="container py-6">
+      <main className="container pt-6 pb-12">
         <Outlet />
       </main>
     </div>

@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { short } from '@/utils/format'
 // Removed DelegateModal and delegation gating per requirement
 
 export default function ConnectWallet() {
@@ -76,20 +77,16 @@ export default function ConnectWallet() {
     }
   }, [wallet])
 
-  function formatAddress(address: string) {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
-  }
-
   if (wallet?.provider && account) {
     return (
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="w-fit md:w-[160px] shadow-none">
+            <Button variant="outline" size="sm" className="w-fit md:w-[130px] shadow-none">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <span className="text-sm font-medium">
-                  {account.ens?.name || formatAddress(account.address)}
+                  {account.ens?.name || short(account.address)}
                 </span>
               </div>
             </Button>
@@ -105,7 +102,13 @@ export default function ConnectWallet() {
   }
 
   return (
-    <Button variant="outline" size="lg" className="w-fit md:w-[230px] shadow-none" disabled={connecting} onClick={login}>
+    <Button
+      variant="outline"
+      size="lg"
+      className="w-fit md:w-[130px] shadow-none"
+      disabled={connecting}
+      onClick={login}
+    >
       <SlWallet className="mr-2 h-4 w-4" />
       {t('accountCenter.connectWallet')}
     </Button>

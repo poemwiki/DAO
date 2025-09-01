@@ -19,11 +19,13 @@ import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
 import Badge from '@/components/ui/Badge'
+import { useConnectWallet } from '@web3-onboard/react'
 
 export default function Home() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { isMember, isDelegated } = useIsDelegated()
+  const [{ wallet }] = useConnectWallet()
   const [delegateModalOpen, setDelegateModalOpen] = useState(false)
   const [postDelegateNavigate, setPostDelegateNavigate] = useState<string | null>(null)
   const { isLoading, error, data } = useQuery<ProposalsResponseData>({
@@ -206,8 +208,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Token Holders List with Delegate button */}
-      <TokenHoldersList />
+      {/* Token Holders List with Delegate button (only visible when wallet connected) */}
+      {wallet && <TokenHoldersList />}
       {delegateModalOpen && (
         <DelegateModal
           open={delegateModalOpen}
