@@ -8,7 +8,7 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const CHAIN_NAME = "Polygon Mainnet"; // Polygon Mainnet, Rinkeby
 const CHAIN_ID = 137; // Polygon: 137, Rinkeby: 4, Goerli: 5
 const NATIVE_CURRENCY = "MATIC"; // Polygon: MATIC, Rinkeby: RIN
-const RPC_URLS = ["https://rpc-mainnet.matic.quiknode.pro"]; // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
+const RPC_URLS = ["https://polygon-rpc.com"]; // Polygon: ['https://rpc-mainnet.matic.quiknode.pro'], Rinkeby: ['https://rpc.ankr.com/eth_rinkeby']
 
 // production env addresses
 const TOKEN_ADDRESS = "0x023D7505B15f15e1D33b77C171F870fD5445F35A";
