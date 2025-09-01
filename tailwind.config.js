@@ -80,6 +80,15 @@ module.exports = {
         serif: ['var(--font-serif)'],
         mono: ['var(--font-mono)'],
       },
+      keyframes: {
+        'pulse-slow-bg': {
+          '0%, 100%': { backgroundColor: 'rgba(187 247 208 / 0.6)' },
+          '50%': { backgroundColor: 'rgba(167 243 208 / 0.85)' },
+        },
+      },
+      animation: {
+        'pulse-slow': 'pulse-slow-bg 3s ease-in-out infinite',
+      },
     },
   },
   plugins: [require('@tailwindcss/typography'), require('@tailwindcss/line-clamp')],

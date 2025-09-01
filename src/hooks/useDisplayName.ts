@@ -97,3 +97,11 @@ export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
 
   return name
 }
+
+// Lightweight synchronous lookup (address book only, no ENS) for cases where
+// we need a display name outside React (e.g., during pure parsing).
+export function lookupAddressBookName(address?: string) {
+  if (!address) return undefined
+  const lower = address.toLowerCase()
+  return addressBookCache.data?.[lower]
+}

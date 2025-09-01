@@ -1,5 +1,6 @@
 import type { Proposal } from '@/types'
 import type { GovernorStateCode } from '@/utils/governor'
+import type { ParsedAction } from '@/lib/parseProposalActions'
 
 // Extended state mapping similar to legacy governor.js
 export type DerivedStatus =
@@ -52,7 +53,7 @@ export const NUMERIC_STATUS_MAP: Record<GovernorStateCode, StatusInfo> = {
     emoji: '❌',
     i18nKey: 'proposalStatus.canceled',
     detailI18nKey: 'proposalStatusDetail.canceled',
-    badgeColor: 'red',
+    badgeColor: 'slate',
   },
   3: {
     status: 'defeated',
@@ -155,4 +156,49 @@ export function getDisplayStatusInfo(
     return NUMERIC_STATUS_MAP_BY_KEY[p.status]
   }
   return getStatusInfo(p)
+}
+
+// Determine a fallback proposal title when the bracket code is purely numeric.
+// Priority order when multiple action types exist:
+// batchMint > mintAndApprove > mint > governorSetting > unknown
+export function deriveFallbackProposalTitle(actions: ParsedAction[]): {
+  key: string
+  type: ParsedAction['type'] | 'unknown'
+} {
+  let type: ParsedAction['type'] | 'unknown' = 'unknown'
+  const hasType = (t: ParsedAction['type']) => actions.some(a => a.type === t)
+  if (hasType('batchMint')) type = 'batchMint'
+  else if (hasType('mintAndApprove')) type = 'mintAndApprove'
+  else if (hasType('mint')) type = 'mint'
+  else if (hasType('governorSetting')) type = 'governorSetting'
+  else type = 'unknown'
+  const map: Record<string, string> = {
+    batchMint: 'proposal.fallbackTitle.batchMint',
+    mint: 'proposal.fallbackTitle.mint',
+    mintAndApprove: 'proposal.fallbackTitle.mintAndApprove',
+    governorSetting: 'proposal.fallbackTitle.governorSetting',
+    unknown: 'proposal.fallbackTitle.default',
+  }
+  return { key: map[type] || map.unknown, type }
+}
+
+// Given original bracket code and parsed actions, produce the display title.
+// If bracket code is numeric-only (e.g. "[123]") we return a localized fallback.
+export function buildProposalTitle(
+  bracketCode: string | undefined,
+  actions: ParsedAction[],
+  t: (_key: string) => string
+): string {
+  if (bracketCode) {
+    // Safely strip leading [ and trailing ]
+    const inner = bracketCode.replace(/^\[/, '').replace(/\]$/, '').trim()
+    if (/^\d+$/.test(inner)) {
+      const fb = deriveFallbackProposalTitle(actions)
+      return t(fb.key)
+    }
+    return bracketCode
+  }
+  // No bracket code: try fallback as generic
+  const fb = deriveFallbackProposalTitle(actions)
+  return t(fb.key)
 }

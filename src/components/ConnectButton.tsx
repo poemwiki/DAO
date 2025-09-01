@@ -85,7 +85,7 @@ export default function ConnectWallet() {
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="w-[160px]">
+            <Button variant="outline" size="sm" className="w-fit md:w-[160px] shadow-none">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <span className="text-sm font-medium">
@@ -105,7 +105,7 @@ export default function ConnectWallet() {
   }
 
   return (
-    <Button variant="outline" size="lg" className="w-[230px]" disabled={connecting} onClick={login}>
+    <Button variant="outline" size="lg" className="w-fit md:w-[230px] shadow-none" disabled={connecting} onClick={login}>
       <SlWallet className="mr-2 h-4 w-4" />
       {t('accountCenter.connectWallet')}
     </Button>

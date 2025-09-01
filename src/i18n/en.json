@@ -41,14 +41,23 @@
     "enterAddress": "Enter wallet address",
     "enterAmount": "Enter amount",
     "enterDescription": "Enter proposal description",
-    "submit": "Create Proposal"
+    "submit": "Create Proposal",
+    "proposer": "Proposer",
+    "createdAt": "created",
+    "fallbackTitle": {
+      "batchMint": "Batch Token Distribution",
+      "mint": "Token Distribution",
+      "mintAndApprove": "Budget Request",
+      "governorSetting": "Governance Parameter Update",
+      "default": "Governance Proposal"
+    }
   },
   "tokenHolders": {
     "title": "Token Holders",
     "holder": "Holder",
     "delegate": "Delegate",
     "balance": "Balance",
-    "votes": "Votes",
+    "votes": "Voting power",
     "holderAddress": "Holder Address",
     "delegateAddress": "Delegate Address",
     "noData": "No data available",
@@ -97,5 +106,16 @@
     "viewTransaction": "View transaction on explorer",
     "setButton": "Set Delegate",
     "changeButton": "Change Delegate"
+  },
+  "actions": {
+    "mint": "Distribute {{amount}} {{symbol}} to {{who}}",
+    "mintAndApprove": "Request {{amount}} {{symbol}} budget for {{who}}",
+    "batchMint": "Batch distribute to {{count}} recipients, total {{total}} {{symbol}}",
+    "setVotingDelay": "Voting Delay (blocks) => {{value}}",
+    "setVotingPeriod": "Voting Period (blocks) => {{value}}",
+    "setProposalThreshold": "Proposal Threshold => {{value}}",
+    "updateQuorumNumerator": "Quorum Numerator => {{value}}",
+    "unknown": "Unknown Action",
+    "parseError": "Failed to parse call"
   }
 }

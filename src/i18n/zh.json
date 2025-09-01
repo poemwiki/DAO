@@ -41,7 +41,16 @@
     "enterAddress": "输入钱包地址",
     "enterAmount": "输入数量",
     "enterDescription": "输入提案描述",
-    "submit": "创建提案"
+    "submit": "创建提案",
+    "proposer": "提案人",
+    "createdAt": "创建于",
+    "fallbackTitle": {
+      "batchMint": "批量发放积分",
+      "mint": "发放积分",
+      "mintAndApprove": "申请预算",
+      "governorSetting": "治理参数调整",
+      "default": "治理提案"
+    }
   },
   "tokenHolders": {
     "title": "积分持有人",
@@ -68,7 +77,7 @@
     "pending": "未开始",
     "active": "投票中",
     "canceled": "已取消",
-    "defeated": "不通过",
+    "defeated": "未通过",
     "succeeded": "投票通过",
     "queued": "已排程",
     "expired": "已过期",
@@ -97,5 +106,16 @@
     "viewTransaction": "在区块浏览器中查看",
     "setButton": "设置代理人",
     "changeButton": "更改代理人"
+  },
+  "actions": {
+    "mint": "发放 {{amount}} {{symbol}} 给 {{who}}",
+    "mintAndApprove": "申请 {{amount}} {{symbol}} 预算给 {{who}}",
+    "batchMint": "批量发放给 {{count}} 人, 总计 {{total}} {{symbol}}",
+    "setVotingDelay": "投票延迟(区块) => {{value}}",
+    "setVotingPeriod": "投票时长(区块) => {{value}}",
+    "setProposalThreshold": "提案门槛 => {{value}}",
+    "updateQuorumNumerator": "法定人数分子 => {{value}}",
+    "unknown": "未知操作",
+    "parseError": "无法解析的调用"
   }
 }

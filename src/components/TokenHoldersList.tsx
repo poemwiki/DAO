@@ -32,10 +32,6 @@ export default function TokenHoldersList() {
     return delegate === ZERO_ADDRESS ? t('tokenHolders.notSet') : formatAddress(delegate)
   }
 
-  const formatFullDelegateAddress = (delegate: string) => {
-    return delegate === ZERO_ADDRESS ? t('tokenHolders.notSet') : delegate
-  }
-
   return (
     <section className="mt-8">
       <div className='flex items-center justify-between'>
@@ -83,7 +79,7 @@ export default function TokenHoldersList() {
               </tr>
             ) : (
               members.map(member => (
-                <MemberRow key={member.id} member={member} formatDelegateAddress={formatDelegateAddress} formatFullDelegateAddress={formatFullDelegateAddress} />
+                <MemberRow key={member.id} member={member} formatDelegateAddress={formatDelegateAddress} />
               ))
             )}
           </tbody>
@@ -96,17 +92,19 @@ export default function TokenHoldersList() {
 function MemberRow({
   member,
   formatDelegateAddress,
-  formatFullDelegateAddress,
 }: {
   member: Member
   formatDelegateAddress: (a: string) => string
-  formatFullDelegateAddress: (a: string) => string
 }) {
   const displayName = useDisplayName({ address: member.id })
+  const delegateDisplayName = useDisplayName({ address: member.delegate })
+
   return (
     <tr className="bg-background border-b hover:bg-muted/50">
       <td className="px-6 py-4">{displayName}</td>
-      <td className="px-6 py-4">{formatDelegateAddress(member.delegate)}</td>
+      <td className="px-6 py-4">
+        {member.delegate === ZERO_ADDRESS ? formatDelegateAddress(member.delegate) : delegateDisplayName}
+      </td>
       <td className="px-6 py-4">{formatEther(BigInt(member.balance))}</td>
       <td className="px-6 py-4">{formatEther(BigInt(member.delegateBalance))}</td>
       <td className="px-6 py-4">{short(member.id)}</td>

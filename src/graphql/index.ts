@@ -20,6 +20,9 @@ const PROPOSALS_QUERY = `
       cancelTime
       createdAt
       updatedAt
+      targets
+      calldatas
+      signatures
     }
   }
 `
@@ -43,6 +46,26 @@ const PROPOSAL_QUERY = `
       cancelTime
       createdAt
       updatedAt
+      proposer { id }
+      targets
+      calldatas
+      signatures
+      voteCasts(orderBy: createdAt, orderDirection: asc) {
+        id
+        voter { id }
+        support
+        weight
+        reason
+        createdAt
+        tx
+      }
+      proposalActivities(orderBy: createdAt, orderDirection: asc) {
+        id
+        activity
+        member { id }
+        createdAt
+        tx
+      }
     }
   }
 `

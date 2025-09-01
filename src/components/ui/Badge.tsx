@@ -4,23 +4,23 @@ import { clsx } from 'clsx'
 
 // Tailwind v4 classes: using color tokens and fallback gray set
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs select-none transition-colors text-white dark:text-black',
+  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs select-none transition-colors',
   {
     variants: {
       color: {
-        neutral: 'bg-gray-100 dark:bg-gray-800/60',
-        gray: 'bg-gray-100 dark:bg-gray-800/60',
-        blue: 'bg-blue-100/70 dark:bg-blue-500/25',
-        green: 'bg-green-100/70 dark:bg-green-500/25',
-        red: 'bg-red-100/70 dark:bg-red-500/25',
-        yellow: 'bg-yellow-100/80 dark:bg-yellow-500/30',
-        orange: 'bg-orange-100/70 dark:bg-orange-500/25',
-        purple: 'bg-purple-100/70 dark:bg-purple-500/25',
-        slate: 'bg-slate-100/70 dark:bg-slate-500/25',
-        cyan: 'bg-cyan-100/70 dark:bg-cyan-500/25',
+        neutral: 'bg-gray-500 dark:bg-gray-800/60',
+        gray: 'bg-gray-500 dark:bg-gray-800/60',
+        blue: 'bg-blue-500/70 dark:bg-blue-500/25',
+        green: 'bg-primary/60 dark:bg-primary/25',
+        red: 'bg-destructive/60 dark:bg-destructive/25',
+        yellow: 'bg-yellow-500/80 dark:bg-yellow-500/30',
+        orange: 'bg-orange-500/70 dark:bg-orange-500/25',
+        purple: 'bg-purple-500/70 dark:bg-purple-500/25',
+        slate: 'bg-slate-500/70 dark:bg-slate-500/25',
+        cyan: 'bg-cyan-500/70 dark:bg-cyan-500/25',
       },
       outline: {
-        true: 'bg-transparent ring-1 ring-inset',
+        true: '!bg-transparent ring-1 ring-inset',
         false: '',
       },
     },
@@ -31,7 +31,7 @@ const badgeVariants = cva(
       { color: 'yellow', outline: true, class: 'text-yellow-700 dark:text-yellow-200 ring-yellow-400/60 dark:ring-yellow-400/40' },
       { color: 'purple', outline: true, class: 'text-purple-600 dark:text-purple-300 ring-purple-400/50 dark:ring-purple-400/40' },
       { color: 'orange', outline: true, class: 'text-orange-600 dark:text-orange-300 ring-orange-400/50 dark:ring-orange-400/40' },
-      { color: 'slate', outline: true, class: 'text-slate-600 dark:text-slate-300 ring-slate-400/50 dark:ring-slate-400/40' },
+      { color: 'slate', outline: true, class: 'text-slate-500 dark:text-slate-300 ring-slate-400/50 dark:ring-slate-400/40' },
       { color: 'cyan', outline: true, class: 'text-cyan-600 dark:text-cyan-300 ring-cyan-400/50 dark:ring-cyan-400/40' },
       { color: 'gray', outline: true, class: 'text-gray-700 dark:text-gray-300 ring-gray-400/50 dark:ring-gray-400/30' },
     ],

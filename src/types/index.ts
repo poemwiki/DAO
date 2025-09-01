@@ -1,7 +1,28 @@
+export interface ProposalActivity {
+  id: string
+  activity: 'CREATE' | 'CANCEL' | 'EXECUTE'
+  member: { id: string }
+  createdAt: string
+  tx: string
+}
+
+export interface VoteCastEntity {
+  id: string
+  voter: { id: string }
+  support: number // 0 against,1 for,2 abstain
+  weight: string
+  reason: string
+  createdAt: string
+  tx: string
+}
+
 export interface Proposal {
   id: string
   proposalId?: string
   description: string
+  proposer?: { id: string }
+  voteCasts?: VoteCastEntity[]
+  proposalActivities?: ProposalActivity[]
   status?:
     | 'pending'
     | 'active'
@@ -25,6 +46,9 @@ export interface Proposal {
   cancelTime?: string | null
   createdAt: string
   updatedAt: string
+  targets?: string[]
+  calldatas?: string[]
+  signatures?: string[]
 }
 
 export interface Member {

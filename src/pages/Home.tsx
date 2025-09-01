@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { getProposals, ProposalsResponseData } from '@/graphql'
 import { formatRelativeTime } from '@/utils/format'
-import { extractBracketCode } from '@/utils/proposal'
+import { extractBracketCode, buildProposalTitle } from '@/utils/proposal'
+import { parseProposalActions } from '@/lib/parseProposalActions'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
 import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import { useProposalStates } from '@/hooks/useProposalStates'
 import { ROUTES } from '@/constants'
@@ -11,10 +13,12 @@ import { config } from '@/config'
 import TokenHoldersList from '@/components/TokenHoldersList'
 import type { Proposal } from '@/types'
 import { Button } from '@/components/ui/button'
-import { FaPlus } from "react-icons/fa";
+import { FaPlus } from 'react-icons/fa'
 import { useState } from 'react'
+import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
+import Badge from '@/components/ui/Badge'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -28,6 +32,41 @@ export default function Home() {
   })
   const proposals = data?.proposals || []
   const { statuses } = useProposalStates(proposals)
+  const { data: govParams } = useGovernorParams()
+  const { data: tokenInfo } = useTokenInfo()
+
+  // Calculate correct statistics based on actual status
+  const getProposalStats = () => {
+    let activeCount = 0
+    let closedCount = 0
+
+    proposals.forEach((proposal: Proposal) => {
+      const statusData = statuses[proposal.id]
+      // Get the most accurate status: from blockchain > from proposal object > derived
+      const actualStatus = statusData?.info?.status || proposal.status || 'closed' // fallback for unknown status
+
+      // Active statuses: pending, active, queued
+      if (['pending', 'active', 'queued'].includes(actualStatus)) {
+        activeCount++
+      }
+      // Closed statuses: canceled, defeated, succeeded, expired, executed, closed
+      else if (
+        ['canceled', 'defeated', 'succeeded', 'expired', 'executed', 'closed'].includes(
+          actualStatus
+        )
+      ) {
+        closedCount++
+      }
+      // Fallback: treat unknown status as closed
+      else {
+        closedCount++
+      }
+    })
+
+    return { activeCount, closedCount }
+  }
+
+  const { activeCount, closedCount } = getProposalStats()
 
   if (isLoading) {
     return (
@@ -64,18 +103,40 @@ export default function Home() {
             <div className="text-sm text-muted-foreground">{t('home.totalProposals')}</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">
-              {proposals.filter((p: Proposal) => p.status === 'active').length}
-            </div>
+            <div className="text-2xl font-bold">{activeCount}</div>
             <div className="text-sm text-muted-foreground">{t('home.activeProposals')}</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">
-              {proposals.filter((p: Proposal) => p.status === 'closed').length}
-            </div>
+            <div className="text-2xl font-bold">{closedCount}</div>
             <div className="text-sm text-muted-foreground">{t('home.closedProposals')}</div>
           </div>
         </div>
+        {govParams && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <div className="p-4 border rounded-md bg-card">
+              <div className="text-xs uppercase opacity-60 mb-1">Voting Delay</div>
+              <div className="text-lg font-semibold">{govParams.votingDelay.toString()} blocks</div>
+            </div>
+            <div className="p-4 border rounded-md bg-card">
+              <div className="text-xs uppercase opacity-60 mb-1">Voting Period</div>
+              <div className="text-lg font-semibold">
+                {govParams.votingPeriod.toString()} blocks
+              </div>
+            </div>
+            <div className="p-4 border rounded-md bg-card">
+              <div className="text-xs uppercase opacity-60 mb-1">Proposal Threshold</div>
+              <div className="text-lg font-semibold">
+                {Number(govParams.proposalThreshold) / 1e18}
+              </div>
+            </div>
+            <div className="p-4 border rounded-md bg-card">
+              <div className="text-xs uppercase opacity-60 mb-1">Quorum %</div>
+              <div className="text-lg font-semibold">
+                {(Number(govParams.quorumNum) / Number(govParams.quorumDen)) * 100}%
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Proposals List */}
@@ -95,31 +156,48 @@ export default function Home() {
             <FaPlus /> {t('proposal.create')}
           </Button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {proposals.map((proposal: Proposal) => {
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+          {proposals.map((proposal: Proposal, index: number) => {
             const desc = proposal.description || ''
-            const code = extractBracketCode(desc)
+            const bracketCode = extractBracketCode(desc)
+            const parsedActions = parseProposalActions(
+              proposal.targets || [],
+              proposal.calldatas || [],
+              proposal.signatures || [],
+              tokenInfo?.decimals,
+              tokenInfo?.symbol
+            )
+            const displayTitle = buildProposalTitle(bracketCode, parsedActions, t)
             const numericCode = statuses[proposal.id]?.code ?? null
+            const proposalNumber = proposals.length - index
             return (
               <Link
                 key={proposal.id}
                 to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
-                className="block p-6 border rounded-lg hover:border-primary transition-colors bg-card"
+                className="block p-4 sm:p-6 border rounded-lg hover:border-primary transition-colors bg-card"
               >
-                <div className="flex flex-col h-full gap-2">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold truncate">{code}</h3>
-                      <p className="text-muted-foreground line-clamp-3 break-words">{desc.replace(/^\[.*?\]\s*/, '')}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                    <div className="space-y-2 flex-1 min-w-0">
+                      <div className="flex justify-start items-start md:items-center gap-2 flex-col md:flex-row">
+                        <h3 className="text-lg font-semibold break-words flex-1 min-w-0">
+                          {displayTitle}
+                        </h3>
+                        <Badge color="slate" outline={true}>
+                          Proposal #{proposalNumber}
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground line-clamp-3 break-words text-sm sm:text-base">
+                        {desc.replace(/^\[.*?\]\s*/, '')}
+                      </p>
                     </div>
                   </div>
-                  <div className="mt-1 flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span>{t('home.created')}: {formatRelativeTime(proposal.createdAt, t('lang') as string)}</span>
-                    <span>•</span>
-                    <span>{t('home.updated')}: {formatRelativeTime(proposal.updatedAt, t('lang') as string)}</span>
+                  <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
+                    <span>
+                      {t('home.created')}:{' '}
+                      {formatRelativeTime(proposal.createdAt, t('lang') as string)}
+                    </span>
                   </div>
                 </div>
               </Link>

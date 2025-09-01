@@ -131,6 +131,67 @@ export const formatAmount = (amount: string, decimals = 18): string => {
   return value.toFixed(4)
 }
 
+// BigInt safe token amount helpers
+interface ScaledTokenAmount {
+  integer: bigint
+  fraction: bigint
+  decimals: number
+  base: bigint
+  isZero: boolean
+  toNumber: () => number
+  format: (_maxFractionDigits?: number) => string
+}
+
+function scaleTokenAmount(amount: bigint, decimals: number): ScaledTokenAmount {
+  const d = decimals >= 0 && decimals <= 36 ? decimals : 18
+  const base = 10n ** BigInt(d)
+  const integer = amount / base
+  const fraction = amount % base
+  return {
+    integer,
+    fraction,
+    decimals: d,
+    base,
+    isZero: amount === 0n,
+    toNumber: () => {
+      if (amount === 0n) return 0
+      // Potential precision loss for very large values, acceptable for UI summaries.
+      return Number(integer) + Number(fraction) / Number(base)
+    },
+    format: (maxFractionDigits = 4) => {
+      if (fraction === 0n) return integer.toString()
+      const fracStrFull = (fraction + base).toString().slice(1) // zero-pad
+      const trimmed = fracStrFull.replace(/0+$/, '')
+      const sliced = trimmed.slice(0, maxFractionDigits)
+      return sliced ? `${integer.toString()}.${sliced}` : integer.toString()
+    },
+  }
+}
+
+export function formatTokenAmount(
+  amount: bigint,
+  decimals: number,
+  opts: { maxFractionDigits?: number } = {}
+): string {
+  const scaled = scaleTokenAmount(amount, decimals)
+  return scaled.format(opts.maxFractionDigits)
+}
+
+export function toScaledNumber(amount: bigint, decimals: number): number {
+  return scaleTokenAmount(amount, decimals).toNumber()
+}
+
+export function formatNumber(n: number, decimalPlaces = 1) {
+  if (!isFinite(n)) return '0'
+  if (n === 0) return '0'
+  if (n < 0.0001) return n.toExponential(2)
+  const s = n.toLocaleString(undefined, {
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  })
+  return s
+}
+
 // timestampToDate duplicate logic (prefer locale aware functions above)
 export const timestampToDate = (timestamp: string): string => {
   if (!timestamp) return ''
@@ -142,4 +203,22 @@ export const timestampToDate = (timestamp: string): string => {
 export const trimDescription = (description: string): string => {
   if (!description) return ''
   return description.replace(/^\[\d+\]\s*/, '')
+}
+
+// Local time with minute precision (YYYY Mon DD, HH:MM) using browser locale
+export const formatGraphTimestampLocalMinutes = (
+  value: string | number | bigint | null | undefined,
+  locale?: string
+): string => {
+  const d = toDateFromGraph(value)
+  if (!d) return '-'
+  const loc = normalizeLocale(locale || cachedLocale)
+  return d.toLocaleString(loc, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
 }
