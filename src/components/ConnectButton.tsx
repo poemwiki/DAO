@@ -52,16 +52,17 @@ export default function ConnectWallet() {
     }
   }
 
-  useEffect(() => {
-    const init = async () => {
-      const connected = await autoConnect()
-      if (connected.length) {
-        const chain = chains[0]
-        await setChain({ chainId: chain.id })
-      }
-    }
-    init()
-  }, [])
+  // disable auto connect on mount
+  // useEffect(() => {
+  //   const init = async () => {
+  //     const connected = await autoConnect()
+  //     if (connected.length) {
+  //       const chain = chains[0]
+  //       await setChain({ chainId: chain.id })
+  //     }
+  //   }
+  //   init()
+  // }, [])
 
   useEffect(() => {
     if (wallet && wallet?.provider) {
@@ -72,7 +73,7 @@ export default function ConnectWallet() {
         ens: walletAccount.ens,
         uns: null,
       })
-      // 保存连接的钱包信息到 localStorage
+      // 保存连接的钱包信息到 localStorage (used for optional future UX like showing last used label)
       window.localStorage.setItem('connectedWallets', JSON.stringify([wallet.label]))
     }
   }, [wallet])

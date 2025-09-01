@@ -15,6 +15,7 @@ export const config = {
     chainId: import.meta.env.VITE_CHAIN_ID || '1',
     name: import.meta.env.VITE_NETWORK_NAME || 'mainnet',
     token: import.meta.env.VITE_NETWORK_TOKEN_NAME || 'ETH',
+    rpcUrl: import.meta.env.VITE_RPC_URL,
     explorerTxBase: import.meta.env.VITE_EXPLORER_TX_BASE || '',
   },
   contracts: {
