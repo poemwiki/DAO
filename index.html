@@ -5,13 +5,15 @@
     <!-- Favicon: prefer VITE_APP_FAVICON then VITE_APP_LOGO then fallback -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PoemWiki</title>
+    <title>Govo</title>
     <script type="module">
       const fav = import.meta.env.VITE_APP_FAVICON || import.meta.env.VITE_APP_LOGO
       if (fav) {
         const el = document.getElementById('dynamic-favicon')
         if (el) el.setAttribute('href', fav)
       }
+      const daoName = import.meta.env.VITE_DAO_NAME || 'Govo'
+      document.title = daoName
     </script>
   </head>
 
