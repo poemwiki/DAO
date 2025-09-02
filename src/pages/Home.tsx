@@ -99,7 +99,7 @@ export default function Home() {
       <section className="space-y-4">
         <h1 className="text-4xl font-bold">{config.app.name}</h1>
         <p className="text-xl text-muted-foreground">{config.app.description}</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">{proposals.length}</div>
             <div className="text-sm text-muted-foreground">{t('home.totalProposals')}</div>
@@ -108,37 +108,11 @@ export default function Home() {
             <div className="text-2xl font-bold">{activeCount}</div>
             <div className="text-sm text-muted-foreground">{t('home.activeProposals')}</div>
           </div>
-          <div className="p-6 border rounded-lg bg-card">
+          <div className="hidden md:block p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">{closedCount}</div>
             <div className="text-sm text-muted-foreground">{t('home.closedProposals')}</div>
           </div>
         </div>
-        {govParams && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-            <div className="p-4 border rounded-md bg-card">
-              <div className="text-xs uppercase opacity-60 mb-1">Voting Delay</div>
-              <div className="text-lg font-semibold">{govParams.votingDelay.toString()} blocks</div>
-            </div>
-            <div className="p-4 border rounded-md bg-card">
-              <div className="text-xs uppercase opacity-60 mb-1">Voting Period</div>
-              <div className="text-lg font-semibold">
-                {govParams.votingPeriod.toString()} blocks
-              </div>
-            </div>
-            <div className="p-4 border rounded-md bg-card">
-              <div className="text-xs uppercase opacity-60 mb-1">Proposal Threshold</div>
-              <div className="text-lg font-semibold">
-                {Number(govParams.proposalThreshold) / 1e18}
-              </div>
-            </div>
-            <div className="p-4 border rounded-md bg-card">
-              <div className="text-xs uppercase opacity-60 mb-1">Quorum %</div>
-              <div className="text-lg font-semibold">
-                {(Number(govParams.quorumNum) / Number(govParams.quorumDen)) * 100}%
-              </div>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Proposals List */}
@@ -207,6 +181,31 @@ export default function Home() {
           })}
         </div>
       </section>
+
+      {govParams && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+          <div className="p-4 border rounded-md bg-card">
+            <div className="text-xs uppercase opacity-60 mb-1">Voting Delay</div>
+            <div className="text-lg font-semibold">{govParams.votingDelay.toString()} blocks</div>
+          </div>
+          <div className="p-4 border rounded-md bg-card">
+            <div className="text-xs uppercase opacity-60 mb-1">Voting Period</div>
+            <div className="text-lg font-semibold">{govParams.votingPeriod.toString()} blocks</div>
+          </div>
+          <div className="p-4 border rounded-md bg-card">
+            <div className="text-xs uppercase opacity-60 mb-1">Proposal Threshold</div>
+            <div className="text-lg font-semibold">
+              {Number(govParams.proposalThreshold) / 1e18}
+            </div>
+          </div>
+          <div className="p-4 border rounded-md bg-card">
+            <div className="text-xs uppercase opacity-60 mb-1">Quorum %</div>
+            <div className="text-lg font-semibold">
+              {(Number(govParams.quorumNum) / Number(govParams.quorumDen)) * 100}%
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Token Holders List with Delegate button (only visible when wallet connected) */}
       {wallet && <TokenHoldersList />}
