@@ -1,6 +1,6 @@
-# GovZero
+# Govo
 
-GovZero is a modern, decentralized governance platform that enables DAOs to manage their proposals and voting processes efficiently. Built with React and integrated with The Graph protocol, it provides a seamless interface for interacting with on-chain governance.
+Govo is a modern, decentralized governance platform that enables DAOs to manage their proposals and voting processes efficiently. Built with React and integrated with The Graph protocol, it provides a seamless interface for interacting with on-chain governance.
 
 ## Features
 
