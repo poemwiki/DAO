@@ -4,17 +4,17 @@ Purpose: Enable AI agents to work productively across the mono-repo (frontend dA
 
 ## Common Development Commands
 
-- `npm run dev` - Start development server (Vite)
-- `npm run build` - Build for production (TypeScript compilation + Vite build)
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint with auto-fix
-- `npm run format` - Format code with Prettier
-- `npm run test` - Run tests with Vitest (single run)
-- `npm run test:watch` - Run tests in watch mode
+- `pnpm run dev` - Start development server (Vite)
+- `pnpm run build` - Build for production (TypeScript compilation + Vite build)
+- `pnpm run preview` - Preview production build
+- `pnpm run lint` - Run ESLint with auto-fix
+- `pnpm run format` - Format code with Prettier
+- `pnpm run test` - Run tests with Vitest (single run)
+- `pnpm run test:watch` - Run tests in watch mode
 
-Never run `npm run dev` or `npm run preview` because the dev is already running in a separate terminal.
+Never run `pnpm run dev` or `pnpm run preview` because the dev is already running in a separate terminal.
 
-**Note**: Use `npm` (not `pnpm`) as specified in package.json engines, despite the README mentioning pnpm.
+**Note**: Use `pnpm` (not `npm`) as specified in package.json engines.
 
 ## Project Architecture
 
@@ -88,7 +88,7 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 2. Subgraph schema changes → update GraphQL operations in `src/graphql/`
 3. After mutation hooks → invalidate related react-query keys
 4. All user-facing text → add to i18n resource bundles (no raw strings)
-5. Always run `npm run lint` and `npm run build` before commits
+5. Always run `pnpm run lint` and `pnpm run build` before commits
 
 #### Cross-Layer Dependencies
 
@@ -136,11 +136,11 @@ This project requires Node.js >= 22.12.0 as specified in package.json engines.
 2. Commit new `deployments/` artifacts (ensure network name consistency).
 3. Export ABI (or rely on TypeChain) → copy to `govzero/src/abis/` (only the minimal interface needed if large).
 4. Update `public/addressBook.json` with new addresses (keep old under a versioned key if still referenced).
-5. If events changed: update subgraph `schema.graphql` + `subgraph.yaml` dataSources → run `npm run codegen && npm run build` in subgraph project.
+5. If events changed: update subgraph `schema.graphql` + `subgraph.yaml` dataSources → run `pnpm run codegen && pnpm run build` in subgraph project.
 6. Adjust frontend GraphQL queries in `src/graphql/` to reflect schema changes; regenerate types if using codegen (future enhancement).
 7. Update / add hooks wrapping new contract calls (invalidate proper query keys on success).
 8. Add/extend tests (contract unit tests + frontend hook test happy/failure path).
-9. Run: contracts tests, subgraph build, frontend `npm run build` & `npm run test` before merging.
+9. Run: contracts tests, subgraph build, frontend `pnpm run build` & `pnpm run test` before merging.
 
 ## Error & Loading Handling Conventions
 

@@ -15,6 +15,9 @@ import type { Proposal } from '@/types'
 import { Button } from '@/components/ui/button'
 import { FaPlus } from 'react-icons/fa'
 import { useState } from 'react'
+import { formatTokenAmount, estimateDurationFromBlocks } from '@/utils/format'
+import Tooltip from '@/components/ui/Tooltip'
+import { getAverageBlockTime } from '@/constants/blockTimes'
 import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
@@ -196,24 +199,72 @@ export default function Home() {
 
       {govParams && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+          {/* Voting Delay */}
           <div className="p-4 border rounded-md bg-card">
-            <div className="text-xs uppercase opacity-60 mb-1">Voting Delay</div>
+            <div className="text-xs uppercase opacity-60 mb-1">
+              {t('governanceParams.votingDelay')}
+              <span className="ml-2 text-xs font-normal opacity-70">
+                {estimateDurationFromBlocks(
+                  Number(govParams.votingPeriod),
+                  getAverageBlockTime(
+                    parseInt(config.network.chainId, 16) || Number(config.network.chainId)
+                  )
+                )}
+              </span>
+              <Tooltip side="right" content={<p>{t('governanceParams.votingDelayHelp')}</p>}>
+                <span className="ml-1 lowercase text-muted-foreground">ⓘ</span>
+              </Tooltip>
+            </div>
             <div className="text-lg font-semibold">{govParams.votingDelay.toString()} blocks</div>
           </div>
+          {/* Voting Period */}
           <div className="p-4 border rounded-md bg-card">
-            <div className="text-xs uppercase opacity-60 mb-1">Voting Period</div>
-            <div className="text-lg font-semibold">{govParams.votingPeriod.toString()} blocks</div>
-          </div>
-          <div className="p-4 border rounded-md bg-card">
-            <div className="text-xs uppercase opacity-60 mb-1">Proposal Threshold</div>
-            <div className="text-lg font-semibold">
-              {Number(govParams.proposalThreshold) / 1e18}
+            <div className="text-xs uppercase opacity-60 mb-1">
+              {t('governanceParams.votingPeriod')}
+              <Tooltip side="right" content={<p>{t('governanceParams.votingPeriodHelp')}</p>}>
+                <span className="ml-1 lowercase text-muted-foreground">ⓘ</span>
+              </Tooltip>
+            </div>
+            <div className="text-lg font-semibold space-y-1">
+              <div>
+                {govParams.votingPeriod.toString()} blocks
+                <span className="ml-2 text-xs font-normal opacity-70">
+                  {estimateDurationFromBlocks(
+                    Number(govParams.votingPeriod),
+                    getAverageBlockTime(
+                      parseInt(config.network.chainId, 16) || Number(config.network.chainId)
+                    )
+                  )}
+                </span>
+              </div>
             </div>
           </div>
+          {/* Proposal Threshold */}
           <div className="p-4 border rounded-md bg-card">
-            <div className="text-xs uppercase opacity-60 mb-1">Quorum %</div>
+            <div className="text-xs uppercase opacity-60 mb-1">
+              {t('governanceParams.proposalThreshold')}
+              <Tooltip side="right" content={<p>{t('governanceParams.proposalThresholdHelp')}</p>}>
+                <span className="ml-1 lowercase text-muted-foreground">ⓘ</span>
+              </Tooltip>
+            </div>
             <div className="text-lg font-semibold">
-              {(Number(govParams.quorumNum) / Number(govParams.quorumDen)) * 100}%
+              {formatTokenAmount(BigInt(govParams.proposalThreshold), 18)}
+            </div>
+          </div>
+          {/* Quorum Percent */}
+          <div className="p-4 border rounded-md bg-card">
+            <div className="text-xs uppercase opacity-60 mb-1 flex items-center gap-1">
+              {t('governanceParams.quorumPercent')}
+              <Tooltip side="right" content={<p>{t('governanceParams.quorumPercentHelp')}</p>}>
+                <span className="ml-1 lowercase text-muted-foreground">ⓘ</span>
+              </Tooltip>
+            </div>
+            <div className="text-lg font-semibold">
+              {(
+                (Number(govParams.quorumNum) / Math.max(1, Number(govParams.quorumDen))) *
+                100
+              ).toFixed(2)}
+              %
             </div>
           </div>
         </div>

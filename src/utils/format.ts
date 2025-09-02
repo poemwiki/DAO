@@ -222,3 +222,31 @@ export const formatGraphTimestampLocalMinutes = (
     hour12: false,
   })
 }
+
+// Convert block count into human readable duration using average seconds per block.
+export function estimateDurationFromBlocks(
+  blocks: number,
+  secondsPerBlock = 2,
+  opts: { maxUnits?: number } = {}
+): string {
+  if (!Number.isFinite(blocks) || blocks <= 0) return '-'
+  const totalSeconds = blocks * secondsPerBlock
+  const units: Array<[string, number]> = [
+    ['d', 86400],
+    ['h', 3600],
+    ['m', 60],
+    ['s', 1],
+  ]
+  const parts: string[] = []
+  let remaining = totalSeconds
+  const maxUnits = opts.maxUnits ?? 2
+  for (const [label, size] of units) {
+    if (remaining >= size) {
+      const value = Math.floor(remaining / size)
+      remaining -= value * size
+      parts.push(`${value}${label}`)
+    }
+    if (parts.length === maxUnits) break
+  }
+  return parts.length ? parts.join(' ') : `${Math.round(totalSeconds)}s`
+}

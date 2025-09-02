@@ -2,14 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { mainnet, polygon, polygonAmoy, sepolia } from 'viem/chains'
 import { config as appConfig } from '@/config'
-
-// Average block times (rough) in seconds
-const AVG_BLOCK_TIME: Record<number, number> = {
-  1: 12, // Ethereum mainnet (post-merge ~12s slot)
-  11155111: 12, // Sepolia
-  137: 2, // Polygon
-  80002: 2, // Polygon Amoy
-}
+import { getAverageBlockTime } from '@/constants/blockTimes'
 
 function getChain() {
   const chainId = appConfig.network.chainId.startsWith('0x')
@@ -60,7 +53,7 @@ export function useEstimateBlockTimestamp(blockNumber?: number | null) {
           // fallback to estimation if direct fetch fails
         }
       }
-      const avg = AVG_BLOCK_TIME[getChain().id] || 12
+      const avg = getAverageBlockTime(getChain().id)
       const est = latest.timestamp + diff * avg
       return { timestamp: est, isEstimated: diff > 0, latest }
     },

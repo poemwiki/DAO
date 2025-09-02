@@ -131,5 +131,15 @@
     "updateQuorumNumerator": "法定人数分子 => {{value}}",
     "unknown": "未知操作",
     "parseError": "无法解析的调用"
+  },
+  "governanceParams": {
+    "votingDelay": "投票延迟",
+    "votingDelayHelp": "从提案创建到开始投票之间的区块数，给持有人准备时间。",
+    "votingPeriod": "投票时长",
+    "votingPeriodHelp": "允许投票的区块数量（期间可投票）。",
+    "proposalThreshold": "提案门槛",
+    "proposalThresholdHelp": "创建提案所需的最少投票权。",
+    "quorumPercent": "法定人数 %",
+    "quorumPercentHelp": "提案有效所需参与的总投票权百分比。"
   }
 }
