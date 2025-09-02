@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { getProposals, ProposalsResponseData } from '@/graphql'
-import { formatRelativeTime } from '@/utils/format'
+import { cn, formatRelativeTime } from '@/utils/format'
 import { extractBracketCode, buildProposalTitle } from '@/utils/proposal'
 import { parseProposalActions } from '@/lib/parseProposalActions'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
@@ -40,7 +40,7 @@ export default function Home() {
   // Calculate correct statistics based on actual status
   const getProposalStats = () => {
     let activeCount = 0
-    let closedCount = 0
+    // let closedCount = 0
 
     proposals.forEach((proposal: Proposal) => {
       const statusData = statuses[proposal.id]
@@ -57,18 +57,22 @@ export default function Home() {
           actualStatus
         )
       ) {
-        closedCount++
+        // closedCount++
       }
       // Fallback: treat unknown status as closed
-      else {
-        closedCount++
-      }
+      // else {
+      //   closedCount++
+      // }
     })
 
-    return { activeCount, closedCount }
+    return { activeCount }
   }
 
-  const { activeCount, closedCount } = getProposalStats()
+  const { activeCount } = getProposalStats()
+  const totalVotes = proposals.reduce(
+    (acc: number, p: Proposal) => acc + (p.voteCasts?.length || 0),
+    0
+  )
 
   if (isLoading) {
     return (
@@ -105,12 +109,14 @@ export default function Home() {
             <div className="text-sm text-muted-foreground">{t('home.totalProposals')}</div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">{activeCount}</div>
+            <div className={cn('text-2xl font-bold', { ' text-primary': activeCount > 0 })}>
+              {activeCount}
+            </div>
             <div className="text-sm text-muted-foreground">{t('home.activeProposals')}</div>
           </div>
           <div className="hidden md:block p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">{closedCount}</div>
-            <div className="text-sm text-muted-foreground">{t('home.closedProposals')}</div>
+            <div className="text-2xl font-bold">{totalVotes}</div>
+            <div className="text-sm text-muted-foreground">{t('home.totalVotes')}</div>
           </div>
         </div>
       </section>
@@ -132,58 +138,64 @@ export default function Home() {
             <FaPlus /> {t('proposal.create')}
           </Button>
         </div>
-        <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-          {proposals.map((proposal: Proposal, index: number) => {
-            const desc = proposal.description || ''
-            const bracketCode = extractBracketCode(desc)
-            const parsedActions = parseProposalActions(
-              proposal.targets || [],
-              proposal.calldatas || [],
-              proposal.signatures || [],
-              tokenInfo?.decimals,
-              tokenInfo?.symbol
-            )
-            const displayTitle = buildProposalTitle(bracketCode, parsedActions, t)
-            const numericCode = statuses[proposal.id]?.code ?? null
-            const proposalNumber = proposals.length - index
-            return (
-              <Link
-                key={proposal.id}
-                to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
-                className="block p-4 sm:p-6 border rounded-lg hover:border-primary transition-colors bg-card"
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                    <div className="space-y-2 flex-1 min-w-0">
-                      <div className="flex justify-start items-start md:items-center gap-2 flex-col md:flex-row">
-                        <h3 className="text-lg font-semibold break-words flex-1 min-w-0">
-                          {displayTitle}
-                        </h3>
-                        <Badge color="slate" outline={true}>
-                          Proposal #{proposalNumber}
-                        </Badge>
+        {proposals.length > 0 ? (
+          <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+            {proposals.map((proposal: Proposal, index: number) => {
+              const desc = proposal.description || ''
+              const bracketCode = extractBracketCode(desc)
+              const parsedActions = parseProposalActions(
+                proposal.targets || [],
+                proposal.calldatas || [],
+                proposal.signatures || [],
+                tokenInfo?.decimals,
+                tokenInfo?.symbol
+              )
+              const displayTitle = buildProposalTitle(bracketCode, parsedActions, t)
+              const numericCode = statuses[proposal.id]?.code ?? null
+              const proposalNumber = proposals.length - index
+              return (
+                <Link
+                  key={proposal.id}
+                  to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
+                  className="block p-4 sm:p-6 border rounded-lg hover:border-primary transition-colors bg-card"
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                      <div className="space-y-2 flex-1 min-w-0">
+                        <div className="flex justify-start items-start md:items-center gap-2 flex-col md:flex-row">
+                          <h3 className="text-lg font-semibold break-words flex-1 min-w-0">
+                            {displayTitle}
+                          </h3>
+                          <Badge color="slate" outline={true}>
+                            Proposal #{proposalNumber}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground line-clamp-3 break-words text-sm sm:text-base">
+                          {desc.replace(/^\[.*?\]\s*/, '')}
+                        </p>
                       </div>
-                      <p className="text-muted-foreground line-clamp-3 break-words text-sm sm:text-base">
-                        {desc.replace(/^\[.*?\]\s*/, '')}
-                      </p>
+                    </div>
+                    <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
+                      <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
+                      <span>
+                        {t('home.created')}:{' '}
+                        {formatRelativeTime(proposal.createdAt, t('lang') as string)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
-                    <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
-                    <span>
-                      {t('home.created')}:{' '}
-                      {formatRelativeTime(proposal.createdAt, t('lang') as string)}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+                </Link>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="p-8 w-full border rounded-lg text-center bg-card text-muted-foreground">
+            {t('home.noProposals')}
+          </div>
+        )}
       </section>
 
       {govParams && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
           <div className="p-4 border rounded-md bg-card">
             <div className="text-xs uppercase opacity-60 mb-1">Voting Delay</div>
             <div className="text-lg font-semibold">{govParams.votingDelay.toString()} blocks</div>

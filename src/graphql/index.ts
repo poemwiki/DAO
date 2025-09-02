@@ -23,6 +23,7 @@ const PROPOSALS_QUERY = `
       targets
       calldatas
       signatures
+      voteCasts { id }
     }
   }
 `

@@ -81,6 +81,8 @@
     "totalProposals": "提案总数",
     "activeProposals": "进行中",
     "closedProposals": "已结束",
+    "totalVotes": "总投票次数",
+    "noProposals": "暂无提案",
     "created": "创建时间",
     "updated": "更新时间",
     "backToProposals": "返回提案列表"

@@ -81,6 +81,8 @@
     "totalProposals": "Total Proposals",
     "activeProposals": "Active",
     "closedProposals": "Closed",
+    "totalVotes": "Total Votes",
+    "noProposals": "No proposals yet",
     "created": "Created",
     "updated": "Updated",
     "backToProposals": "Back to proposals"
