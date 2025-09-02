@@ -134,7 +134,7 @@
   },
   "governanceParams": {
     "votingDelay": "投票延迟",
-    "votingDelayHelp": "从提案创建到开始投票之间的区块数，给持有人准备时间。",
+    "votingDelayHelp": "从提案创建到开始投票之间的区块数，给投票人准备时间。",
     "votingPeriod": "投票时长",
     "votingPeriodHelp": "允许投票的区块数量（期间可投票）。",
     "proposalThreshold": "提案门槛",
