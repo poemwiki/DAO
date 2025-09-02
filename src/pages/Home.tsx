@@ -203,14 +203,6 @@ export default function Home() {
           <div className="p-4 border rounded-md bg-card">
             <div className="text-xs uppercase opacity-60 mb-1">
               {t('governanceParams.votingDelay')}
-              <span className="ml-2 text-xs font-normal opacity-70">
-                {estimateDurationFromBlocks(
-                  Number(govParams.votingPeriod),
-                  getAverageBlockTime(
-                    parseInt(config.network.chainId, 16) || Number(config.network.chainId)
-                  )
-                )}
-              </span>
               <Popover>
                 <PopoverTrigger asChild>
                   <span className="ml-1 lowercase text-muted-foreground cursor-pointer select-none">
@@ -222,7 +214,17 @@ export default function Home() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="text-lg font-semibold">{govParams.votingDelay.toString()} blocks</div>
+            <div className="text-lg font-semibold">
+              {govParams.votingDelay.toString()} blocks
+              <span className="ml-2 text-xs font-normal opacity-70">
+                {estimateDurationFromBlocks(
+                  Number(govParams.votingDelay),
+                  getAverageBlockTime(
+                    parseInt(config.network.chainId, 16) || Number(config.network.chainId)
+                  )
+                )}
+              </span>
+            </div>
           </div>
           {/* Voting Period */}
           <div className="p-4 border rounded-md bg-card">
