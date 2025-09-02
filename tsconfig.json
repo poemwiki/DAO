@@ -33,10 +33,7 @@
   "include": [
     "src/**/*",
     "statics/**/*",
-    "scripts/**/*",
-    "*.ts",
-    "*.js",
-    "vite.config.ts"
+    "scripts/**/*"
   ],
   "references": [
     {

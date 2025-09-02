@@ -1,12 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IoLanguageSharp } from 'react-icons/io5'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 
 const dropdownAnimation = {
   initial: { opacity: 0, scale: 0.95 },
@@ -30,7 +25,10 @@ export default function LanguageSwitch() {
 
   return (
     <Select value={i18n.language} onValueChange={handleLanguageChange}>
-      <SelectTrigger className="w-10 h-10 p-0 justify-center [&>svg]:hidden" title={i18n.language === 'zh' ? '中文' : 'English'}>
+      <SelectTrigger
+        className="w-10 h-10 p-0 justify-center [&>svg]:hidden"
+        title={i18n.language === 'zh' ? '中文' : 'English'}
+      >
         <motion.div
           className="flex items-center justify-center"
           initial={{ opacity: 0 }}

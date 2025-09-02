@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useDisplayName, __resetAddressBookCache } from './useDisplayName'
-import { config } from '@/config'
 
 // Mock wagmi useEnsName
 vi.mock('wagmi', () => ({

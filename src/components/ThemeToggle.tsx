@@ -25,7 +25,9 @@ export default function ThemeToggle() {
       root.classList.remove('light', 'dark')
 
       if (theme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
         root.classList.add(systemTheme)
       } else {
         root.classList.add(theme)
@@ -54,16 +56,27 @@ export default function ThemeToggle() {
     if (theme === 'system') {
       // Show current system preference icon
       const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches
-      return isDarkSystem ? <MdOutlineDarkMode className="h-4 w-4" /> : <MdOutlineLightMode className="h-4 w-4" />
+      return isDarkSystem ? (
+        <MdOutlineDarkMode className="h-4 w-4" />
+      ) : (
+        <MdOutlineLightMode className="h-4 w-4" />
+      )
     }
-    return theme === 'dark' ? <MdOutlineDarkMode className="h-4 w-4" /> : <MdOutlineLightMode className="h-4 w-4" />
+    return theme === 'dark' ? (
+      <MdOutlineDarkMode className="h-4 w-4" />
+    ) : (
+      <MdOutlineLightMode className="h-4 w-4" />
+    )
   }
 
   const getTooltip = () => {
     switch (theme) {
-      case 'light': return '浅色模式'
-      case 'dark': return '深色模式'
-      case 'system': return '跟随系统'
+      case 'light':
+        return '浅色模式'
+      case 'dark':
+        return '深色模式'
+      case 'system':
+        return '跟随系统'
     }
   }
 
