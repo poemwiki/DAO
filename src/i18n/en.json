@@ -62,7 +62,7 @@
   },
   "proposalThreshold": {
     "notEnough": "You need at least {{needed}} tokens to create a proposal.",
-    "currentVsNeeded": "Your balance: {{current}} / Required: {{needed}}"
+    "currentVsNeeded": "Your balance: {{current}} / Proposal Threshold: {{needed}}"
   },
   "tokenHolders": {
     "title": "Token Holders",

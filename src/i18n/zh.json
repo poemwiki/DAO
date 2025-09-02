@@ -62,7 +62,7 @@
   },
   "proposalThreshold": {
     "notEnough": "需要至少 {{needed}} 积分才能创建提案。",
-    "currentVsNeeded": "当前持有: {{current}} / 需要: {{needed}}"
+    "currentVsNeeded": "当前持有: {{current}} / 提案门槛: {{needed}}"
   },
   "tokenHolders": {
     "title": "积分持有人",

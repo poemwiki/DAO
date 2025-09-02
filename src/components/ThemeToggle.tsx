@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { MdOutlineLightMode, MdOutlineDarkMode } from 'react-icons/md'
+import { MdOutlineLightMode, MdOutlineDarkMode, MdOutlineComputer } from 'react-icons/md'
 import { Button } from '@/components/ui/button'
 
 type Theme = 'light' | 'dark' | 'system'
@@ -54,13 +54,7 @@ export default function ThemeToggle() {
 
   const getIcon = () => {
     if (theme === 'system') {
-      // Show current system preference icon
-      const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches
-      return isDarkSystem ? (
-        <MdOutlineDarkMode className="h-4 w-4" />
-      ) : (
-        <MdOutlineLightMode className="h-4 w-4" />
-      )
+      return <MdOutlineComputer className="h-4 w-4" />
     }
     return theme === 'dark' ? (
       <MdOutlineDarkMode className="h-4 w-4" />
