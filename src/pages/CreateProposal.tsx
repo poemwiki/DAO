@@ -148,8 +148,8 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
         </div>
       ) : (
         <form onSubmit={onSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-6">
+            <div className="flex flex-col gap-2">
               <Label>{t('proposal.title')}</Label>
               <Input
                 name="title"
@@ -158,11 +158,11 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                 placeholder={t('proposal.enterTitle')}
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>{t('proposal.type')}</Label>
               <ProposalTypeSelect value={proposalType} onChange={setProposalType} />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>
                 {proposalType === PROPOSAL_TYPE.BUDGET
                   ? t('proposal.requestAddress')
@@ -179,7 +179,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>{t('proposal.amount')}</Label>
               <Input
                 name="amount"
@@ -192,7 +192,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                 placeholder={t('proposal.enterAmount')}
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>{t('proposal.description')}</Label>
               <Textarea
                 name="description"
@@ -203,7 +203,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
               />
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-col">
             {createErrorMessage && (
               <p className="text-xs text-destructive break-words">{createErrorMessage}</p>
             )}
