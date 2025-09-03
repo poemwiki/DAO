@@ -1,13 +1,9 @@
+import typography from '@tailwindcss/typography'
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  darkMode: ['class'],
-  content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}',
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-  ],
+export default {
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     container: {
       center: true,
@@ -18,56 +14,55 @@ module.exports = {
     },
     extend: {
       colors: {
-        border: 'var(--border)',
-        input: 'var(--input)',
-        ring: 'var(--ring)',
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
+        border: 'var(--color-border)',
+        input: 'var(--color-input)',
+        ring: 'var(--color-ring)',
+        background: 'var(--color-background)',
+        foreground: 'var(--color-foreground)',
         primary: {
-          DEFAULT: 'var(--primary)',
-          foreground: 'var(--primary-foreground)',
-          background: 'var(--primary-background)',
+          DEFAULT: 'var(--color-primary)',
+          foreground: 'var(--color-primary-foreground)',
         },
         secondary: {
-          DEFAULT: 'var(--secondary)',
-          foreground: 'var(--secondary-foreground)',
+          DEFAULT: 'var(--color-secondary)',
+          foreground: 'var(--color-secondary-foreground)',
         },
         destructive: {
-          DEFAULT: 'var(--destructive)',
-          foreground: 'var(--destructive-foreground)',
+          DEFAULT: 'var(--color-destructive)',
+          foreground: 'var(--color-destructive-foreground)',
         },
         muted: {
-          DEFAULT: 'var(--muted)',
-          foreground: 'var(--muted-foreground)',
+          DEFAULT: 'var(--color-muted)',
+          foreground: 'var(--color-muted-foreground)',
         },
         accent: {
-          DEFAULT: 'var(--accent)',
-          foreground: 'var(--accent-foreground)',
+          DEFAULT: 'var(--color-accent)',
+          foreground: 'var(--color-accent-foreground)',
         },
         popover: {
-          DEFAULT: 'var(--popover)',
-          foreground: 'var(--popover-foreground)',
+          DEFAULT: 'var(--color-popover)',
+          foreground: 'var(--color-popover-foreground)',
         },
         card: {
-          DEFAULT: 'var(--card)',
-          foreground: 'var(--card-foreground)',
+          DEFAULT: 'var(--color-card)',
+          foreground: 'var(--color-card-foreground)',
         },
         sidebar: {
-          DEFAULT: 'var(--sidebar)',
-          foreground: 'var(--sidebar-foreground)',
-          primary: 'var(--sidebar-primary)',
-          'primary-foreground': 'var(--sidebar-primary-foreground)',
-          accent: 'var(--sidebar-accent)',
-          'accent-foreground': 'var(--sidebar-accent-foreground)',
-          border: 'var(--sidebar-border)',
-          ring: 'var(--sidebar-ring)',
+          DEFAULT: 'var(--color-sidebar)',
+          foreground: 'var(--color-sidebar-foreground)',
+          primary: 'var(--color-sidebar-primary)',
+          'primary-foreground': 'var(--color-sidebar-primary-foreground)',
+          accent: 'var(--color-sidebar-accent)',
+          'accent-foreground': 'var(--color-sidebar-accent-foreground)',
+          border: 'var(--color-sidebar-border)',
+          ring: 'var(--color-sidebar-ring)',
         },
         chart: {
-          1: 'var(--chart-1)',
-          2: 'var(--chart-2)',
-          3: 'var(--chart-3)',
-          4: 'var(--chart-4)',
-          5: 'var(--chart-5)',
+          1: 'var(--color-chart-1)',
+          2: 'var(--color-chart-2)',
+          3: 'var(--color-chart-3)',
+          4: 'var(--color-chart-4)',
+          5: 'var(--color-chart-5)',
         },
       },
       borderRadius: {
@@ -80,16 +75,8 @@ module.exports = {
         serif: ['var(--font-serif)'],
         mono: ['var(--font-mono)'],
       },
-      keyframes: {
-        'pulse-slow-bg': {
-          '0%, 100%': { backgroundColor: 'rgba(187 247 208 / 0.6)' },
-          '50%': { backgroundColor: 'rgba(167 243 208 / 0.85)' },
-        },
-      },
-      animation: {
-        'pulse-slow': 'pulse-slow-bg 3s ease-in-out infinite',
-      },
     },
   },
-  plugins: [require('@tailwindcss/typography'), require('@tailwindcss/line-clamp')],
+  // Keep only typography for prose classes; custom utilities + tokens handled in CSS (@theme/@layer)
+  plugins: [typography],
 }

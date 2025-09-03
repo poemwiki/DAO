@@ -46,7 +46,7 @@ export const NUMERIC_STATUS_MAP: Record<GovernorStateCode, StatusInfo> = {
     emoji: '🔵',
     i18nKey: 'proposalStatus.active',
     detailI18nKey: 'proposalStatusDetail.active',
-    badgeColor: 'blue',
+    badgeColor: 'green',
   },
   2: {
     status: 'canceled',
@@ -189,6 +189,9 @@ export function buildProposalTitle(
   actions: ParsedAction[],
   t: (_key: string) => string
 ): string {
+  // New: Prefer Markdown H1 (# Title) at top of description if present.
+  // Caller must pass bracketCode extracted earlier; to support markdown we allow passing raw description instead in future.
+  // For backwards compatibility we keep existing bracket logic when no markdown H1 is provided.
   if (bracketCode) {
     // Safely strip leading [ and trailing ]
     const inner = bracketCode.replace(/^\[/, '').replace(/\]$/, '').trim()

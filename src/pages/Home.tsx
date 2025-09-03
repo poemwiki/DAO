@@ -271,7 +271,7 @@ export default function Home() {
               </Popover>
             </div>
             <div className="text-lg font-semibold">
-              {formatTokenAmount(BigInt(govParams.proposalThreshold), 18)}
+              {formatTokenAmount(BigInt(govParams.proposalThreshold), tokenInfo?.decimals || 18)}
             </div>
           </div>
           {/* Quorum Percent */}

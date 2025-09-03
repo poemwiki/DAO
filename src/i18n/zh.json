@@ -30,6 +30,9 @@
     "createDescription": "创建一个提案供社区投票",
     "connectWalletFirst": "请先连接钱包",
     "type": "提案类型",
+    "typePlaceholder": "选择类型",
+    "title": "标题",
+    "enterTitle": "输入提案标题",
     "types": {
       "mint": "发放积分",
       "budget": "申请预算"
@@ -60,6 +63,13 @@
       "proposalId": "提案ID: {{id}}"
     }
   },
+  "wallet": {
+    "userRejected": "你在钱包中拒绝了本次交易。",
+    "txBuilding": "准备交易中...",
+    "txSigning": "请在钱包中确认...",
+    "txPending": "等待区块确认...",
+    "unknownError": "发生未知错误"
+  },
   "proposalThreshold": {
     "notEnough": "需要至少 {{needed}} 积分才能创建提案。",
     "currentVsNeeded": "当前持有: {{current}} / 提案门槛: {{needed}}"
@@ -89,7 +99,7 @@
   },
   "proposalStatus": {
     "pending": "未开始",
-    "active": "投票中",
+    "active": "进行中",
     "canceled": "已取消",
     "defeated": "未通过",
     "succeeded": "投票通过",

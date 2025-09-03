@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { MdOutlineLightMode, MdOutlineDarkMode, MdOutlineComputer } from 'react-icons/md'
 import { Button } from '@/components/ui/button'
@@ -6,50 +6,36 @@ import { Button } from '@/components/ui/button'
 type Theme = 'light' | 'dark' | 'system'
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('system')
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'system'
+    const stored = localStorage.getItem('theme') as Theme | null
+    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+  })
 
-  useEffect(() => {
-    // Get theme from localStorage or default to system
-    const storedTheme = localStorage.getItem('theme') as Theme
-    if (storedTheme) {
-      setTheme(storedTheme)
-    } else {
-      setTheme('system')
-    }
-  }, [])
-
-  useEffect(() => {
-    const root = window.document.documentElement
-
-    const applyTheme = (theme: Theme) => {
-      root.classList.remove('light', 'dark')
-
-      if (theme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light'
-        root.classList.add(systemTheme)
-      } else {
-        root.classList.add(theme)
-      }
-    }
-
-    applyTheme(theme)
+  // Apply theme asap after commit (still relies on early inline script for first paint)
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const finalTheme = theme === 'system' ? (sysDark ? 'dark' : 'light') : theme
+    root.classList.remove('light', 'dark')
+    root.classList.add(finalTheme)
     localStorage.setItem('theme', theme)
 
-    // Listen for system theme changes
     if (theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const handleChange = () => applyTheme('system')
-
-      mediaQuery.addEventListener('change', handleChange)
-      return () => mediaQuery.removeEventListener('change', handleChange)
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      const listener = () => {
+        const updated = mq.matches ? 'dark' : 'light'
+        root.classList.remove('light', 'dark')
+        root.classList.add(updated)
+      }
+      mq.addEventListener('change', listener)
+      return () => mq.removeEventListener('change', listener)
     }
   }, [theme])
 
   const toggleTheme = () => {
-    const nextTheme: Theme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
-    setTheme(nextTheme)
+    // keep 3-state cycle
+    setTheme(prev => (prev === 'light' ? 'dark' : prev === 'dark' ? 'system' : 'light'))
   }
 
   const getIcon = () => {

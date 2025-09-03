@@ -15,6 +15,22 @@
       const daoName = import.meta.env.VITE_DAO_NAME || 'Govo'
       document.title = daoName
     </script>
+    <!-- Early theme application to prevent light-mode flash when user prefers dark -->
+    <script>
+      ;(() => {
+        try {
+          const stored = localStorage.getItem('theme')
+          const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const theme =
+            stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system'
+          const finalTheme = theme === 'system' ? (sysDark ? 'dark' : 'light') : theme
+          document.documentElement.classList.remove('light', 'dark')
+          document.documentElement.classList.add(finalTheme)
+        } catch (e) {
+          /* ignore */
+        }
+      })()
+    </script>
   </head>
 
   <body>

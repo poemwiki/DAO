@@ -1,6 +1,7 @@
 {
   "name": "govzero",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -50,7 +51,7 @@
     "wagmi": "2.14.10"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/vite": "^4.1.12",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.0",
@@ -61,13 +62,11 @@
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "@vitejs/plugin-react": "^5.0.2",
-    "autoprefixer": "^10.4.20",
     "eslint": "^8.24.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.31.8",
     "jsdom": "^26.1.0",
-    "postcss": "8.4.35",
     "prettier": "^3.4.2",
     "sass": "^1.55.0",
     "tailwindcss": "4.1.12",

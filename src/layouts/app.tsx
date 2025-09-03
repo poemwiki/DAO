@@ -17,7 +17,7 @@ export default function AppLayout() {
               {import.meta.env.VITE_APP_LOGO ? (
                 <img src={import.meta.env.VITE_APP_LOGO} alt="Logo" className="h-16 w-16" />
               ) : (
-                <DefaultLogo className="h-16 w-16 text-foreground dark:text-white" />
+                <DefaultLogo className="h-16 w-16 text-foreground" />
               )}
             </a>
           </div>

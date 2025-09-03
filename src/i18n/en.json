@@ -30,6 +30,9 @@
     "createDescription": "Create a new proposal for the community to vote on",
     "connectWalletFirst": "Please connect your wallet first",
     "type": "Proposal Type",
+    "typePlaceholder": "Select type",
+    "title": "Title",
+    "enterTitle": "Enter proposal title",
     "types": {
       "mint": "Token Distribution",
       "budget": "Budget Request"
@@ -59,6 +62,13 @@
       "error": "Failed to create proposal.",
       "proposalId": "Proposal ID: {{id}}"
     }
+  },
+  "wallet": {
+    "userRejected": "You rejected the transaction in your wallet.",
+    "txBuilding": "Preparing transaction...",
+    "txSigning": "Please sign in your wallet...",
+    "txPending": "Waiting for confirmation...",
+    "unknownError": "Unexpected error occurred"
   },
   "proposalThreshold": {
     "notEnough": "You need at least {{needed}} tokens to create a proposal.",
