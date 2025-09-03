@@ -221,11 +221,13 @@ export default function Proposal() {
           <h1 className="text-3xl font-bold break-all">{code}</h1>
         </div>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <ProposalStatusBadge
-            className="!text-sm !py-2 !px-3"
-            proposal={proposal}
-            numericCode={stateCode ?? null}
-          />
+          <span className={stateCode === null ? 'invisible' : 'visible'}>
+            <ProposalStatusBadge
+              className="!text-sm !py-2 !px-3"
+              proposal={proposal}
+              numericCode={stateCode ?? null}
+            />
+          </span>
         </div>
       </header>
       <section className="space-y-8">

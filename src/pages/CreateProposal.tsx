@@ -12,17 +12,17 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select'
+import { ProposalTypeSelect } from '@/components/ProposalTypeSelect'
+import { formatTokenAmount } from '@/utils/format'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
 
 // NOTE: This page will be extended to include batch mint & governor setting later.
 
 export default function CreateProposal() {
+  return <CreateProposalOuter />
+}
+
+const CreateProposalOuter = React.memo(function CreateProposalOuter() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [{ wallet }] = useConnectWallet()
@@ -30,7 +30,7 @@ export default function CreateProposal() {
   const [proposalType, setProposalType] = useState<
     (typeof PROPOSAL_TYPE)[keyof typeof PROPOSAL_TYPE]
   >(PROPOSAL_TYPE.MINT)
-  const [formData, setFormData] = useState({ address: '', amount: '', description: '' })
+  const [formData, setFormData] = useState({ title: '', address: '', amount: '', description: '' })
   const {
     create: createProposal,
     status: createStatus,
@@ -60,16 +60,18 @@ export default function CreateProposal() {
     return null
   }, [wallet, gov, loadingBalance, meetsThreshold, thresholdFormatted, t])
 
+  // Friendly error mapping
   let createErrorMessage: string | null = null
   if (createError) {
-    if (
-      typeof createError === 'object' &&
-      'message' in (createError as any) &&
-      (createError as any).message
-    ) {
-      createErrorMessage = String((createError as any).message)
+    const raw =
+      (createError as any)?.shortMessage || (createError as any)?.message || String(createError)
+    if (/User rejected/i.test(raw) || /denied transaction signature/i.test(raw)) {
+      createErrorMessage = t('wallet.userRejected')
     } else {
-      createErrorMessage = String(createError as any)
+      // Remove long calldata blobs (hex longer than 120 chars)
+      createErrorMessage = raw.replace(/0x[0-9a-fA-F]{120,}/g, (m: string) => m.slice(0, 20) + '…')
+      if (createErrorMessage && createErrorMessage.length > 360)
+        createErrorMessage = createErrorMessage.slice(0, 360) + '…'
     }
   }
 
@@ -88,11 +90,24 @@ export default function CreateProposal() {
     )
       return
     const addr = proposalType === PROPOSAL_TYPE.BUDGET ? proposerAddress || '' : formData.address
+    // Build markdown description with optional custom H1 title.
+    // If user-specified title equals the fallback implicit title derived from type, we omit the H1 to keep description clean.
+    const fallbackTitleMap: Record<string, string> = {
+      [PROPOSAL_TYPE.MINT]: t('proposal.fallbackTitle.mint'),
+      [PROPOSAL_TYPE.BUDGET]: t('proposal.fallbackTitle.mintAndApprove'),
+    }
+    const userTitle = formData.title.trim()
+    const fallbackTitle = fallbackTitleMap[proposalType]
+    let finalDescription = formData.description
+    if (userTitle && userTitle !== fallbackTitle) {
+      // Prepend markdown H1 (# Title) and a blank line.
+      finalDescription = `# ${userTitle}  \n${finalDescription}`
+    }
     await createProposal({
       type: proposalType,
       address: addr,
       amount: formData.amount,
-      description: formData.description,
+      description: finalDescription,
     })
   }
 
@@ -135,16 +150,17 @@ export default function CreateProposal() {
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
+              <Label>{t('proposal.title')}</Label>
+              <Input
+                name="title"
+                value={formData.title}
+                onChange={onChange}
+                placeholder={t('proposal.enterTitle')}
+              />
+            </div>
+            <div className="space-y-2">
               <Label>{t('proposal.type')}</Label>
-              <Select value={proposalType} onValueChange={(v: any) => setProposalType(v)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={PROPOSAL_TYPE.MINT}>{t('proposal.types.mint')}</SelectItem>
-                  <SelectItem value={PROPOSAL_TYPE.BUDGET}>{t('proposal.types.budget')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <ProposalTypeSelect value={proposalType} onChange={setProposalType} />
             </div>
             <div className="space-y-2">
               <Label>
@@ -188,39 +204,36 @@ export default function CreateProposal() {
             </div>
           </div>
           <div className="space-y-2">
-            {createStatus !== 'idle' && (
-              <p className="text-xs text-muted-foreground">
-                {createStatus === 'building' && t('proposal.status.building')}
-                {createStatus === 'signing' && t('proposal.status.signing')}
-                {createStatus === 'pending' && t('proposal.status.pending')}
-                {createStatus === 'success' && t('proposal.status.success')}
-                {createStatus === 'error' && t('proposal.status.error')}
-              </p>
-            )}
             {createErrorMessage && (
               <p className="text-xs text-destructive break-words">{createErrorMessage}</p>
-            )}
-            {createResult?.proposalId && (
-              <p className="text-xs break-words">
-                {t('proposal.status.proposalId', { id: createResult.proposalId })}
-              </p>
             )}
             <div className="flex justify-end">
               <Button
                 type="submit"
                 disabled={['building', 'signing', 'pending'].includes(createStatus)}
+                className="relative"
               >
-                {['building', 'signing', 'pending'].includes(createStatus)
-                  ? t('common.submitting')
-                  : t('proposal.submit')}
+                {createStatus === 'building' && t('wallet.txBuilding')}
+                {createStatus === 'signing' && t('wallet.txSigning')}
+                {createStatus === 'pending' && t('wallet.txPending')}
+                {createStatus === 'success' && t('proposal.status.success')}
+                {['idle', 'error'].includes(createStatus) && t('proposal.submit')}
+                {['building', 'signing', 'pending'].includes(createStatus) && (
+                  <span className="ml-2 h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
+                )}
               </Button>
             </div>
+            {createResult?.proposalId && (
+              <p className="text-xs text-right break-words">
+                {t('proposal.status.proposalId', { id: createResult.proposalId })}
+              </p>
+            )}
           </div>
         </form>
       )}
     </div>
   )
-}
+})
 
 function useProposalThresholdCheck({
   proposer,
@@ -230,6 +243,7 @@ function useProposalThresholdCheck({
   proposalThreshold?: bigint
 }) {
   const publicClient = usePublicClient()
+  const { data: tokenInfo } = useTokenInfo()
   const [balance, setBalance] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
 
@@ -257,7 +271,10 @@ function useProposalThresholdCheck({
   }, [publicClient, proposer, proposalThreshold])
 
   const thresholdFormatted =
-    proposalThreshold !== undefined ? (Number(proposalThreshold) / 1e18).toString() : null
+    proposalThreshold !== undefined
+      ? formatTokenAmount(BigInt(proposalThreshold), tokenInfo?.decimals || 18)
+      : null
+
   const meetsThreshold =
     balance !== null && thresholdFormatted !== null
       ? Number(balance) >= Number(thresholdFormatted)

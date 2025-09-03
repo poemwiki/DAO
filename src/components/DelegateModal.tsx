@@ -214,7 +214,7 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
               )}
             </SelectTrigger>
             <SelectContent className="max-h-64 overflow-y-auto">
-              <div className="px-1 py-1 space-y-1">
+              <div className="space-y-1">
                 {orderedMembers.map(member => (
                   <MemberSelectItem key={member.id} member={member} selfAddress={address} t={t} />
                 ))}
@@ -295,11 +295,11 @@ function MemberSelectItem({
   const isSelf = member.id.toLowerCase() === selfAddress?.toLowerCase()
   const displayName = useDisplayName({ address: member.id })
   const primaryLabel = isSelf ? t('delegate.self') : displayName || short(member.id)
-  const secondary = isSelf ? short(member.id) : member.id
+  const secondary = member.id
   return (
     <SelectItem
       value={member.id}
-      className={`flex flex-col items-start gap-0 p-3 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground ${isSelf ? 'border-primary/50' : 'border-transparent'}`}
+      className={`flex flex-col items-start gap-0 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground ${isSelf ? 'border-primary/50' : 'border-transparent'}`}
     >
       <div className="w-full flex items-center justify-between gap-2">
         <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>

@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getProposals, ProposalsResponseData } from '@/graphql'
-import { cn, formatRelativeTime } from '@/utils/format'
-import { extractBracketCode, buildProposalTitle } from '@/utils/proposal'
-import { parseProposalActions } from '@/lib/parseProposalActions'
+import { cn } from '@/utils/format'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
-import ProposalStatusBadge from '@/components/ProposalStatusBadge'
+// status badge handled inside ProposalListItem
+import ProposalListItem from '@/components/ProposalListItem'
 import { useProposalStates } from '@/hooks/useProposalStates'
 import { ROUTES } from '@/constants'
 import { config } from '@/config'
@@ -21,7 +20,6 @@ import { getAverageBlockTime } from '@/constants/blockTimes'
 import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
-import Badge from '@/components/ui/Badge'
 import { useConnectWallet } from '@web3-onboard/react'
 
 export default function Home() {
@@ -143,52 +141,14 @@ export default function Home() {
         </div>
         {proposals.length > 0 ? (
           <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-            {proposals.map((proposal: Proposal, index: number) => {
-              const desc = proposal.description || ''
-              const bracketCode = extractBracketCode(desc)
-              const parsedActions = parseProposalActions(
-                proposal.targets || [],
-                proposal.calldatas || [],
-                proposal.signatures || [],
-                tokenInfo?.decimals,
-                tokenInfo?.symbol
-              )
-              const displayTitle = buildProposalTitle(bracketCode, parsedActions, t)
-              const numericCode = statuses[proposal.id]?.code ?? null
-              const proposalNumber = proposals.length - index
-              return (
-                <Link
-                  key={proposal.id}
-                  to={ROUTES.PROPOSAL.replace(':id', proposal.id)}
-                  className="block p-4 sm:p-6 border rounded-lg hover:border-primary transition-colors bg-card"
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                      <div className="space-y-2 flex-1 min-w-0">
-                        <div className="flex justify-start items-start md:items-center gap-2 flex-col md:flex-row">
-                          <h3 className="text-lg font-semibold break-words flex-1 min-w-0">
-                            {displayTitle}
-                          </h3>
-                          <Badge color="slate" outline={true}>
-                            Proposal #{proposalNumber}
-                          </Badge>
-                        </div>
-                        <p className="text-muted-foreground line-clamp-3 break-words text-sm sm:text-base">
-                          {desc.replace(/^\[.*?\]\s*/, '')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs">
-                      <ProposalStatusBadge proposal={proposal} numericCode={numericCode} />
-                      <span>
-                        {t('home.created')}:{' '}
-                        {formatRelativeTime(proposal.createdAt, t('lang') as string)}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
+            {proposals.map((proposal: Proposal, index: number) => (
+              <ProposalListItem
+                key={proposal.id}
+                proposal={proposal}
+                numericCode={statuses[proposal.id]?.code ?? null}
+                proposalNumber={proposals.length - index}
+              />
+            ))}
           </div>
         ) : (
           <div className="p-8 w-full border rounded-lg text-center bg-card text-muted-foreground">
