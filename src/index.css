@@ -66,7 +66,7 @@
   --color-secondary-foreground      : oklch(0.1884 0.0128 248.5103);
   --color-muted                     : oklch(0.2090 0 0);
   --color-muted-foreground          : oklch(0.5637 0.0078 247.9662);
-  --color-accent                    : oklch(0.1928 0.0331 145);
+  --color-accent                    : color-mix(in oklab, var(--color-primary) 22%, transparent);
   --color-accent-foreground         : oklch(0.6692 0.1607 145);
   --color-destructive               : oklch(0.6188 0.2376 25.7658);
   --color-destructive-foreground    : oklch(1 0 0);
@@ -89,8 +89,33 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  body { background: var(--color-background); color: var(--color-foreground); letter-spacing: var(--tracking-normal); }
+  * {
+    border-color: var(--color-border);
+    scrollbar-color: initial;
+  }
+  *::-webkit-scrollbar {
+    all: initial !important;
+    width: 6px !important;
+    height: 6px!important;
+    background: transparent !important;
+  }
+  *::-webkit-scrollbar-thumb {
+    all: initial !important;
+    background: color-mix(in oklab, var(--color-primary) 22%, transparent) !important;
+    border-radius: 3px !important;
+  }
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+
+  body {
+    background: var(--color-background); 
+    color: var(--color-foreground);
+    letter-spacing: var(--tracking-normal);
+    overflow-y: scroll; /* prevent layout shift when toggling scrollbar */
+    scrollbar-gutter: both;
+  }
 }
 
 /* Badge semantic color utilities (unified vars; dark overrides below) */

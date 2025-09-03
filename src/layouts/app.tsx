@@ -1,10 +1,8 @@
 import { Outlet } from 'react-router-dom'
 import ConnectWallet from '@/components/ConnectButton'
 import LanguageSwitch from '@/components/LanguageSwitch'
-import ThemeToggle from '@/components/ThemeToggle'
+import ThemeSelect from '@/components/ThemeSelect'
 import { DefaultLogo } from '@/components/ui/DefaultLogo'
-
-// Fallback logo now provided by <DefaultLogo /> component (inline SVG, themable via currentColor)
 
 export default function AppLayout() {
   return (
@@ -17,13 +15,14 @@ export default function AppLayout() {
               {import.meta.env.VITE_APP_LOGO ? (
                 <img src={import.meta.env.VITE_APP_LOGO} alt="Logo" className="h-16 w-16" />
               ) : (
+                // Fallback logo now provided by <DefaultLogo /> component (inline SVG, themable via currentColor)
                 <DefaultLogo className="h-16 w-16 text-foreground" />
               )}
             </a>
           </div>
-          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <div className="flex flex-1 items-center justify-end">
             <div className="flex items-center gap-2">
-              <ThemeToggle />
+              <ThemeSelect />
               <LanguageSwitch />
               <ConnectWallet />
             </div>

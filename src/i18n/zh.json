@@ -1,155 +1,164 @@
 {
   "accountCenter": {
-    "connectWallet": "连接钱包",
+    "addAccount": "添加账户",
+    "appInfo": "应用信息",
+    "backToApp": "返回应用",
     "connectAnotherWallet": "连接其他钱包",
+    "connectWallet": "登录",
+    "copyAddress": "复制地址",
+    "currentNetwork": "当前网络",
     "disconnectAllWallets": "断开所有钱包",
     "disconnectWallet": "断开",
-    "setDelegate": "设置投票代理人",
-    "currentNetwork": "当前网络",
-    "appInfo": "应用信息",
-    "learnMore": "了解更多",
-    "gettingStartedGuide": "入门指南",
-    "smartContracts": "智能合约",
     "explore": "探索",
-    "backToApp": "返回应用",
+    "gettingStartedGuide": "入门指南",
+    "learnMore": "了解更多",
     "poweredBy": "由",
-    "addAccount": "添加账户",
+    "setDelegate": "设置投票代理人",
     "setPrimaryAccount": "设置主账户",
-    "copyAddress": "复制地址"
+    "smartContracts": "智能合约"
+  },
+  "actions": {
+    "batchMint": "批量发放给 {{count}} 人, 总计 {{total}} {{symbol}}",
+    "mint": "发放 {{amount}} {{symbol}} 给 {{who}}",
+    "mintAndApprove": "申请 {{amount}} {{symbol}} 预算给 {{who}}",
+    "parseError": "无法解析的调用",
+    "setProposalThreshold": "提案门槛 => {{value}}",
+    "setVotingDelay": "投票延迟(区块) => {{value}}",
+    "setVotingPeriod": "投票时长(区块) => {{value}}",
+    "unknown": "未知操作",
+    "updateQuorumNumerator": "法定人数分子 => {{value}}"
   },
   "common": {
-    "cancel": "取消",
-    "submit": "提交",
-    "submitting": "提交中...",
-    "loading": "加载中...",
     "backToHome": "返回首页",
-    "close": "关闭"
+    "cancel": "取消",
+    "close": "关闭",
+    "loading": "加载中...",
+    "submit": "提交",
+    "submitting": "提交中..."
+  },
+  "delegate": {
+    "changeButton": "更改代理人",
+    "confirmed": "已确认 ✓",
+    "confirming": "确认中...",
+    "description": "请选择一个地址作为您的投票代理人。代理人将代表您的积分进行投票。",
+    "selectPlaceholder": "选择代理人地址",
+    "self": "我自己",
+    "setButton": "设置代理人",
+    "submit": "确认设置",
+    "title": "设置投票代理人",
+    "viewTransaction": "在区块浏览器中查看"
+  },
+  "governanceParams": {
+    "proposalThreshold": "提案门槛",
+    "proposalThresholdHelp": "创建提案所需的最少投票权。",
+    "quorumPercent": "法定人数 %",
+    "quorumPercentHelp": "提案有效所需参与的总投票权百分比。",
+    "votingDelay": "投票延迟",
+    "votingDelayHelp": "从提案创建到开始投票之间的区块数，给投票人准备时间。",
+    "votingPeriod": "投票时长",
+    "votingPeriodHelp": "允许投票的区块数量（期间可投票）。"
+  },
+  "home": {
+    "activeProposals": "进行中",
+    "backToProposals": "返回提案列表",
+    "closedProposals": "已结束",
+    "created": "创建时间",
+    "governanceProposals": "提案",
+    "noProposals": "暂无提案",
+    "totalProposals": "提案总数",
+    "totalVotes": "总投票次数",
+    "updated": "更新时间"
   },
   "proposal": {
+    "amount": "数量",
+    "connectWalletFirst": "请先连接钱包",
     "create": "创建提案",
     "createDescription": "创建一个提案供社区投票",
-    "connectWalletFirst": "请先连接钱包",
-    "type": "提案类型",
-    "typePlaceholder": "选择类型",
-    "title": "标题",
-    "enterTitle": "输入提案标题",
-    "types": {
-      "mint": "发放积分",
-      "budget": "申请预算"
-    },
-    "recipientAddress": "接收地址",
-    "requestAddress": "请求地址（你的地址）",
-    "amount": "数量",
+    "createdAt": "创建于",
     "description": "描述",
     "enterAddress": "输入钱包地址",
     "enterAmount": "输入数量",
     "enterDescription": "输入提案描述",
-    "submit": "创建提案",
-    "proposer": "提案人",
-    "createdAt": "创建于",
+    "enterTitle": "输入提案标题",
     "fallbackTitle": {
       "batchMint": "批量发放积分",
-      "mint": "发放积分",
-      "mintAndApprove": "申请预算",
+      "default": "治理提案",
       "governorSetting": "治理参数调整",
-      "default": "治理提案"
+      "mint": "发放积分",
+      "mintAndApprove": "申请预算"
     },
+    "proposer": "提案人",
+    "recipientAddress": "接收地址",
+    "requestAddress": "请求地址（你的地址）",
     "status": {
       "building": "构建交易中...",
-      "signing": "等待钱包签名...",
-      "pending": "交易确认中...",
-      "success": "提案创建成功! 即将跳转...",
       "error": "创建提案失败。",
-      "proposalId": "提案ID: {{id}}"
+      "pending": "交易确认中...",
+      "proposalId": "提案ID: {{id}}",
+      "signing": "等待钱包签名...",
+      "success": "提案创建成功! 即将跳转..."
+    },
+    "submit": "创建提案",
+    "title": "标题",
+    "type": "提案类型",
+    "typePlaceholder": "选择类型",
+    "types": {
+      "budget": "申请预算",
+      "mint": "发放积分"
     }
   },
-  "wallet": {
-    "userRejected": "你在钱包中拒绝了本次交易。",
-    "txBuilding": "准备交易中...",
-    "txSigning": "请在钱包中确认...",
-    "txPending": "等待区块确认...",
-    "unknownError": "发生未知错误"
-  },
-  "proposalThreshold": {
-    "notEnough": "需要至少 {{needed}} 积分才能创建提案。",
-    "currentVsNeeded": "当前持有: {{current}} / 提案门槛: {{needed}}"
-  },
-  "tokenHolders": {
-    "title": "积分持有人",
-    "holder": "持有人",
-    "delegate": "投票代理人",
-    "balance": "积分",
-    "votes": "投票权",
-    "holderAddress": "持有人地址",
-    "delegateAddress": "投票代理人地址",
-    "noData": "暂无数据",
-    "totalHolders": "个持有人",
-    "notSet": "未设置"
-  },
-  "home": {
-    "governanceProposals": "提案",
-    "totalProposals": "提案总数",
-    "activeProposals": "进行中",
-    "closedProposals": "已结束",
-    "totalVotes": "总投票次数",
-    "noProposals": "暂无提案",
-    "created": "创建时间",
-    "updated": "更新时间",
-    "backToProposals": "返回提案列表"
-  },
   "proposalStatus": {
-    "pending": "未开始",
     "active": "进行中",
     "canceled": "已取消",
+    "closed": "已结束",
     "defeated": "未通过",
-    "succeeded": "投票通过",
-    "queued": "已排程",
-    "expired": "已过期",
     "executed": "已执行",
-    "closed": "已结束"
+    "expired": "已过期",
+    "pending": "未开始",
+    "queued": "已排程",
+    "succeeded": "投票通过"
   },
   "proposalStatusDetail": {
-    "pending": "投票尚未开始，等待到达投票起始区块。",
     "active": "投票进行中，在截止区块前可继续投票。",
     "canceled": "提案已被取消，不再继续流程。",
+    "closed": "提案生命周期已结束。",
     "defeated": "投票已结束，未达到通过所需的支持或法定人数。",
-    "succeeded": "投票已结束并通过，可进入排程/执行阶段。",
-    "queued": "提案已进入时间锁队列，等待执行时间窗口。",
-    "expired": "在允许的执行窗口内未执行，已过期失效。",
     "executed": "提案的所有链上操作已成功执行。",
-    "closed": "提案生命周期已结束。"
+    "expired": "在允许的执行窗口内未执行，已过期失效。",
+    "pending": "投票尚未开始，等待到达投票起始区块。",
+    "queued": "提案已进入时间锁队列，等待执行时间窗口。",
+    "succeeded": "投票已结束并通过，可进入排程/执行阶段。"
   },
-  "delegate": {
-    "title": "设置投票代理人",
-    "description": "请选择一个地址作为您的投票代理人。代理人将代表您的积分进行投票。",
-    "selectPlaceholder": "选择代理人地址",
-    "self": "我自己",
-    "submit": "确认设置",
-    "confirming": "确认中...",
-    "confirmed": "已确认 ✓",
-    "viewTransaction": "在区块浏览器中查看",
-    "setButton": "设置代理人",
-    "changeButton": "更改代理人"
+  "proposalThreshold": {
+    "currentVsNeeded": "当前持有: {{current}} / 提案门槛: {{needed}}",
+    "notEnough": "需要至少 {{needed}} 积分才能创建提案。"
   },
-  "actions": {
-    "mint": "发放 {{amount}} {{symbol}} 给 {{who}}",
-    "mintAndApprove": "申请 {{amount}} {{symbol}} 预算给 {{who}}",
-    "batchMint": "批量发放给 {{count}} 人, 总计 {{total}} {{symbol}}",
-    "setVotingDelay": "投票延迟(区块) => {{value}}",
-    "setVotingPeriod": "投票时长(区块) => {{value}}",
-    "setProposalThreshold": "提案门槛 => {{value}}",
-    "updateQuorumNumerator": "法定人数分子 => {{value}}",
-    "unknown": "未知操作",
-    "parseError": "无法解析的调用"
+  "switchLanguage": {
+    "menuTitle": "切换语言"
   },
-  "governanceParams": {
-    "votingDelay": "投票延迟",
-    "votingDelayHelp": "从提案创建到开始投票之间的区块数，给投票人准备时间。",
-    "votingPeriod": "投票时长",
-    "votingPeriodHelp": "允许投票的区块数量（期间可投票）。",
-    "proposalThreshold": "提案门槛",
-    "proposalThresholdHelp": "创建提案所需的最少投票权。",
-    "quorumPercent": "法定人数 %",
-    "quorumPercentHelp": "提案有效所需参与的总投票权百分比。"
+  "theme": {
+    "dark": "深色",
+    "light": "浅色",
+    "menuTitle": "切换主题",
+    "system": "系统"
+  },
+  "tokenHolders": {
+    "balance": "积分",
+    "delegate": "投票代理人",
+    "delegateAddress": "投票代理人地址",
+    "holder": "持有人",
+    "holderAddress": "持有人地址",
+    "noData": "暂无数据",
+    "notSet": "未设置",
+    "title": "积分持有人",
+    "totalHolders": "个持有人",
+    "votes": "投票权"
+  },
+  "wallet": {
+    "txBuilding": "准备交易中...",
+    "txPending": "等待区块确认...",
+    "txSigning": "请在钱包中确认...",
+    "unknownError": "发生未知错误",
+    "userRejected": "你在钱包中拒绝了本次交易。"
   }
 }

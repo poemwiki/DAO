@@ -1,155 +1,164 @@
 {
   "accountCenter": {
-    "connectWallet": "Connect Wallet",
+    "addAccount": "Add Account",
+    "appInfo": "App Info",
+    "backToApp": "Back to App",
     "connectAnotherWallet": "Connect Another Wallet",
+    "connectWallet": "Login",
+    "copyAddress": "Copy Address",
+    "currentNetwork": "Current Network",
     "disconnectAllWallets": "Disconnect All Wallets",
     "disconnectWallet": "Disconnect",
-    "setDelegate": "Set Voting Delegate",
-    "currentNetwork": "Current Network",
-    "appInfo": "App Info",
-    "learnMore": "Learn More",
-    "gettingStartedGuide": "Getting Started Guide",
-    "smartContracts": "Smart Contracts",
     "explore": "Explore",
-    "backToApp": "Back to App",
+    "gettingStartedGuide": "Getting Started Guide",
+    "learnMore": "Learn More",
     "poweredBy": "powered by",
-    "addAccount": "Add Account",
+    "setDelegate": "Set Voting Delegate",
     "setPrimaryAccount": "Set Primary Account",
-    "copyAddress": "Copy Address"
+    "smartContracts": "Smart Contracts"
+  },
+  "actions": {
+    "batchMint": "Batch distribute to {{count}} recipients, total {{total}} {{symbol}}",
+    "mint": "Distribute {{amount}} {{symbol}} to {{who}}",
+    "mintAndApprove": "Request {{amount}} {{symbol}} budget for {{who}}",
+    "parseError": "Failed to parse call",
+    "setProposalThreshold": "Proposal Threshold => {{value}}",
+    "setVotingDelay": "Voting Delay (blocks) => {{value}}",
+    "setVotingPeriod": "Voting Period (blocks) => {{value}}",
+    "unknown": "Unknown Action",
+    "updateQuorumNumerator": "Quorum Numerator => {{value}}"
   },
   "common": {
-    "cancel": "Cancel",
-    "submit": "Submit",
-    "submitting": "Submitting...",
-    "loading": "Loading...",
     "backToHome": "Back to Home",
-    "close": "Close"
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "submitting": "Submitting..."
+  },
+  "delegate": {
+    "changeButton": "Change Delegate",
+    "confirmed": "Confirmed ✓",
+    "confirming": "Confirming...",
+    "description": "Please choose an address as your voting delegate. The delegate will vote on your behalf with your balance.",
+    "selectPlaceholder": "Select delegate address",
+    "self": "Me",
+    "setButton": "Set Delegate",
+    "submit": "Confirm",
+    "title": "Set Voting Delegate",
+    "viewTransaction": "View transaction on explorer"
+  },
+  "governanceParams": {
+    "proposalThreshold": "Proposal Threshold",
+    "proposalThresholdHelp": "Minimum voting power required for an address to create a proposal.",
+    "quorumPercent": "Quorum %",
+    "quorumPercentHelp": "Percentage of total voting power that must participate for a proposal to be valid.",
+    "votingDelay": "Voting Delay",
+    "votingDelayHelp": "Blocks between proposal creation and voting start. Gives members time to prepare.",
+    "votingPeriod": "Voting Period",
+    "votingPeriodHelp": "Number of blocks during which votes can be cast."
+  },
+  "home": {
+    "activeProposals": "Active",
+    "backToProposals": "Back to proposals",
+    "closedProposals": "Closed",
+    "created": "Created",
+    "governanceProposals": "Proposals",
+    "noProposals": "No proposals yet",
+    "totalProposals": "Total Proposals",
+    "totalVotes": "Total Votes",
+    "updated": "Updated"
   },
   "proposal": {
+    "amount": "Amount",
+    "connectWalletFirst": "Please connect your wallet first",
     "create": "Create Proposal",
     "createDescription": "Create a new proposal for the community to vote on",
-    "connectWalletFirst": "Please connect your wallet first",
-    "type": "Proposal Type",
-    "typePlaceholder": "Select type",
-    "title": "Title",
-    "enterTitle": "Enter proposal title",
-    "types": {
-      "mint": "Token Distribution",
-      "budget": "Budget Request"
-    },
-    "recipientAddress": "Recipient Address",
-    "requestAddress": "Request Address (Your Address)",
-    "amount": "Amount",
+    "createdAt": "created",
     "description": "Description",
     "enterAddress": "Enter wallet address",
     "enterAmount": "Enter amount",
     "enterDescription": "Enter proposal description",
-    "submit": "Create Proposal",
-    "proposer": "Proposer",
-    "createdAt": "created",
+    "enterTitle": "Enter proposal title",
     "fallbackTitle": {
       "batchMint": "Batch Token Distribution",
-      "mint": "Token Distribution",
-      "mintAndApprove": "Budget Request",
+      "default": "Governance Proposal",
       "governorSetting": "Governance Parameter Update",
-      "default": "Governance Proposal"
+      "mint": "Token Distribution",
+      "mintAndApprove": "Budget Request"
     },
+    "proposer": "Proposer",
+    "recipientAddress": "Recipient Address",
+    "requestAddress": "Request Address (Your Address)",
     "status": {
       "building": "Building transaction...",
-      "signing": "Awaiting wallet signature...",
-      "pending": "Transaction pending...",
-      "success": "Proposal created successfully! Redirecting...",
       "error": "Failed to create proposal.",
-      "proposalId": "Proposal ID: {{id}}"
+      "pending": "Transaction pending...",
+      "proposalId": "Proposal ID: {{id}}",
+      "signing": "Awaiting wallet signature...",
+      "success": "Proposal created successfully! Redirecting..."
+    },
+    "submit": "Create Proposal",
+    "title": "Title",
+    "type": "Proposal Type",
+    "typePlaceholder": "Select type",
+    "types": {
+      "budget": "Budget Request",
+      "mint": "Token Distribution"
     }
   },
-  "wallet": {
-    "userRejected": "You rejected the transaction in your wallet.",
-    "txBuilding": "Preparing transaction...",
-    "txSigning": "Please sign in your wallet...",
-    "txPending": "Waiting for confirmation...",
-    "unknownError": "Unexpected error occurred"
-  },
-  "proposalThreshold": {
-    "notEnough": "You need at least {{needed}} tokens to create a proposal.",
-    "currentVsNeeded": "Your balance: {{current}} / Proposal Threshold: {{needed}}"
-  },
-  "tokenHolders": {
-    "title": "Token Holders",
-    "holder": "Holder",
-    "delegate": "Delegate",
-    "balance": "Balance",
-    "votes": "Voting power",
-    "holderAddress": "Holder Address",
-    "delegateAddress": "Delegate Address",
-    "noData": "No data available",
-    "totalHolders": "holders",
-    "notSet": "Not Set"
-  },
-  "home": {
-    "governanceProposals": "Proposals",
-    "totalProposals": "Total Proposals",
-    "activeProposals": "Active",
-    "closedProposals": "Closed",
-    "totalVotes": "Total Votes",
-    "noProposals": "No proposals yet",
-    "created": "Created",
-    "updated": "Updated",
-    "backToProposals": "Back to proposals"
-  },
   "proposalStatus": {
-    "pending": "Pending",
     "active": "Active",
     "canceled": "Canceled",
+    "closed": "Closed",
     "defeated": "Defeated",
-    "succeeded": "Succeeded",
-    "queued": "Queued",
-    "expired": "Expired",
     "executed": "Executed",
-    "closed": "Closed"
+    "expired": "Expired",
+    "pending": "Pending",
+    "queued": "Queued",
+    "succeeded": "Succeeded"
   },
   "proposalStatusDetail": {
-    "pending": "Voting has not started yet. Waiting for the voting start block.",
     "active": "Voting is currently open. Votes are being accepted until the deadline block.",
     "canceled": "Proposal was canceled before completion and will not proceed.",
+    "closed": "Proposal lifecycle is finished (generic terminal state).",
     "defeated": "Voting ended and the proposal did not reach the required support/quorum.",
-    "succeeded": "Voting ended with sufficient support and quorum. It can proceed to queue/execute.",
-    "queued": "Proposal is queued/timelocked and will be executable after the delay.",
-    "expired": "Proposal was not executed within the allowed time window and has expired.",
     "executed": "All proposal actions have been successfully executed on-chain.",
-    "closed": "Proposal lifecycle is finished (generic terminal state)."
+    "expired": "Proposal was not executed within the allowed time window and has expired.",
+    "pending": "Voting has not started yet. Waiting for the voting start block.",
+    "queued": "Proposal is queued/timelocked and will be executable after the delay.",
+    "succeeded": "Voting ended with sufficient support and quorum. It can proceed to queue/execute."
   },
-  "delegate": {
-    "title": "Set Voting Delegate",
-    "description": "Please choose an address as your voting delegate. The delegate will vote on your behalf with your balance.",
-    "selectPlaceholder": "Select delegate address",
-    "self": "Me",
-    "submit": "Confirm",
-    "confirming": "Confirming...",
-    "confirmed": "Confirmed ✓",
-    "viewTransaction": "View transaction on explorer",
-    "setButton": "Set Delegate",
-    "changeButton": "Change Delegate"
+  "proposalThreshold": {
+    "currentVsNeeded": "Your balance: {{current}} / Proposal Threshold: {{needed}}",
+    "notEnough": "You need at least {{needed}} tokens to create a proposal."
   },
-  "actions": {
-    "mint": "Distribute {{amount}} {{symbol}} to {{who}}",
-    "mintAndApprove": "Request {{amount}} {{symbol}} budget for {{who}}",
-    "batchMint": "Batch distribute to {{count}} recipients, total {{total}} {{symbol}}",
-    "setVotingDelay": "Voting Delay (blocks) => {{value}}",
-    "setVotingPeriod": "Voting Period (blocks) => {{value}}",
-    "setProposalThreshold": "Proposal Threshold => {{value}}",
-    "updateQuorumNumerator": "Quorum Numerator => {{value}}",
-    "unknown": "Unknown Action",
-    "parseError": "Failed to parse call"
+  "switchLanguage": {
+    "menuTitle": "Switch Language"
   },
-  "governanceParams": {
-    "votingDelay": "Voting Delay",
-    "votingDelayHelp": "Blocks between proposal creation and voting start. Gives members time to prepare.",
-    "votingPeriod": "Voting Period",
-    "votingPeriodHelp": "Number of blocks during which votes can be cast.",
-    "proposalThreshold": "Proposal Threshold",
-    "proposalThresholdHelp": "Minimum voting power required for an address to create a proposal.",
-    "quorumPercent": "Quorum %",
-    "quorumPercentHelp": "Percentage of total voting power that must participate for a proposal to be valid."
+  "theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "menuTitle": "Change Theme",
+    "system": "System"
+  },
+  "tokenHolders": {
+    "balance": "Balance",
+    "delegate": "Delegate",
+    "delegateAddress": "Delegate Address",
+    "holder": "Holder",
+    "holderAddress": "Holder Address",
+    "noData": "No data available",
+    "notSet": "Not Set",
+    "title": "Token Holders",
+    "totalHolders": "holders",
+    "votes": "Voting power"
+  },
+  "wallet": {
+    "txBuilding": "Preparing transaction...",
+    "txPending": "Waiting for confirmation...",
+    "txSigning": "Please sign in your wallet...",
+    "unknownError": "Unexpected error occurred",
+    "userRejected": "You rejected the transaction in your wallet."
   }
 }

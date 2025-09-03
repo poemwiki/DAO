@@ -106,11 +106,11 @@ export default function ConnectWallet() {
     <Button
       variant="outline"
       size="lg"
-      className="w-fit md:w-[130px] shadow-none"
+      className="w-fit shadow-none px-6"
       disabled={connecting}
       onClick={login}
     >
-      <SlWallet className="mr-2 h-4 w-4" />
+      <SlWallet className="hidden md:inline h-4 w-4" />
       {t('accountCenter.connectWallet')}
     </Button>
   )
