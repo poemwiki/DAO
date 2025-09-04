@@ -189,7 +189,7 @@ export function ProposalTimeline({
                 >
                   <span className="w-2 h-2 rounded-full bg-current" />
                 </span>
-                <div className="text-sm font-medium tracking-wide uppercase mb-1 text-muted-foreground flex flex-wrap gap-2">
+                <div className="text-sm font-medium tracking-wide mb-1 text-muted-foreground flex flex-wrap gap-2">
                   {e.type === 'vote' ? (
                     <VoteEventLabel
                       address={e.voteAddress!}
