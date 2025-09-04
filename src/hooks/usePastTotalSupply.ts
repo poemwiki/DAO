@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createPublicClient, http } from 'viem'
 import { mainnet, polygon, polygonAmoy, sepolia } from 'viem/chains'
-import { governorABI } from '@/abis/governorABI'
+import { tokenABI } from '@/abis/tokenABI'
 import { config } from '@/config'
 
 function getChain() {
@@ -23,11 +23,12 @@ const publicClient = (() => {
   }
 })()
 
-export function useGovernorQuorum(blockNumber?: number) {
+// Reads total supply at a past block via ERC20Votes getPastTotalSupply for debug / quorum explanation
+export function usePastTotalSupply(blockNumber?: number) {
   return useQuery<bigint | undefined>({
-    queryKey: ['governorQuorum', config.contracts.governor, blockNumber],
+    queryKey: ['tokenPastTotalSupply', config.contracts.token, blockNumber],
     enabled:
-      !!config.contracts.governor
+      !!config.contracts.token
       && typeof blockNumber === 'number'
       && !!publicClient,
     queryFn: async () => {
@@ -36,14 +37,14 @@ export function useGovernorQuorum(blockNumber?: number) {
       }
       try {
         return (await publicClient.readContract({
-          address: config.contracts.governor as `0x${string}`,
-          abi: governorABI,
-          functionName: 'quorum',
+          address: config.contracts.token as `0x${string}`,
+          abi: tokenABI,
+          functionName: 'getPastTotalSupply',
           args: [BigInt(blockNumber)],
         })) as bigint
       }
       catch (e) {
-        console.warn('quorum read failed', e)
+        console.warn('getPastTotalSupply read failed', e)
         return undefined
       }
     },

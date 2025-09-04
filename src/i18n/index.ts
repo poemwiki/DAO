@@ -1,8 +1,8 @@
 import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
-import zhJSON from './zh.json'
+import { initReactI18next } from 'react-i18next'
 import enJSON from './en.json'
+import zhJSON from './zh.json'
 
 const resources = {
   zh: {
@@ -20,7 +20,10 @@ i18n
     resources,
     fallbackLng: 'en',
     // Priority: explicit stored choice -> env default -> navigator -> 'en'
-    lng: localStorage.getItem('i18nextLng') || import.meta.env.VITE_DEFAULT_LANG || 'en',
+    lng:
+      localStorage.getItem('i18nextLng')
+      || import.meta.env.VITE_DEFAULT_LANG
+      || 'en',
     interpolation: {
       escapeValue: false,
     },

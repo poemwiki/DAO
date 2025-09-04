@@ -9,7 +9,7 @@ export interface ProposalActivity {
 export interface VoteCastEntity {
   id: string
   voter: { id: string }
-  support: number // 0 against,1 for,2 abstain
+  support: 0 | 1 | 2 // 0 against,1 for,2 abstain
   weight: string
   reason: string
   createdAt: string
@@ -46,9 +46,24 @@ export interface Proposal {
   cancelTime?: string | null
   createdAt: string
   updatedAt: string
+  /**
+   * Parallel arrays describing each action in the proposal exactly as passed to Governor.propose / execute.
+   * Length of all four arrays must match on-chain.
+   *
+   * targets[i]    : contract address to call.
+   * values[i]     : (stringified uint256) native token amount (wei) to send with the call. Usually "0"; non‑zero only if the action transfers ETH.
+   * calldatas[i]  : ABI‑encoded function call data (bytes hex string beginning 0x...) OR empty 0x if using signatures[] with separate encoding.
+   * signatures[i] : (Optional legacy OZ pattern) function signature like "transfer(address,uint256)"; if present and calldatas[i] is 0x, UI/code may need to encode before execution.
+   */
   targets?: string[]
+  values?: string[]
   calldatas?: string[]
   signatures?: string[]
+}
+
+export interface BlockEstimateInfo {
+  timestamp?: number | string
+  isEstimated?: boolean
 }
 
 export interface Member {

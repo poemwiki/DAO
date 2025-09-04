@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { usePublicClient } from 'wagmi'
-import { config } from '@/config'
 import { tokenABI } from '@/abis/tokenABI'
+import { config } from '@/config'
 import { useTokenInfoCache } from '@/context/TokenInfoContext'
 
 export interface TokenInfoResult {
@@ -31,7 +31,9 @@ export function useTokenInfo(tokenAddress?: `0x${string}`) {
       return undefined
     },
     queryFn: async () => {
-      if (!publicClient) return undefined
+      if (!publicClient) {
+        return undefined
+      }
       // If asking for default token and cache loaded, skip network
       if (!tokenAddress && cache.symbol && cache.decimals !== undefined) {
         return {

@@ -22,8 +22,8 @@ Never run `pnpm run dev` or `pnpm run preview` because the dev is already runnin
 
 This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 
-- **`/Users/apple/dev/wiki/subgraph-Governor-PWR/`** - The Graph subgraph for blockchain data indexing
-- **`/Users/apple/dev/wiki/dao-poemwiki-contracts/`** - Hardhat smart contracts (Governor + Reputation token)
+- **`../subgraph-Governor-PWR/`** - The Graph subgraph for blockchain data indexing
+- **`../dao-poemwiki-contracts/`** - Hardhat smart contracts (Governor + Reputation token)
 - **`statics/js/` and `views/index.ejs`** - Legacy code (reference only, don't modify unless explicitly requested)
 
 ### Technology Stack
@@ -111,18 +111,21 @@ This project requires Node.js >= 22.12.0 as specified in package.json engines.
 ## Linus-Inspired Pragmatic Principles
 
 - Simplicity first: prefer a straightforward function + plain objects over abstractions/classes until duplication is proven (rule of 3).
+  - Refactor components if it exceeds 300 lines or has multiple long conditional branches.
+  - Avoid unnecessary new entities (functions / types / components). Reuse existing ones after a quick search before adding anything new; duplication reduction only when a clear second/third use appears. (如无必要, 勿增实体)
 - YAGNI: do not add config flags, params, or generic layers until a concrete second use-case exists.
 - Avoid duplication consciously: extract shared hook/utility only after 3 similar call sites (before that, duplication is cheaper than premature abstraction).
 - Small, cohesive edits: each change set should do one logical thing (easier to review, revert, or bisect).
 - Readability > cleverness: favor explicit variable names, early returns, flat control flow.
 - Justify necessary complexity: add a brief top-of-file comment starting with `WHY:` when introducing non-obvious logic or performance trade-offs.
-- Kill dead code quickly.
+- Kill dead and repeated code quickly.
 - Revert fast if regression risk appears; a clean revert beats layering hotfixes.
 - Stable boundaries: UI (components) stays declarative; side-effects & async live in hooks; config in `config/` or `constants/`; data shape transformations near their source.
 - No silent failures: surface errors at hook boundary (return `{ error }`) and let UI decide presentation; don't console.log-and-swallow.
 - Prefer narrow TypeScript types early—avoid `any`; leverage inference and discriminated unions for status objects.
 - Keep react-query cache coherent; never manually mutate internal cache shapes—always rely on `invalidateQueries` on mutation success.
 - Optimize last: measure before refactoring for performance; rely on browser profiler & React DevTools, not guesswork.
+- Prefer explicit, precise types everywhere; do not use `any` where a concrete shape (interface, union, literal) can be stated. Treat stray `any` as technical debt to eliminate promptly. (可以写明确类型的地方, 不可以使用 any)
 
 ## React Query Key Pattern
 
@@ -158,3 +161,72 @@ This project requires Node.js >= 22.12.0 as specified in package.json engines.
 - If a change spans layers (contract + subgraph + frontend) and requirements are ambiguous: pause and request clarification instead of guessing schema/event names.
 
 Keep changes minimal, purposeful, and reversible.
+
+## Frontend Governance Addenda (Working Knowledge)
+
+These refinements capture patterns established during recent governance UI and logic work. Follow them to stay consistent and avoid regressions.
+
+### Local ABI Source of Truth
+- Never import ABIs from artifacts or external packages inside the frontend.
+- Use only the curated minimal ABIs in `src/abis/`; trim unused functions to reduce bundle size.
+- When contracts change: copy only required fragments (events + functions actually read / written by hooks).
+
+### Hooks Conventions (Governance)
+- Read-only chain data: `useXyz` with react-query `queryKey` tuple: `['xyz', dependencyA, dependencyB]`.
+- Mutations (transactions): dedicated hook returning `{ actionFn, status, error, result }` where `status` ∈ `idle|building|signing|pending|success|error`.
+- On mutation success: `invalidateQueries` for the narrow keys impacted (e.g. `['proposal', id]`). Avoid broad cache clears.
+- Quorum & snapshot helpers: `useGovernorQuorum(blockNumber)`, `useQuorumNumerator()`, `usePastTotalSupply(blockNumber)` kept lightweight and cached (`staleTime ~60s`).
+- Never swallow errors; log *once* (warn) in hook layer and surface via returned `error`.
+
+### Quorum & Snapshot Mechanics
+- Snapshot block = proposal start block (`Governor.proposalSnapshot`).
+- Quorum value = `quorum(snapshotBlock)` which internally: `(getPastTotalSupply(snapshotBlock) * quorumNumerator()) / quorumDenominator()`.
+- Display quorum as an absolute vote count (no percent). Percentage is implied by comparing `(for + abstain)` to quorum.
+- Undelegated tokens increase quorum (they are in total supply) but cannot vote directly; this is intentional and documented.
+- Debug panel exposes: snapshotBlock, pastTotalSupply(snapshot), quorum(raw), quorumNumerator() for transparency.
+
+### Voting UI Guidelines
+- Buttons for `For / Against / Abstain` (support 1/0/2) with distinct colors (green/red/yellow) + disabled states covering: not active, already voted, signing, pending.
+- After a successful vote: trigger targeted re-fetch and short polling (e.g. 5 attempts every 3s) to mitigate subgraph lag.
+- Execute button only when state ∈ Succeeded | Queued and not yet executed.
+- Progress bar segments ordered: For / Abstain / Against (stable ordering) with quorum marker line.
+
+### Subgraph Lag Mitigation
+- After sending a vote tx, delay 2.5s then poll specific proposal query up to a small capped number of retries.
+- Avoid optimistic manual tally adjustments—prefer waiting for indexer to reflect chain truth.
+
+### i18n Conventions
+- No raw user-facing strings; search existing keys before adding.
+- Namespace grouping: `proposal.vote.*`, `proposal.results`, `proposal.timeline`, `proposal.actions`, `proposal.events.created` etc.
+- Keep Chinese & English keys in sync; add Chinese first if sourced from legacy code, then mirror in English.
+- Use concise declarative keys (avoid tense or punctuation in keys themselves).
+
+### Debug Mode
+- `?debug=1` query param enables lightweight diagnostics (raw blocks, snapshot values, quorum internals, config URL).
+- Keep debug output text-only & monospace; never rely on it for core UX.
+- Safe to leave in production (no sensitive data, only on-chain reads & environment URL echo).
+
+### Formatting & Quality Gates (Pre-Commit)
+- Run in order: `pnpm run lint` → `pnpm run build` → `pnpm run test`.
+- Ensure no unused i18n keys newly added (prefer incremental adoption rather than speculative keys).
+- Keep added hooks under 60 lines unless justified (add a `WHY:` comment if longer due to complexity).
+
+### Timeline Events
+- Event labels sourced from i18n (`proposal.events.*`).
+- Insert vote events chronologically with consistent icon styling; do not recompute ordering logic elsewhere.
+
+### Action Summaries
+- Use `ActionSummary` + parsed actions; batch mint displays a table, governor setting shows raw value chip.
+- Avoid duplicating encode/decode logic outside `parseProposalActions`—extend that utility when new action types appear.
+
+### Performance Notes
+- Avoid running multiple public clients; reuse a shared `publicClient` per hook file (lazy construction + try/catch fallback).
+- Set conservative `staleTime` (e.g. 60s) for static-at-snapshot reads (quorum, numerator) to reduce RPC pressure.
+
+### When Adding New Governance Parameters
+- Extend ABI only if required function/event absent.
+- Add i18n keys, update README Voting section if semantics impact quorum or threshold logic.
+- Provide a debug field if value influences calculations (snapshot-dependent or dynamic over time).
+
+---
+These addenda summarize current working best practices; revisit and trim if patterns change or abstractions emerge.

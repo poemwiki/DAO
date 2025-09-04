@@ -23,27 +23,23 @@ const publicClient = (() => {
   }
 })()
 
-export function useGovernorQuorum(blockNumber?: number) {
+export function useQuorumNumerator() {
   return useQuery<bigint | undefined>({
-    queryKey: ['governorQuorum', config.contracts.governor, blockNumber],
-    enabled:
-      !!config.contracts.governor
-      && typeof blockNumber === 'number'
-      && !!publicClient,
+    queryKey: ['governorQuorumNumerator', config.contracts.governor],
+    enabled: !!config.contracts.governor && !!publicClient,
     queryFn: async () => {
-      if (!publicClient || blockNumber === undefined) {
+      if (!publicClient) {
         return undefined
       }
       try {
         return (await publicClient.readContract({
           address: config.contracts.governor as `0x${string}`,
           abi: governorABI,
-          functionName: 'quorum',
-          args: [BigInt(blockNumber)],
+          functionName: 'quorumNumerator',
         })) as bigint
       }
       catch (e) {
-        console.warn('quorum read failed', e)
+        console.warn('quorumNumerator read failed', e)
         return undefined
       }
     },

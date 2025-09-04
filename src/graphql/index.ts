@@ -21,6 +21,7 @@ const PROPOSALS_QUERY = `
       createdAt
       updatedAt
       targets
+      values
       calldatas
       signatures
       voteCasts { id }
@@ -49,6 +50,7 @@ const PROPOSAL_QUERY = `
       updatedAt
       proposer { id }
       targets
+      values
       calldatas
       signatures
       voteCasts(orderBy: createdAt, orderDirection: asc) {

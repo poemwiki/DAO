@@ -10,18 +10,35 @@ export function useHoverPopover(delay = 120) {
   const closeNow = useCallback(() => setOpen(false), [])
 
   const onOpen = useCallback(() => {
-    if (isMobile) return
-    if (hoverTimeout.current) window.clearTimeout(hoverTimeout.current)
+    if (isMobile) {
+      return
+    }
+    if (hoverTimeout.current) {
+      window.clearTimeout(hoverTimeout.current)
+    }
     setOpen(true)
   }, [isMobile])
 
   const onClose = useCallback(() => {
-    if (isMobile) return
-    if (hoverTimeout.current) window.clearTimeout(hoverTimeout.current)
+    if (isMobile) {
+      return
+    }
+    if (hoverTimeout.current) {
+      window.clearTimeout(hoverTimeout.current)
+    }
     hoverTimeout.current = window.setTimeout(() => setOpen(false), delay)
   }, [isMobile, delay])
 
   const toggleClick = useCallback(() => setOpen(o => !o), [])
 
-  return { open, setOpen, onOpen, onClose, toggleClick, openNow, closeNow, isMobile }
+  return {
+    open,
+    setOpen,
+    onOpen,
+    onClose,
+    toggleClick,
+    openNow,
+    closeNow,
+    isMobile,
+  }
 }

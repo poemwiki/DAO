@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import * as RadixTooltip from '@radix-ui/react-tooltip'
 import { Web3OnboardProvider } from '@web3-onboard/react'
 import { web3Onboard } from '@/config/web3'
@@ -28,7 +28,10 @@ export function Providers({ children }: ProvidersProps) {
         <Web3OnboardProvider web3Onboard={web3Onboard}>
           <WagmiProvider config={wagmiConfig}>
             <TokenInfoProvider>
-              <RadixTooltip.Provider delayDuration={150} skipDelayDuration={300}>
+              <RadixTooltip.Provider
+                delayDuration={150}
+                skipDelayDuration={300}
+              >
                 {children}
               </RadixTooltip.Provider>
             </TokenInfoProvider>

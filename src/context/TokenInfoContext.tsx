@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react'
 import { usePublicClient } from 'wagmi'
 import { config } from '@/config'
 import { tokenABI } from '@/abis/tokenABI'
@@ -15,12 +21,16 @@ export interface TokenInfoCache {
 
 const TokenInfoContext = createContext<TokenInfoCache>({ loading: true })
 
-export const TokenInfoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TokenInfoProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const publicClient = usePublicClient()
   const [state, setState] = useState<TokenInfoCache>({ loading: true })
 
   const load = useCallback(async () => {
-    if (state.loading === false && state.symbol) return
+    if (state.loading === false && state.symbol) {
+      return
+    }
     const address = config.contracts.token as `0x${string}`
     if (!address) {
       console.warn('[TokenInfo] Missing token address in config')
@@ -37,7 +47,9 @@ export const TokenInfoProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.debug('[TokenInfo] fetching token info', { address })
       const code = await publicClient.getBytecode({ address })
       if (!code) {
-        console.warn('[TokenInfo] No bytecode at address; using config fallback symbol')
+        console.warn(
+          '[TokenInfo] No bytecode at address; using config fallback symbol',
+        )
         setState({
           name: '',
           symbol: 'TOKEN',
@@ -71,8 +83,10 @@ export const TokenInfoProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       const [nameRes, symbolRes, decimalsRes] = results
       const name = nameRes.status === 'fulfilled' ? nameRes.value : ''
-      const symbol = symbolRes.status === 'fulfilled' ? symbolRes.value : 'TOKEN'
-      const decimals = decimalsRes.status === 'fulfilled' ? decimalsRes.value : 18
+      const symbol =
+        symbolRes.status === 'fulfilled' ? symbolRes.value : 'TOKEN'
+      const decimals =
+        decimalsRes.status === 'fulfilled' ? decimalsRes.value : 18
       console.debug('[TokenInfo] loaded', {
         name,
         symbol,

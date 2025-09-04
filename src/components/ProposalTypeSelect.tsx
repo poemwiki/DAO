@@ -15,13 +15,18 @@ export interface ProposalTypeSelectProps {
 }
 
 // Memoized select so hover / internal highlight state inside Radix does not force parent page re-render
-const ProposalTypeSelectComponent: React.FC<ProposalTypeSelectProps> = ({ value, onChange }) => {
+const ProposalTypeSelectComponent: React.FC<ProposalTypeSelectProps> = ({
+  value,
+  onChange,
+}) => {
   const { t } = useTranslation()
   return (
     <Select
       value={value}
-      onValueChange={(v: any) => {
-        if (v === value) return
+      onValueChange={(v: ProposalTypeSelectProps['value']) => {
+        if (v === value) {
+          return
+        }
         onChange(v)
       }}
     >
@@ -29,8 +34,18 @@ const ProposalTypeSelectComponent: React.FC<ProposalTypeSelectProps> = ({ value,
         <SelectValue placeholder={t('proposal.typePlaceholder')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={PROPOSAL_TYPE.MINT}>{t('proposal.types.mint')}</SelectItem>
-        <SelectItem value={PROPOSAL_TYPE.BUDGET}>{t('proposal.types.budget')}</SelectItem>
+        <SelectItem value={PROPOSAL_TYPE.MINT}>
+          {t('proposal.types.mint')}
+        </SelectItem>
+        <SelectItem value={PROPOSAL_TYPE.BUDGET}>
+          {t('proposal.types.budget')}
+        </SelectItem>
+        <SelectItem value={PROPOSAL_TYPE.BATCH_MINT}>
+          {t('proposal.types.batchMint')}
+        </SelectItem>
+        <SelectItem value={PROPOSAL_TYPE.GOVERNOR_SETTING}>
+          {t('proposal.types.governorSetting')}
+        </SelectItem>
       </SelectContent>
     </Select>
   )
@@ -38,7 +53,7 @@ const ProposalTypeSelectComponent: React.FC<ProposalTypeSelectProps> = ({ value,
 
 export const ProposalTypeSelect = React.memo(
   ProposalTypeSelectComponent,
-  (prev, next) => prev.value === next.value
+  (prev, next) => prev.value === next.value,
 )
 
 ProposalTypeSelect.displayName = 'ProposalTypeSelect'

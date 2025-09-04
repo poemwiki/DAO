@@ -63,9 +63,9 @@
     "backToProposals": "Back to proposals",
     "closedProposals": "Closed",
     "created": "Created",
-  "votingEnds": "Voting Ends",
-  "votingEndsIn": "Ends In",
-  "votingEndedAt": "Ended",
+    "votingEnds": "Voting Ends",
+    "votingEndsIn": "Ends In",
+    "votingEndedAt": "Ended",
     "governanceProposals": "Proposals",
     "noProposals": "No proposals yet",
     "totalProposals": "Total Proposals",
@@ -74,6 +74,10 @@
   },
   "proposal": {
     "amount": "Amount",
+    "addRow": "Add Row",
+    "batchMintRows": "Batch Distribution Rows",
+    "batchMintHint": "Enter multiple recipient addresses and amounts. Empty rows are ignored.",
+    "batchTotal": "Total: {{total}} {{symbol}}",
     "connectWalletFirst": "Please connect your wallet first",
     "create": "Create Proposal",
     "createDescription": "Create a new proposal for the community to vote on",
@@ -82,7 +86,49 @@
     "enterAddress": "Enter wallet address",
     "enterAmount": "Enter amount",
     "enterDescription": "Enter proposal description",
+    "enterNewValue": "Enter new value",
     "enterTitle": "Enter proposal title",
+    "governorFunction": "Governor Function",
+    "newValue": "New Value",
+    "governorSettingHint": "These values are raw units (blocks or token units). Ensure they are correct before submitting.",
+    "govFn": {
+      "setVotingDelay": "Set Voting Delay (blocks)",
+      "setVotingPeriod": "Set Voting Period (blocks)",
+      "setProposalThreshold": "Set Proposal Threshold",
+      "updateQuorumNumerator": "Update Quorum Numerator"
+    },
+    "estimatedDuration": "≈ {{human}}",
+    "err": {
+      "noBatchRows": "Please add at least one batch row.",
+      "badAddress": "Row {{idx}} has invalid address.",
+      "badAmount": "Row {{idx}} has invalid amount.",
+      "tooManyRows": "Too many rows (max 100).",
+      "missingGovFunction": "Select a governor function.",
+      "missingGovValue": "Enter a new value.",
+      "badGovValue": "Invalid new value.",
+      "badSingleAddress": "Invalid recipient address.",
+      "badSingleAmount": "Invalid amount."
+    },
+    "execute": {
+      "button": "Execute Proposal",
+      "pending": "Executing…",
+      "signing": "Awaiting wallet signature…",
+      "success": "Execution succeeded!",
+      "error": "Execution failed",
+      "description": "Execute this proposal"
+    },
+    "results": "Results",
+    "timeline": "Timeline",
+    "actions": "Actions",
+    "events": {
+      "created": "Proposal Created",
+      "start": "Voting Start",
+      "end": "Voting End",
+      "executed": "Executed",
+      "canceled": "Canceled"
+    },
+    "quorumHelp": "Quorum = (total voting supply at the proposal snapshot / start block) * quorumPercent. Undelegated tokens still count toward total supply (they increase the absolute quorum requirement) even if they themselves have no delegated voting power. This value is the absolute participation threshold (For + Abstain).",
+    "quorum": "Quorum",
     "fallbackTitle": {
       "batchMint": "Batch Token Distribution",
       "default": "Governance Proposal",
@@ -107,7 +153,22 @@
     "typePlaceholder": "Select type",
     "types": {
       "budget": "Budget Request",
-      "mint": "Token Distribution"
+      "mint": "Token Distribution",
+      "batchMint": "Batch Distribution",
+      "governorSetting": "Governance Setting"
+    },
+    "vote": {
+      "sectionTitle": "Cast Your Vote",
+      "for": "For",
+      "against": "Against",
+      "abstain": "Abstain",
+      "signing": "Signing…",
+      "pending": "Pending…",
+      "success": "Vote submitted!",
+      "syncing": "Syncing updated vote data…",
+      "alreadyVoted": "You have already voted.",
+      "cannotVote": "Voting not active.",
+      "tx": "Tx: {{hash}}"
     }
   },
   "proposalStatus": {

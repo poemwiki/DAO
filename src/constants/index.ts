@@ -7,6 +7,8 @@ export const PROPOSAL_STATUS = {
 export const PROPOSAL_TYPE = {
   MINT: 'mint',
   BUDGET: 'budget',
+  BATCH_MINT: 'batchMint',
+  GOVERNOR_SETTING: 'governorSetting',
 } as const
 
 export const ROUTES = {
@@ -20,4 +22,5 @@ export const CHAIN_IDS = {
   TESTNET: '5',
 } as const
 
-export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000' as const
+export const ZERO_ADDRESS
+  = '0x0000000000000000000000000000000000000000' as const

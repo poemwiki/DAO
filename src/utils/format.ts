@@ -1,33 +1,45 @@
-export const formatAddress = (address: string): string => {
-  if (!address) return ''
+import type { ClassValue } from 'clsx'
+import { clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+export function formatAddress(address: string): string {
+  if (!address) {
+    return ''
+  }
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
-
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
 
 // short() duplicate merged here for consistency
-export const short = (str: string): string => {
-  if (!str) return ''
-  if (str.length <= 10) return str
+export function short(str: string): string {
+  if (!str) {
+    return ''
+  }
+  if (str.length <= 10) {
+    return str
+  }
   return `${str.slice(0, 6)}...${str.slice(-4)}`
 }
 
 // Normalize a locale string to something the Intl APIs accept. Fallback to 'en-US'.
-const normalizeLocale = (maybe: string | undefined | null): string => {
+function normalizeLocale(maybe: string | undefined | null): string {
   const candidate = (maybe || '').trim()
-  if (!candidate) return 'en-US'
+  if (!candidate) {
+    return 'en-US'
+  }
   try {
     // Constructing an Intl.DateTimeFormat will throw if invalid.
     // Use resolvedOptions to get a canonical tag (e.g. zh -> zh-Hans or similar).
-    return new Intl.DateTimeFormat(candidate).resolvedOptions().locale || 'en-US'
-  } catch {
+    return (
+      new Intl.DateTimeFormat(candidate).resolvedOptions().locale || 'en-US'
+    )
+  }
+  catch {
     return 'en-US'
   }
 }
 
-export const formatDate = (date: string, locale = 'en-US'): string => {
+export function formatDate(date: string, locale = 'en-US'): string {
   const loc = normalizeLocale(locale)
   return new Date(date).toLocaleDateString(loc, {
     year: 'numeric',
@@ -38,34 +50,46 @@ export const formatDate = (date: string, locale = 'en-US'): string => {
 
 // Graph returns unix timestamp seconds as string (e.g. "1666874545").
 // Convert seconds (or ms) to Date safely.
-export const toDateFromGraph = (
-  value: string | number | bigint | null | undefined
-): Date | null => {
-  if (value === null || value === undefined) return null
+export function toDateFromGraph(
+  value: string | number | bigint | null | undefined,
+): Date | null {
+  if (value === null || value === undefined) {
+    return null
+  }
   const str = value.toString().trim()
-  if (!str) return null
+  if (!str) {
+    return null
+  }
   // Detect if seconds (10 digits) or milliseconds (13+ digits)
   const num = Number(str)
-  if (Number.isNaN(num)) return null
+  if (Number.isNaN(num)) {
+    return null
+  }
   const ms = str.length <= 10 ? num * 1000 : num
   const d = new Date(ms)
-  return isNaN(d.getTime()) ? null : d
+  return Number.isNaN(d.getTime()) ? null : d
 }
 
-export const formatGraphTimestamp = (
+export function formatGraphTimestamp(
   value: string | number | bigint | null | undefined,
-  locale = 'en-US'
-): string => {
+  locale = 'en-US',
+): string {
   const d = toDateFromGraph(value)
-  if (!d) return '-'
+  if (!d) {
+    return '-'
+  }
   const loc = normalizeLocale(locale)
-  return d.toLocaleDateString(loc, { year: 'numeric', month: 'short', day: 'numeric' })
+  return d.toLocaleDateString(loc, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
 }
 
 // Relative time (e.g., 3h ago). Falls back to date if far.
 let cachedLocale = 'en'
 let rtf = new Intl.RelativeTimeFormat(cachedLocale, { numeric: 'auto' })
-export const setRelativeTimeLocale = (locale: string) => {
+export function setRelativeTimeLocale(locale: string) {
   const loc = normalizeLocale(locale)
   if (loc && loc !== cachedLocale) {
     cachedLocale = loc
@@ -82,14 +106,18 @@ const RELATIVE_THRESHOLDS: Array<[number, Intl.RelativeTimeFormatUnit]> = [
   [Number.POSITIVE_INFINITY, 'year'],
 ]
 
-export const formatRelativeTime = (
+export function formatRelativeTime(
   value: string | number | bigint | null | undefined,
   locale?: string,
-  weekThresholdMs: number = 7 * 24 * 60 * 60 * 1000
-): string => {
-  if (locale) setRelativeTimeLocale(locale)
+  weekThresholdMs: number = 7 * 24 * 60 * 60 * 1000,
+): string {
+  if (locale) {
+    setRelativeTimeLocale(locale)
+  }
   const date = toDateFromGraph(value)
-  if (!date) return '-'
+  if (!date) {
+    return '-'
+  }
   const now = Date.now()
   // If older than threshold, return absolute date only
   if (now - date.getTime() > weekThresholdMs) {
@@ -101,7 +129,15 @@ export const formatRelativeTime = (
     })
   }
   let diff = (date.getTime() - now) / 1000 // seconds
-  const units = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'] as const
+  const units = [
+    'second',
+    'minute',
+    'hour',
+    'day',
+    'week',
+    'month',
+    'year',
+  ] as const
   let unitIndex = 0
   for (let i = 0; i < RELATIVE_THRESHOLDS.length; i++) {
     const [limit] = RELATIVE_THRESHOLDS[i]
@@ -116,18 +152,20 @@ export const formatRelativeTime = (
   return rtf.format(rounded, unit)
 }
 
-export const formatGraphTimestampWithRelative = (
+export function formatGraphTimestampWithRelative(
   value: string | number | bigint | null | undefined,
-  locale = 'en-US'
-): string => {
+  locale = 'en-US',
+): string {
   const absolute = formatGraphTimestamp(value, locale)
   const relative = formatRelativeTime(value)
-  if (relative === '-') return absolute
+  if (relative === '-') {
+    return absolute
+  }
   return `${absolute} (${relative})`
 }
 
-export const formatAmount = (amount: string, decimals = 18): string => {
-  const value = parseFloat(amount) / Math.pow(10, decimals)
+export function formatAmount(amount: string, decimals = 18): string {
+  const value = Number.parseFloat(amount) / 10 ** decimals
   return value.toFixed(4)
 }
 
@@ -154,12 +192,16 @@ function scaleTokenAmount(amount: bigint, decimals: number): ScaledTokenAmount {
     base,
     isZero: amount === 0n,
     toNumber: () => {
-      if (amount === 0n) return 0
+      if (amount === 0n) {
+        return 0
+      }
       // Potential precision loss for very large values, acceptable for UI summaries.
       return Number(integer) + Number(fraction) / Number(base)
     },
     format: (maxFractionDigits = 4) => {
-      if (fraction === 0n) return integer.toString()
+      if (fraction === 0n) {
+        return integer.toString()
+      }
       const fracStrFull = (fraction + base).toString().slice(1) // zero-pad
       const trimmed = fracStrFull.replace(/0+$/, '')
       const sliced = trimmed.slice(0, maxFractionDigits)
@@ -171,7 +213,7 @@ function scaleTokenAmount(amount: bigint, decimals: number): ScaledTokenAmount {
 export function formatTokenAmount(
   amount: bigint,
   decimals: number,
-  opts: { maxFractionDigits?: number } = {}
+  opts: { maxFractionDigits?: number } = {},
 ): string {
   const scaled = scaleTokenAmount(amount, decimals)
   return scaled.format(opts.maxFractionDigits)
@@ -182,9 +224,15 @@ export function toScaledNumber(amount: bigint, decimals: number): number {
 }
 
 export function formatNumber(n: number, decimalPlaces = 1) {
-  if (!isFinite(n)) return '0'
-  if (n === 0) return '0'
-  if (n < 0.0001) return n.toExponential(2)
+  if (!Number.isFinite(n)) {
+    return '0'
+  }
+  if (n === 0) {
+    return '0'
+  }
+  if (n < 0.0001) {
+    return n.toExponential(2)
+  }
   const s = n.toLocaleString(undefined, {
     minimumFractionDigits: decimalPlaces,
     maximumFractionDigits: decimalPlaces,
@@ -193,25 +241,31 @@ export function formatNumber(n: number, decimalPlaces = 1) {
 }
 
 // timestampToDate duplicate logic (prefer locale aware functions above)
-export const timestampToDate = (timestamp: string): string => {
-  if (!timestamp) return ''
+export function timestampToDate(timestamp: string): string {
+  if (!timestamp) {
+    return ''
+  }
   const d = toDateFromGraph(timestamp)
   return d ? d.toLocaleString() : ''
 }
 
 // trimDescription from libs/utils.ts
-export const trimDescription = (description: string): string => {
-  if (!description) return ''
+export function trimDescription(description: string): string {
+  if (!description) {
+    return ''
+  }
   return description.replace(/^\[\d+\]\s*/, '')
 }
 
 // Local time with minute precision (YYYY Mon DD, HH:MM) using browser locale
-export const formatGraphTimestampLocalMinutes = (
+export function formatGraphTimestampLocalMinutes(
   value: string | number | bigint | null | undefined,
-  locale?: string
-): string => {
+  locale?: string,
+): string {
   const d = toDateFromGraph(value)
-  if (!d) return '-'
+  if (!d) {
+    return '-'
+  }
   const loc = normalizeLocale(locale || cachedLocale)
   return d.toLocaleString(loc, {
     year: 'numeric',
@@ -227,9 +281,11 @@ export const formatGraphTimestampLocalMinutes = (
 export function estimateDurationFromBlocks(
   blocks: number,
   secondsPerBlock = 2,
-  opts: { maxUnits?: number } = {}
+  opts: { maxUnits?: number } = {},
 ): string {
-  if (!Number.isFinite(blocks) || blocks <= 0) return '-'
+  if (!Number.isFinite(blocks) || blocks <= 0) {
+    return '-'
+  }
   const totalSeconds = blocks * secondsPerBlock
   const units: Array<[string, number]> = [
     ['d', 86400],
@@ -246,7 +302,9 @@ export function estimateDurationFromBlocks(
       remaining -= value * size
       parts.push(`${value}${label}`)
     }
-    if (parts.length === maxUnits) break
+    if (parts.length === maxUnits) {
+      break
+    }
   }
   return parts.length ? parts.join(' ') : `${Math.round(totalSeconds)}s`
 }

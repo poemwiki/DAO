@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useConnectWallet, useSetChain } from '@web3-onboard/react'
-import { Account } from '@web3-onboard/core/dist/types'
+import type { Account } from '@web3-onboard/core/dist/types'
 import { SlWallet } from 'react-icons/sl'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,8 +22,12 @@ export default function ConnectWallet() {
 
   async function login() {
     let connected = await autoConnect()
-    if (!connected.length) connected = await connect()
-    if (!connected.length) return
+    if (!connected.length) {
+      connected = await connect()
+    }
+    if (!connected.length) {
+      return
+    }
 
     const chain = chains[0]
     await setChain({ chainId: chain.id })
@@ -31,7 +35,7 @@ export default function ConnectWallet() {
 
   async function autoConnect() {
     const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem('connectedWallets') || '[]'
+      window.localStorage.getItem('connectedWallets') || '[]',
     )
     if (previouslyConnectedWallets.length) {
       return await connect({
@@ -74,7 +78,10 @@ export default function ConnectWallet() {
         uns: null,
       })
       // 保存连接的钱包信息到 localStorage (used for optional future UX like showing last used label)
-      window.localStorage.setItem('connectedWallets', JSON.stringify([wallet.label]))
+      window.localStorage.setItem(
+        'connectedWallets',
+        JSON.stringify([wallet.label]),
+      )
     }
   }, [wallet])
 
@@ -83,7 +90,11 @@ export default function ConnectWallet() {
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="w-fit md:w-[130px] shadow-none">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-fit md:w-[130px] shadow-none"
+            >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <span className="text-sm font-medium">

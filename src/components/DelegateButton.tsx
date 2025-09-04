@@ -11,11 +11,16 @@ export default function DelegateButton() {
   const [open, setOpen] = useState(false)
   const { isMember, isDelegated } = useIsDelegated()
 
-  if (!address || !isMember) return null
+  if (!address || !isMember) {
+    return null
+  }
 
   return (
     <>
-      <Button variant={isDelegated ? 'ghost' : 'default'} onClick={() => setOpen(true)}>
+      <Button
+        variant={isDelegated ? 'ghost' : 'default'}
+        onClick={() => setOpen(true)}
+      >
         {isDelegated
           ? t('delegate.changeButton', 'Change Delegate')
           : t('delegate.setButton', 'Set Delegate')}

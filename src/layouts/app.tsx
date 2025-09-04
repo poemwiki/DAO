@@ -13,7 +13,11 @@ export default function AppLayout() {
             <a className="mr-6 flex items-center space-x-2" href="/">
               <span className="font-bold"></span>
               {import.meta.env.VITE_APP_LOGO ? (
-                <img src={import.meta.env.VITE_APP_LOGO} alt="Logo" className="h-16 w-16" />
+                <img
+                  src={import.meta.env.VITE_APP_LOGO}
+                  alt="Logo"
+                  className="h-16 w-16"
+                />
               ) : (
                 // Fallback logo now provided by <DefaultLogo /> component (inline SVG, themable via currentColor)
                 <DefaultLogo className="h-16 w-16 text-foreground" />

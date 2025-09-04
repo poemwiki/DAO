@@ -1,11 +1,12 @@
+import type { Abi } from 'viem'
+import { decodeFunctionData } from 'viem'
 import { governorABI } from '@/abis/governorABI'
 import { tokenABI } from '@/abis/tokenABI'
-import { short, formatTokenAmount } from '@/utils/format'
 import { lookupAddressBookName } from '@/hooks/useDisplayName'
-import { decodeFunctionData, Abi } from 'viem'
+import { formatTokenAmount, short } from '@/utils/format'
 
 // Known function signatures mapping to categories
-export type ParsedAction = {
+export interface ParsedAction {
   target: string
   signature: string
   functionName: string
@@ -36,14 +37,19 @@ export function parseProposalActions(
   calldatas: readonly string[] = [],
   signatures?: readonly string[],
   tokenDecimals?: number,
-  tokenSymbol?: string
+  tokenSymbol?: string,
 ): ParsedAction[] {
   const actions: ParsedAction[] = []
   for (let i = 0; i < targets.length; i++) {
     const data = calldatas[i]
-    if (!data) continue
+    if (!data) {
+      continue
+    }
     try {
-      const decoded = decodeFunctionData({ abi: combinedABI, data: data as `0x${string}` })
+      const decoded = decodeFunctionData({
+        abi: combinedABI,
+        data: data as `0x${string}`,
+      })
       const fn = decoded.functionName
       const type = FN_TYPE[fn] || 'unknown'
       const symbol = tokenSymbol || 'TOKEN'
@@ -94,7 +100,7 @@ export function parseProposalActions(
         const symbol = tokenSymbol || 'TOKEN'
         summary = `批量发放给 ${toArray.length} 人, 总计 ${formatTokenAmount(
           total,
-          tokenDecimals ?? 18
+          tokenDecimals ?? 18,
         )} ${symbol}`
         actions.push({
           target: targets[i],
@@ -109,7 +115,10 @@ export function parseProposalActions(
             total: formatTokenAmount(total, tokenDecimals ?? 18),
             symbol,
           },
-          recipients: toArray.map((addr, idx) => ({ address: addr, amount: amountArray[idx] })),
+          recipients: toArray.map((addr, idx) => ({
+            address: addr,
+            amount: amountArray[idx],
+          })),
         })
         continue
       } else if (type === 'governorSetting') {

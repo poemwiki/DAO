@@ -22,7 +22,9 @@ export default function LanguageSwitch() {
     try {
       i18n.changeLanguage(value)
       localStorage.setItem('i18nextLng', value)
-      if (!isMobile) setOpen(false)
+      if (!isMobile) {
+        setOpen(false)
+      }
     } catch (error) {
       console.error('Error changing language:', error)
     }
@@ -37,7 +39,7 @@ export default function LanguageSwitch() {
           onMouseEnter={openDelayed}
           onMouseLeave={closeDelayed}
           className={cn(
-            'w-10 h-10 inline-flex items-center justify-center rounded-md border bg-background hover:bg-accent/40 transition-colors outline-none'
+            'w-10 h-10 inline-flex items-center justify-center rounded-md border bg-background hover:bg-accent/40 transition-colors outline-none',
           )}
           title={t('switchLanguage.menuTitle')}
         >
@@ -58,18 +60,21 @@ export default function LanguageSwitch() {
         onOpenAutoFocus={e => e.preventDefault()}
         className={cn(
           'z-50 w-fit origin-[var(--radix-popover-content-transform-origin)] rounded-md border bg-popover p-1 text-popover-foreground shadow-md focus:outline-none',
-          'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
+          'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
         )}
       >
         <AnimatePresence mode="wait">
           {open && (
-            <motion.ul {...dropdownAnimation} className="flex flex-col gap-0.5 text-sm">
+            <motion.ul
+              {...dropdownAnimation}
+              className="flex flex-col gap-0.5 text-sm"
+            >
               <li>
                 <Button
                   onClick={() => handleLanguageChange('en')}
                   className={cn(
                     'w-full h-10 rounded-sm bg-transparent px-2 text-left transition-colors',
-                    i18n.language === 'en' && 'bg-accent'
+                    i18n.language === 'en' && 'bg-accent',
                   )}
                 >
                   English
@@ -80,7 +85,7 @@ export default function LanguageSwitch() {
                   onClick={() => handleLanguageChange('zh')}
                   className={cn(
                     'w-full h-10 rounded-sm bg-transparent px-2 text-left transition-colors',
-                    i18n.language === 'zh' && 'bg-accent'
+                    i18n.language === 'zh' && 'bg-accent',
                   )}
                 >
                   中文

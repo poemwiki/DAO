@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { Member } from '@/types'
+import type { Member } from '@/types'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { short } from '@/utils/format'
 import { ZERO_ADDRESS } from '@/constants'
@@ -31,16 +31,20 @@ interface DelegateModalProps {
   onDelegated?: (delegate: string, txHash: string) => void
 }
 
-export default function DelegateModal({ open, onClose, onDelegated }: DelegateModalProps) {
+export default function DelegateModal({
+  open,
+  onClose,
+  onDelegated,
+}: DelegateModalProps) {
   const { t } = useTranslation()
   const { address } = useAccount()
   const wagmiConfig = useConfig()
   const [selectedDelegate, setSelectedDelegate] = useState<string>('')
   const [txHash, setTxHash] = useState<string>('')
   const [selectOpen, setSelectOpen] = useState(false)
-  const [txStatus, setTxStatus] = useState<'idle' | 'signing' | 'pending' | 'success' | 'error'>(
-    'idle'
-  )
+  const [txStatus, setTxStatus] = useState<
+    'idle' | 'signing' | 'pending' | 'success' | 'error'
+  >('idle')
   const [txError, setTxError] = useState<string | null>(null)
 
   // Query token holders
@@ -51,11 +55,15 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
     })
 
   const members: Member[] = tokenHoldersData?.members || []
-  const selfMember = members.find(m => m.id.toLowerCase() === address?.toLowerCase())
+  const selfMember = members.find(
+    m => m.id.toLowerCase() === address?.toLowerCase(),
+  )
 
   // initialize selection: existing delegate if set (and not zero & not self), else blank
   useEffect(() => {
-    if (!selfMember) return
+    if (!selfMember) {
+      return
+    }
     if (selfMember.delegate && selfMember.delegate !== ZERO_ADDRESS) {
       setSelectedDelegate(prev => (prev ? prev : selfMember.delegate))
     }
@@ -77,7 +85,11 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
 
   // Add debug log for simulation data
   useEffect(() => {
-    console.log('Simulate data:', { selectedDelegate, simulateData, simulateError })
+    console.log('Simulate data:', {
+      selectedDelegate,
+      simulateData,
+      simulateError,
+    })
   }, [selectedDelegate, simulateData, simulateError])
 
   const { writeContractAsync, isPending: isWritePending } = useWriteContract()
@@ -133,7 +145,10 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
     setTxError(null)
     setTxStatus('signing')
     try {
-      const hash = await writeContractAsync({ ...simulateData.request, chainId: activeChain?.id })
+      const hash = await writeContractAsync({
+        ...simulateData.request,
+        chainId: activeChain?.id,
+      })
       setTxHash(hash)
       setTxStatus('pending')
     } catch (error: any) {
@@ -167,14 +182,20 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
   }
 
   const getButtonDisabled = () => {
-    if (txStatus === 'success') return true
-    if (txStatus === 'signing' || txStatus === 'pending') return true
+    if (txStatus === 'success') {
+      return true
+    }
+    if (txStatus === 'signing' || txStatus === 'pending') {
+      return true
+    }
     return !selectedDelegate || isWritePending
   }
 
   // find self member to check delegation status
   // hide entirely if user not a member
-  if (!selfMember) return null
+  if (!selfMember) {
+    return null
+  }
 
   // reorder so self is first
   const orderedMembers = [
@@ -184,8 +205,11 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
 
   // derive selected member for display
   const selectedMember = useMemo(
-    () => orderedMembers.find(m => m.id.toLowerCase() === selectedDelegate.toLowerCase()),
-    [orderedMembers, selectedDelegate]
+    () =>
+      orderedMembers.find(
+        m => m.id.toLowerCase() === selectedDelegate.toLowerCase(),
+      ),
+    [orderedMembers, selectedDelegate],
   )
 
   return (
@@ -208,7 +232,10 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
               className="max-h-12"
             >
               {selectedMember ? (
-                <SelectedDelegateDisplay member={selectedMember} selfAddress={address} />
+                <SelectedDelegateDisplay
+                  member={selectedMember}
+                  selfAddress={address}
+                />
               ) : (
                 <SelectValue placeholder={t('delegate.selectPlaceholder')} />
               )}
@@ -216,7 +243,11 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
             <SelectContent className="max-h-64 overflow-y-auto">
               <div className="space-y-1">
                 {orderedMembers.map(member => (
-                  <MemberSelectItem key={member.id} member={member} selfAddress={address} t={t} />
+                  <MemberSelectItem
+                    key={member.id}
+                    member={member}
+                    selfAddress={address}
+                  />
                 ))}
               </div>
             </SelectContent>
@@ -240,11 +271,14 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
           )}
         </div>
         {txStatus === 'error' && txError && (
-          <div className="text-xs text-red-500 whitespace-pre-wrap break-all">{txError}</div>
+          <div className="text-xs text-red-500 whitespace-pre-wrap break-all">
+            {txError}
+          </div>
         )}
         {selectedDelegate && simulateError && (
           <div className="text-xs text-amber-600 whitespace-pre-wrap break-all">
-            {t('delegate.simulateError', 'Simulation failed')}: {simulateError.message}
+            {t('delegate.simulateError', 'Simulation failed')}:{' '}
+            {simulateError.message}
           </div>
         )}
         {/* onDelegated side-effect handled in effect below */}
@@ -267,12 +301,12 @@ export default function DelegateModal({ open, onClose, onDelegated }: DelegateMo
 
 // invoke onDelegated through effect to avoid JSX return type issues
 // (placed after component to keep component body cleaner)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 function useOnDelegatedEffect(
   isConfirmed: boolean,
   selectedDelegate: string,
   txHash: string,
-  onDelegated?: (delegate: string, txHash: string) => void
+  onDelegated?: (delegate: string, txHash: string) => void,
 ) {
   useEffect(() => {
     if (isConfirmed && selectedDelegate && txHash && onDelegated) {
@@ -285,16 +319,16 @@ function useOnDelegatedEffect(
 function MemberSelectItem({
   member,
   selfAddress,
-  t,
 }: {
   member: Member
   selfAddress?: string
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  t: any
 }) {
+  const { t } = useTranslation()
   const isSelf = member.id.toLowerCase() === selfAddress?.toLowerCase()
   const displayName = useDisplayName({ address: member.id })
-  const primaryLabel = isSelf ? t('delegate.self') : displayName || short(member.id)
+  const primaryLabel = isSelf
+    ? t('delegate.self')
+    : displayName || short(member.id)
   const secondary = member.id
   return (
     <SelectItem
@@ -308,11 +342,14 @@ function MemberSelectItem({
         <span className="text-[11px] mt-0.5 font-mono text-muted-foreground tracking-tight">
           {secondary}
         </span>
-        {member.delegate && member.delegate !== ZERO_ADDRESS && member.delegate !== member.id && (
-          <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-            {t('delegate.currentDelegateShort', 'Delegating to')} {short(member.delegate)}
-          </span>
-        )}
+        {member.delegate &&
+          member.delegate !== ZERO_ADDRESS &&
+          member.delegate !== member.id && (
+            <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+              {t('delegate.currentDelegateShort', 'Delegating to')}{' '}
+              {short(member.delegate)}
+            </span>
+          )}
       </div>
     </SelectItem>
   )
@@ -328,11 +365,15 @@ function SelectedDelegateDisplay({
   const { t } = useTranslation()
   const isSelf = member.id.toLowerCase() === selfAddress?.toLowerCase()
   const displayName = useDisplayName({ address: member.id })
-  const primaryLabel = isSelf ? t('delegate.self') : displayName || short(member.id)
+  const primaryLabel = isSelf
+    ? t('delegate.self')
+    : displayName || short(member.id)
   return (
     <div className="flex items-center gap-2 truncate">
       <span className="text-sm font-medium truncate">{primaryLabel}</span>
-      <span className="text-xs font-mono text-muted-foreground truncate">{short(member.id)}</span>
+      <span className="text-xs font-mono text-muted-foreground truncate">
+        {short(member.id)}
+      </span>
     </div>
   )
 }

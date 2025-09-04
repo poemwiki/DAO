@@ -26,7 +26,7 @@
     "setVotingDelay": "投票延迟(区块) => {{value}}",
     "setVotingPeriod": "投票时长(区块) => {{value}}",
     "unknown": "未知操作",
-    "updateQuorumNumerator": "法定人数分子 => {{value}}"
+    "updateQuorumNumerator": "法定票数比例分子 => {{value}}"
   },
   "common": {
     "backToHome": "返回首页",
@@ -51,8 +51,8 @@
   "governanceParams": {
     "proposalThreshold": "提案门槛",
     "proposalThresholdHelp": "创建提案所需的最少投票权。",
-    "quorumPercent": "法定人数 %",
-    "quorumPercentHelp": "提案有效所需参与的总投票权百分比。",
+    "quorumPercent": "法定票数比例",
+    "quorumPercentHelp": "提案有效所需票数与总投票权的比例。",
     "votingDelay": "投票延迟",
     "votingDelayHelp": "从提案创建到开始投票之间的区块数，给投票人准备时间。",
     "votingPeriod": "投票时长",
@@ -63,9 +63,9 @@
     "backToProposals": "返回提案列表",
     "closedProposals": "已结束",
     "created": "创建时间",
-  "votingEnds": "投票结束",
-  "votingEndsIn": "剩余时间",
-  "votingEndedAt": "结束于",
+    "votingEnds": "投票结束",
+    "votingEndsIn": "剩余时间",
+    "votingEndedAt": "结束于",
     "governanceProposals": "提案",
     "noProposals": "暂无提案",
     "totalProposals": "提案总数",
@@ -74,6 +74,10 @@
   },
   "proposal": {
     "amount": "数量",
+    "addRow": "添加一行",
+    "batchMintRows": "批量发放行",
+    "batchMintHint": "输入多个接收地址和数量；空行会被忽略。",
+    "batchTotal": "合计: {{total}} {{symbol}}",
     "connectWalletFirst": "请先连接钱包",
     "create": "创建提案",
     "createDescription": "创建一个提案供社区投票",
@@ -82,7 +86,30 @@
     "enterAddress": "输入钱包地址",
     "enterAmount": "输入数量",
     "enterDescription": "输入提案描述",
+    "enterNewValue": "输入新数值",
     "enterTitle": "输入提案标题",
+    "governorFunction": "治理函数",
+    "newValue": "新数值",
+    "governorSettingHint": "这些值是原始单位（区块或代币整数），提交前请确认。",
+    "govFn": {
+      "setVotingDelay": "设置投票延迟(区块)",
+      "setVotingPeriod": "设置投票时长(区块)",
+      "setProposalThreshold": "设置提案门槛",
+      "updateQuorumNumerator": "更新法定票数比例"
+    },
+    "estimatedDuration": "≈ {{human}}",
+    "err": {
+      "noBatchRows": "请至少添加一行批量发放记录。",
+      "badAddress": "第 {{idx}} 行地址无效。",
+      "badAmount": "第 {{idx}} 行数量无效。",
+      "tooManyRows": "行数过多 (最多 100)。",
+      "missingGovFunction": "请选择一个治理函数。",
+      "missingGovValue": "请输入新数值。",
+      "badGovValue": "新数值无效。",
+      "badSingleAddress": "接收地址无效。",
+      "badSingleAmount": "数量无效。"
+    },
+    "quorum": "法定票数",
     "fallbackTitle": {
       "batchMint": "批量发放积分",
       "default": "治理提案",
@@ -107,8 +134,42 @@
     "typePlaceholder": "选择类型",
     "types": {
       "budget": "申请预算",
-      "mint": "发放积分"
-    }
+      "mint": "发放积分",
+      "batchMint": "批量发放",
+      "governorSetting": "治理参数调整"
+    },
+    "vote": {
+      "sectionTitle": "投票",
+      "for": "赞成",
+      "against": "反对",
+      "abstain": "弃权",
+      "signing": "签名中…",
+      "pending": "确认中…",
+      "success": "投票已提交!",
+      "syncing": "正在同步最新投票数据…",
+      "alreadyVoted": "你已投过票。",
+      "cannotVote": "当前不可投票。",
+      "tx": "交易: {{hash}}"
+    },
+    "execute": {
+      "button": "执行提案",
+      "pending": "执行中…",
+      "signing": "请在钱包中签名…",
+      "success": "执行成功!",
+      "error": "执行失败",
+      "description": "该提案已准备好执行。点击按钮执行提案中的所有操作。"
+    },
+    "results": "结果",
+    "timeline": "时间线",
+    "actions": "执行操作",
+    "events": {
+      "created": "创建提案",
+      "start": "开始投票",
+      "end": "结束投票",
+      "executed": "执行",
+      "canceled": "取消"
+    },
+    "quorumHelp": "法定票数 = 提案快照区块(投票开始区块)时的总可投票供应量 * 法定人数百分比。未委托的代币仍计入总供应(提高阈值)但本身没有投票权。该值是必须达到的绝对参与票数(赞成+弃权)。"
   },
   "proposalStatus": {
     "active": "进行中",
@@ -125,7 +186,7 @@
     "active": "投票进行中，在截止区块前可继续投票。",
     "canceled": "提案已被取消，不再继续流程。",
     "closed": "提案生命周期已结束。",
-    "defeated": "投票已结束，未达到通过所需的支持或法定人数。",
+    "defeated": "投票已结束，未达到通过所需的支持或法定票数比例。",
     "executed": "提案的所有链上操作已成功执行。",
     "expired": "在允许的执行窗口内未执行，已过期失效。",
     "pending": "投票尚未开始，等待到达投票起始区块。",

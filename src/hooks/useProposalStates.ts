@@ -1,23 +1,34 @@
+import type { Proposal } from '@/types'
+import type { GovernorStateCode } from '@/utils/governor'
 import { useEffect, useState } from 'react'
 import { usePublicClient } from 'wagmi'
-import { readGovernorState, parseProposalId } from '@/utils/governor'
 import { config } from '@/config'
-import { NUMERIC_STATUS_MAP, deriveProposalStatus, getStatusInfo } from '@/utils/proposal'
-import type { GovernorStateCode } from '@/utils/governor'
-import type { Proposal } from '@/types'
+import { parseProposalId, readGovernorState } from '@/utils/governor'
+import {
+  deriveProposalStatus,
+  getStatusInfo,
+  NUMERIC_STATUS_MAP,
+} from '@/utils/proposal'
 
 interface UseProposalStatesResult {
   statuses: Record<
     string,
-    { code: GovernorStateCode | null; info: ReturnType<typeof getStatusInfo> | null }
+    {
+      code: GovernorStateCode | null
+      info: ReturnType<typeof getStatusInfo> | null
+    }
   >
   loading: boolean
   error: Error | null
 }
 
-export function useProposalStates(proposals: Proposal[] | undefined): UseProposalStatesResult {
+export function useProposalStates(
+  proposals: Proposal[] | undefined,
+): UseProposalStatesResult {
   const client = usePublicClient()
-  const [statuses, setStatuses] = useState<UseProposalStatesResult['statuses']>({})
+  const [statuses, setStatuses] = useState<UseProposalStatesResult['statuses']>(
+    {},
+  )
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
@@ -30,7 +41,10 @@ export function useProposalStates(proposals: Proposal[] | undefined): UseProposa
       // fallback all
       const map: UseProposalStatesResult['statuses'] = {}
       for (const p of proposals) {
-        const fallback = getStatusInfo({ ...p, status: deriveProposalStatus(p) })
+        const fallback = getStatusInfo({
+          ...p,
+          status: deriveProposalStatus(p),
+        })
         map[p.id] = { code: null, info: fallback }
       }
       setStatuses(map)
@@ -46,30 +60,48 @@ export function useProposalStates(proposals: Proposal[] | undefined): UseProposa
           try {
             // parse first to ensure validity
             parseProposalId(p.proposalId || p.id)
-            const numeric = await readGovernorState(client, p.proposalId || p.id)
+            const numeric = await readGovernorState(
+              client,
+              p.proposalId || p.id,
+            )
             results[p.id] = {
               code: numeric,
               info: NUMERIC_STATUS_MAP[numeric] || null,
             }
-          } catch (_e) {
-            const fallback = getStatusInfo({ ...p, status: deriveProposalStatus(p) })
+          }
+          catch (_e) {
+            const fallback = getStatusInfo({
+              ...p,
+              status: deriveProposalStatus(p),
+            })
             results[p.id] = { code: null, info: fallback }
           }
         }
-        if (!mounted) return
+        if (!mounted) {
+          return
+        }
         setStatuses(results)
-      } catch (e) {
-        if (!mounted) return
+      }
+      catch (e) {
+        if (!mounted) {
+          return
+        }
         setError(e as Error)
         // fallback all
         const map: UseProposalStatesResult['statuses'] = {}
         for (const p of proposals) {
-          const fallback = getStatusInfo({ ...p, status: deriveProposalStatus(p) })
+          const fallback = getStatusInfo({
+            ...p,
+            status: deriveProposalStatus(p),
+          })
           map[p.id] = { code: null, info: fallback }
         }
         setStatuses(map)
-      } finally {
-        if (mounted) setLoading(false)
+      }
+      finally {
+        if (mounted) {
+          setLoading(false)
+        }
       }
     })()
     return () => {

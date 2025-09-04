@@ -1,7 +1,11 @@
 import { useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MdOutlineLightMode, MdOutlineDarkMode, MdOutlineComputer } from 'react-icons/md'
+import {
+  MdOutlineLightMode,
+  MdOutlineDarkMode,
+  MdOutlineComputer,
+} from 'react-icons/md'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { cn } from '@/utils/format'
 import { useHoverPopover } from '@/hooks/use-hover-popover'
@@ -14,7 +18,9 @@ type Theme = 'light' | 'dark' | 'system'
 function getStoredTheme(): Theme {
   try {
     const stored = localStorage.getItem('theme') as Theme | null
-    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored
+    if (stored === 'light' || stored === 'dark' || stored === 'system') {
+      return stored
+    }
   } catch {}
   return 'system'
 }
@@ -59,7 +65,9 @@ export default function ThemeSelect() {
 
   const selectTheme = (val: Theme) => {
     setTheme(val)
-    if (!isMobile) setOpen(false)
+    if (!isMobile) {
+      setOpen(false)
+    }
   }
 
   return (
@@ -71,7 +79,7 @@ export default function ThemeSelect() {
           onMouseEnter={openDelayed}
           onMouseLeave={closeDelayed}
           className={cn(
-            'w-10 h-10 inline-flex items-center justify-center rounded-md border bg-background hover:bg-accent/40 transition-colors outline-none'
+            'w-10 h-10 inline-flex items-center justify-center rounded-md border bg-background hover:bg-accent/40 transition-colors outline-none',
           )}
           title={t('theme.menuTitle')}
         >
@@ -93,7 +101,7 @@ export default function ThemeSelect() {
         onOpenAutoFocus={e => e.preventDefault()}
         className={cn(
           'z-50 w-auto origin-[var(--radix-popover-content-transform-origin)] rounded-md border bg-popover p-0 text-popover-foreground shadow-md focus:outline-none',
-          'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95'
+          'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
         )}
       >
         <AnimatePresence mode="wait">
@@ -107,7 +115,7 @@ export default function ThemeSelect() {
                   onClick={() => selectTheme('light')}
                   className={cn(
                     'w-10 h-10 bg-transparent rounded-md transition-colors',
-                    theme === 'light' && 'bg-accent'
+                    theme === 'light' && 'bg-accent',
                   )}
                   title={t('theme.light')}
                   aria-label={t('theme.light')}
@@ -120,7 +128,7 @@ export default function ThemeSelect() {
                   onClick={() => selectTheme('dark')}
                   className={cn(
                     'w-10 h-10 bg-transparent rounded-md transition-colors',
-                    theme === 'dark' && 'bg-accent'
+                    theme === 'dark' && 'bg-accent',
                   )}
                   title={t('theme.dark')}
                   aria-label={t('theme.dark')}
@@ -133,7 +141,7 @@ export default function ThemeSelect() {
                   onClick={() => selectTheme('system')}
                   className={cn(
                     'w-10 h-10 bg-transparent rounded-md transition-colors',
-                    theme === 'system' && 'bg-accent'
+                    theme === 'system' && 'bg-accent',
                   )}
                   title={t('theme.system')}
                   aria-label={t('theme.system')}

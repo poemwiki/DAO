@@ -1,18 +1,18 @@
+import type { ParsedAction } from '@/lib/parseProposalActions'
 import type { Proposal } from '@/types'
 import type { GovernorStateCode } from '@/utils/governor'
-import type { ParsedAction } from '@/lib/parseProposalActions'
 
 // Extended state mapping similar to legacy governor.js
-export type DerivedStatus =
-  | 'pending'
-  | 'active'
-  | 'canceled'
-  | 'defeated'
-  | 'succeeded'
-  | 'queued'
-  | 'expired'
-  | 'executed'
-  | 'closed'
+export type DerivedStatus
+  = | 'pending'
+    | 'active'
+    | 'canceled'
+    | 'defeated'
+    | 'succeeded'
+    | 'queued'
+    | 'expired'
+    | 'executed'
+    | 'closed'
 
 export interface StatusInfo {
   status: DerivedStatus
@@ -94,17 +94,29 @@ export const NUMERIC_STATUS_MAP: Record<GovernorStateCode, StatusInfo> = {
 
 // Heuristic derivation using available fields; if p.status exists and matches, prefer it.
 export function deriveProposalStatus(p: Proposal): DerivedStatus {
-  if (p.status && p.status in NUMERIC_STATUS_MAP_BY_KEY) return p.status as DerivedStatus
-  if (p.canceled) return 'canceled'
-  if (p.executed) return 'executed'
+  if (p.status && p.status in NUMERIC_STATUS_MAP_BY_KEY) {
+    return p.status as DerivedStatus
+  }
+  if (p.canceled) {
+    return 'canceled'
+  }
+  if (p.executed) {
+    return 'executed'
+  }
   // If executedTx present but executed false, consider queued
-  if (!p.executed && p.executeTx) return 'queued'
+  if (!p.executed && p.executeTx) {
+    return 'queued'
+  }
   // Expired if endBlock passed and not executed/succeeded (approx by time if no block context)
   const nowSec = Date.now() / 1000
   const start = p.startBlock ? Number(p.startBlock) : undefined
   const end = p.endBlock ? Number(p.endBlock) : undefined
-  if (start && nowSec < start) return 'pending'
-  if (start && end && nowSec >= start && nowSec <= end) return 'active'
+  if (start && nowSec < start) {
+    return 'pending'
+  }
+  if (start && end && nowSec >= start && nowSec <= end) {
+    return 'active'
+  }
   if (end && nowSec > end) {
     // We can't distinguish defeated vs succeeded without vote counts; fallback closed
     return 'closed'
@@ -113,13 +125,13 @@ export function deriveProposalStatus(p: Proposal): DerivedStatus {
 }
 
 const NUMERIC_STATUS_MAP_BY_KEY: Record<string, StatusInfo> = Object.values(
-  NUMERIC_STATUS_MAP
+  NUMERIC_STATUS_MAP,
 ).reduce(
   (acc, v) => {
     acc[v.status] = v
     return acc
   },
-  {} as Record<string, StatusInfo>
+  {} as Record<string, StatusInfo>,
 )
 
 export function getStatusInfo(p: Proposal): StatusInfo {
@@ -135,7 +147,9 @@ export function getStatusInfo(p: Proposal): StatusInfo {
 }
 
 export function extractBracketCode(description?: string): string | undefined {
-  if (!description) return undefined
+  if (!description) {
+    return undefined
+  }
   const match = description.match(/\[[^\]]+\]/)
   return match ? match[0] : undefined
 }
@@ -147,7 +161,7 @@ export function extractBracketCode(description?: string): string | undefined {
 // 3. Heuristic derivation
 export function getDisplayStatusInfo(
   p: Proposal,
-  numericCode?: GovernorStateCode | null
+  numericCode?: GovernorStateCode | null,
 ): StatusInfo {
   if (typeof numericCode === 'number' && numericCode in NUMERIC_STATUS_MAP) {
     return NUMERIC_STATUS_MAP[numericCode]
@@ -167,11 +181,21 @@ export function deriveFallbackProposalTitle(actions: ParsedAction[]): {
 } {
   let type: ParsedAction['type'] | 'unknown' = 'unknown'
   const hasType = (t: ParsedAction['type']) => actions.some(a => a.type === t)
-  if (hasType('batchMint')) type = 'batchMint'
-  else if (hasType('mintAndApprove')) type = 'mintAndApprove'
-  else if (hasType('mint')) type = 'mint'
-  else if (hasType('governorSetting')) type = 'governorSetting'
-  else type = 'unknown'
+  if (hasType('batchMint')) {
+    type = 'batchMint'
+  }
+  else if (hasType('mintAndApprove')) {
+    type = 'mintAndApprove'
+  }
+  else if (hasType('mint')) {
+    type = 'mint'
+  }
+  else if (hasType('governorSetting')) {
+    type = 'governorSetting'
+  }
+  else {
+    type = 'unknown'
+  }
   const map: Record<string, string> = {
     batchMint: 'proposal.fallbackTitle.batchMint',
     mint: 'proposal.fallbackTitle.mint',
@@ -187,7 +211,7 @@ export function deriveFallbackProposalTitle(actions: ParsedAction[]): {
 export function buildProposalTitle(
   bracketCode: string | undefined,
   actions: ParsedAction[],
-  t: (_key: string) => string
+  t: (_key: string) => string,
 ): string {
   // New: Prefer Markdown H1 (# Title) at top of description if present.
   // Caller must pass bracketCode extracted earlier; to support markdown we allow passing raw description instead in future.

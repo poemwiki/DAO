@@ -1,16 +1,12 @@
+// ABI copied from Hardhat artifact: artifacts/contracts/GovernorUpgradeable.sol/Governor.json
 export const governorABI = [
   { inputs: [], name: 'Empty', type: 'error' },
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: false,
-        internalType: 'uint8',
-        name: 'version',
-        type: 'uint8',
-      },
+      { indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' },
     ],
-    name: 'GovernorInitialized',
+    name: 'Initialized',
     type: 'event',
   },
   {
@@ -153,12 +149,7 @@ export const governorABI = [
         name: 'proposalId',
         type: 'uint256',
       },
-      {
-        indexed: false,
-        internalType: 'uint8',
-        name: 'support',
-        type: 'uint8',
-      },
+      { indexed: false, internalType: 'uint8', name: 'support', type: 'uint8' },
       {
         indexed: false,
         internalType: 'uint256',
@@ -190,12 +181,7 @@ export const governorABI = [
         name: 'proposalId',
         type: 'uint256',
       },
-      {
-        indexed: false,
-        internalType: 'uint8',
-        name: 'support',
-        type: 'uint8',
-      },
+      { indexed: false, internalType: 'uint8', name: 'support', type: 'uint8' },
       {
         indexed: false,
         internalType: 'uint256',
@@ -208,12 +194,7 @@ export const governorABI = [
         name: 'reason',
         type: 'string',
       },
-      {
-        indexed: false,
-        internalType: 'bytes',
-        name: 'params',
-        type: 'bytes',
-      },
+      { indexed: false, internalType: 'bytes', name: 'params', type: 'bytes' },
     ],
     name: 'VoteCastWithParams',
     type: 'event',
@@ -401,11 +382,7 @@ export const governorABI = [
         name: '_token',
         type: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: '_quorumPercentage',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: '_quorumPercentage', type: 'uint256' },
       { internalType: 'uint256', name: '_votingPeriod', type: 'uint256' },
       { internalType: 'uint256', name: '_votingDelay', type: 'uint256' },
       { internalType: 'uint256', name: '_threshold', type: 'uint256' },
@@ -557,14 +534,18 @@ export const governorABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'newVotingDelay', type: 'uint256' }],
+    inputs: [
+      { internalType: 'uint256', name: 'newVotingDelay', type: 'uint256' },
+    ],
     name: 'setVotingDelay',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: 'newVotingPeriod', type: 'uint256' }],
+    inputs: [
+      { internalType: 'uint256', name: 'newVotingPeriod', type: 'uint256' },
+    ],
     name: 'setVotingPeriod',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -594,22 +575,14 @@ export const governorABI = [
     inputs: [],
     name: 'token',
     outputs: [
-      {
-        internalType: 'contract IVotesUpgradeable',
-        name: '',
-        type: 'address',
-      },
+      { internalType: 'contract IVotesUpgradeable', name: '', type: 'address' },
     ],
     stateMutability: 'view',
     type: 'function',
   },
   {
     inputs: [
-      {
-        internalType: 'uint256',
-        name: 'newQuorumNumerator',
-        type: 'uint256',
-      },
+      { internalType: 'uint256', name: 'newQuorumNumerator', type: 'uint256' },
     ],
     name: 'updateQuorumNumerator',
     outputs: [],

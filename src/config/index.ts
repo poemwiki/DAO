@@ -1,15 +1,19 @@
 export const config = {
   api: {
     baseUrl:
-      import.meta.env.VITE_SUBGRAPH_URL || 'https://api.thegraph.com/subgraphs/name/your-subgraph',
+      import.meta.env.VITE_SUBGRAPH_URL
+        || 'https://api.thegraph.com/subgraphs/name/your-subgraph',
   },
   app: {
     name: import.meta.env.VITE_DAO_NAME || 'DAO',
-    description: import.meta.env.VITE_DAO_DESCRIPTION || 'A decentralized autonomous organization',
+    description:
+      import.meta.env.VITE_DAO_DESCRIPTION
+        || 'A decentralized autonomous organization',
   },
   features: {
     enableEns: (import.meta.env.VITE_ENABLE_ENS || 'true') !== 'false',
-    addressBookUrl: import.meta.env.VITE_ADDRESS_BOOK_URL || '/addressBook.json',
+    addressBookUrl:
+      import.meta.env.VITE_ADDRESS_BOOK_URL || '/addressBook.json',
   },
   network: {
     chainId: import.meta.env.VITE_CHAIN_ID || '1',
@@ -27,7 +31,7 @@ export const config = {
 // Helper to guess explorer base if not explicitly provided
 function guessExplorerTxBase(chainIdHexOrDec: string): string {
   const id = chainIdHexOrDec.startsWith('0x')
-    ? parseInt(chainIdHexOrDec, 16)
+    ? Number.parseInt(chainIdHexOrDec, 16)
     : Number(chainIdHexOrDec)
   switch (id) {
     case 1:
@@ -47,5 +51,8 @@ if (!config.network.explorerTxBase) {
   config.network.explorerTxBase = guessExplorerTxBase(config.network.chainId)
 }
 
-export const getExplorerTxUrl = (tx?: string | null) =>
-  tx && config.network.explorerTxBase ? `${config.network.explorerTxBase}${tx}` : undefined
+export function getExplorerTxUrl(tx?: string | null) {
+  return tx && config.network.explorerTxBase
+    ? `${config.network.explorerTxBase}${tx}`
+    : undefined
+}

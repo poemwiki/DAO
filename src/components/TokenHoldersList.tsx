@@ -26,11 +26,13 @@ export default function TokenHoldersList() {
   }
 
   const members: Member[] = (data?.members || []).filter(
-    m => m.id !== ZERO_ADDRESS && BigInt(m.balance) > 0n
+    m => m.id !== ZERO_ADDRESS && BigInt(m.balance) > 0n,
   )
 
   const formatDelegateAddress = (delegate: string) => {
-    return delegate === ZERO_ADDRESS ? t('tokenHolders.notSet') : formatAddress(delegate)
+    return delegate === ZERO_ADDRESS
+      ? t('tokenHolders.notSet')
+      : formatAddress(delegate)
   }
 
   return (
@@ -113,7 +115,9 @@ function MemberRow({
           : delegateDisplayName}
       </td>
       <td className="px-6 py-4">{formatEther(BigInt(member.balance))}</td>
-      <td className="px-6 py-4">{formatEther(BigInt(member.delegateBalance))}</td>
+      <td className="px-6 py-4">
+        {formatEther(BigInt(member.delegateBalance))}
+      </td>
       <td className="px-6 py-4">{short(member.id)}</td>
     </tr>
   )

@@ -1,10 +1,10 @@
+import type { GovernorStateCode } from '@/utils/governor'
+import type { StatusInfo } from '@/utils/proposal'
 import { useEffect, useState } from 'react'
 import { usePublicClient } from 'wagmi'
 import { config } from '@/config'
 import { readGovernorState } from '@/utils/governor'
-import type { StatusInfo } from '@/utils/proposal'
 import { NUMERIC_STATUS_MAP } from '@/utils/proposal'
-import type { GovernorStateCode } from '@/utils/governor'
 
 interface UseProposalStateOptions {
   /** proposal transaction hash (for future use / debugging) */
@@ -32,14 +32,22 @@ export function useProposalState({ proposalId, tx }: UseProposalStateOptions) {
         setLoading(true)
         setError(null)
         const numeric = await readGovernorState(client, proposalId)
-        if (!mounted) return
+        if (!mounted) {
+          return
+        }
         setStateCode(numeric)
         setStatusInfo(NUMERIC_STATUS_MAP[numeric] || null)
-      } catch (e) {
-        if (!mounted) return
+      }
+      catch (e) {
+        if (!mounted) {
+          return
+        }
         setError(e as Error)
-      } finally {
-        if (mounted) setLoading(false)
+      }
+      finally {
+        if (mounted) {
+          setLoading(false)
+        }
       }
     })()
     return () => {

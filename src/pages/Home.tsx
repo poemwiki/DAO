@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { getProposals, ProposalsResponseData } from '@/graphql'
+import type { ProposalsResponseData } from '@/graphql'
+import { getProposals } from '@/graphql'
 import { cn } from '@/utils/format'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
 // status badge handled inside ProposalListItem
@@ -15,7 +16,11 @@ import { Button } from '@/components/ui/button'
 import { FaPlus } from 'react-icons/fa'
 import { useState } from 'react'
 import { formatTokenAmount, estimateDurationFromBlocks } from '@/utils/format'
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/Popover'
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/Popover'
 import { getAverageBlockTime } from '@/constants/blockTimes'
 import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
@@ -28,7 +33,9 @@ export default function Home() {
   const { isMember, isDelegated } = useIsDelegated()
   const [{ wallet }] = useConnectWallet()
   const [delegateModalOpen, setDelegateModalOpen] = useState(false)
-  const [postDelegateNavigate, setPostDelegateNavigate] = useState<string | null>(null)
+  const [postDelegateNavigate, setPostDelegateNavigate] = useState<
+    string | null
+  >(null)
   const { isLoading, error, data } = useQuery<ProposalsResponseData>({
     queryKey: ['proposals'],
     queryFn: getProposals,
@@ -46,7 +53,8 @@ export default function Home() {
     proposals.forEach((proposal: Proposal) => {
       const statusData = statuses[proposal.id]
       // Get the most accurate status: from blockchain > from proposal object > derived
-      const actualStatus = statusData?.info?.status || proposal.status || 'closed' // fallback for unknown status
+      const actualStatus =
+        statusData?.info?.status || proposal.status || 'closed' // fallback for unknown status
 
       // Active statuses: pending, active, queued
       if (['pending', 'active', 'queued'].includes(actualStatus)) {
@@ -54,9 +62,14 @@ export default function Home() {
       }
       // Closed statuses: canceled, defeated, succeeded, expired, executed, closed
       else if (
-        ['canceled', 'defeated', 'succeeded', 'expired', 'executed', 'closed'].includes(
-          actualStatus
-        )
+        [
+          'canceled',
+          'defeated',
+          'succeeded',
+          'expired',
+          'executed',
+          'closed',
+        ].includes(actualStatus)
       ) {
         // closedCount++
       }
@@ -72,7 +85,7 @@ export default function Home() {
   const { activeCount } = getProposalStats()
   const totalVotes = proposals.reduce(
     (acc: number, p: Proposal) => acc + (p.voteCasts?.length || 0),
-    0
+    0,
   )
 
   if (isLoading) {
@@ -103,21 +116,33 @@ export default function Home() {
       {/* DAO Overview */}
       <section className="space-y-4">
         <h1 className="text-4xl font-bold">{config.app.name}</h1>
-        <p className="text-xl text-muted-foreground">{config.app.description}</p>
+        <p className="text-xl text-muted-foreground">
+          {config.app.description}
+        </p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">{proposals.length}</div>
-            <div className="text-sm text-muted-foreground">{t('home.totalProposals')}</div>
+            <div className="text-sm text-muted-foreground">
+              {t('home.totalProposals')}
+            </div>
           </div>
           <div className="p-6 border rounded-lg bg-card">
-            <div className={cn('text-2xl font-bold', { ' text-primary': activeCount > 0 })}>
+            <div
+              className={cn('text-2xl font-bold', {
+                ' text-primary': activeCount > 0,
+              })}
+            >
               {activeCount}
             </div>
-            <div className="text-sm text-muted-foreground">{t('home.activeProposals')}</div>
+            <div className="text-sm text-muted-foreground">
+              {t('home.activeProposals')}
+            </div>
           </div>
           <div className="hidden md:block p-6 border rounded-lg bg-card">
             <div className="text-2xl font-bold">{totalVotes}</div>
-            <div className="text-sm text-muted-foreground">{t('home.totalVotes')}</div>
+            <div className="text-sm text-muted-foreground">
+              {t('home.totalVotes')}
+            </div>
           </div>
         </div>
       </section>
@@ -125,7 +150,9 @@ export default function Home() {
       {/* Proposals List */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">{t('home.governanceProposals')}</h2>
+          <h2 className="text-2xl font-bold">
+            {t('home.governanceProposals')}
+          </h2>
           <Button
             onClick={() => {
               if (isMember && !isDelegated) {
@@ -180,8 +207,9 @@ export default function Home() {
                 {estimateDurationFromBlocks(
                   Number(govParams.votingDelay),
                   getAverageBlockTime(
-                    parseInt(config.network.chainId, 16) || Number(config.network.chainId)
-                  )
+                    parseInt(config.network.chainId, 16) ||
+                      Number(config.network.chainId),
+                  ),
                 )}
               </span>
             </div>
@@ -208,8 +236,9 @@ export default function Home() {
                   {estimateDurationFromBlocks(
                     Number(govParams.votingPeriod),
                     getAverageBlockTime(
-                      parseInt(config.network.chainId, 16) || Number(config.network.chainId)
-                    )
+                      parseInt(config.network.chainId, 16) ||
+                        Number(config.network.chainId),
+                    ),
                   )}
                 </span>
               </div>
@@ -231,7 +260,10 @@ export default function Home() {
               </Popover>
             </div>
             <div className="text-lg font-semibold">
-              {formatTokenAmount(BigInt(govParams.proposalThreshold), tokenInfo?.decimals || 18)}
+              {formatTokenAmount(
+                BigInt(govParams.proposalThreshold),
+                tokenInfo?.decimals || 18,
+              )}
             </div>
           </div>
           {/* Quorum Percent */}
@@ -245,13 +277,16 @@ export default function Home() {
                   </span>
                 </PopoverTrigger>
                 <PopoverContent side="top" align="start">
-                  <p className="w-48">{t('governanceParams.quorumPercentHelp')}</p>
+                  <p className="w-48">
+                    {t('governanceParams.quorumPercentHelp')}
+                  </p>
                 </PopoverContent>
               </Popover>
             </div>
             <div className="text-lg font-semibold">
               {(
-                (Number(govParams.quorumNum) / Math.max(1, Number(govParams.quorumDen))) *
+                (Number(govParams.quorumNum) /
+                  Math.max(1, Number(govParams.quorumDen))) *
                 100
               ).toFixed(2)}
               %
@@ -273,7 +308,9 @@ export default function Home() {
             const target = postDelegateNavigate
             setDelegateModalOpen(false)
             setPostDelegateNavigate(null)
-            if (target) navigate(target)
+            if (target) {
+              navigate(target)
+            }
           }}
         />
       )}

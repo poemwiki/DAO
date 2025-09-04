@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { config } from '@/config'
 import { useEnsName } from 'wagmi'
+import { config } from '@/config'
 import { short } from '@/utils/format'
 
 // Normalize address to lowercase checksum-insensitive key
@@ -37,30 +37,42 @@ export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
   // load address book once
   useEffect(() => {
     let cancelled = false
-    if (!addressBookCache.subscribers) addressBookCache.subscribers = new Set()
+    if (!addressBookCache.subscribers) {
+      addressBookCache.subscribers = new Set()
+    }
 
     const notify = () => {
-      if (cancelled) return
-      if (lower && addressBookCache.data) setStaticName(addressBookCache.data[lower])
+      if (cancelled) {
+        return
+      }
+      if (lower && addressBookCache.data) {
+        setStaticName(addressBookCache.data[lower])
+      }
     }
 
     addressBookCache.subscribers.add(notify)
 
     async function load() {
-      if (addressBookCache.data || addressBookCache.loading) return
+      if (addressBookCache.data || addressBookCache.loading) {
+        return
+      }
       addressBookCache.loading = true
       try {
         const res = await fetch(config.features.addressBookUrl)
-        if (!res.ok) throw new Error('addressBook fetch failed')
+        if (!res.ok) {
+          throw new Error('addressBook fetch failed')
+        }
         const json = (await res.json()) as Record<string, string>
         addressBookCache.data = Object.fromEntries(
-          Object.entries(json).map(([k, v]) => [k.toLowerCase(), v])
+          Object.entries(json).map(([k, v]) => [k.toLowerCase(), v]),
         )
         // notify all
         addressBookCache.subscribers?.forEach(cb => cb())
-      } catch (e) {
+      }
+      catch (e) {
         addressBookCache.error = e
-      } finally {
+      }
+      finally {
         addressBookCache.loading = false
       }
     }
@@ -89,10 +101,18 @@ export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
   })
 
   useEffect(() => {
-    if (staticName) setName(staticName)
-    else if (ensName) setName(ensName)
-    else if (address) setName(short(address))
-    else setName(undefined)
+    if (staticName) {
+      setName(staticName)
+    }
+    else if (ensName) {
+      setName(ensName)
+    }
+    else if (address) {
+      setName(short(address))
+    }
+    else {
+      setName(undefined)
+    }
   }, [staticName, ensName, address])
 
   return name
@@ -101,7 +121,9 @@ export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
 // Lightweight synchronous lookup (address book only, no ENS) for cases where
 // we need a display name outside React (e.g., during pure parsing).
 export function lookupAddressBookName(address?: string) {
-  if (!address) return undefined
+  if (!address) {
+    return undefined
+  }
   const lower = address.toLowerCase()
   return addressBookCache.data?.[lower]
 }

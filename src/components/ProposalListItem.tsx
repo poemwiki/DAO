@@ -9,17 +9,22 @@ import { formatRelativeTime, formatGraphTimestamp } from '@/utils/format'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
 import type { Proposal } from '@/types'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { GovernorStateCode } from '@/utils/governor'
 
 interface Props {
   proposal: Proposal
-  numericCode: number | null
+  numericCode: GovernorStateCode | null
   proposalNumber: number
 }
 
 // Show countdown (pending/active) else show final end date (date only)
 const ACTIVE_CODES = new Set([0, 1])
 
-export function ProposalListItem({ proposal, numericCode, proposalNumber }: Props) {
+export function ProposalListItem({
+  proposal,
+  numericCode,
+  proposalNumber,
+}: Props) {
   const { t } = useTranslation()
   const { data: tokenInfo } = useTokenInfo()
   const desc = proposal.description || ''
@@ -29,7 +34,7 @@ export function ProposalListItem({ proposal, numericCode, proposalNumber }: Prop
     proposal.calldatas || [],
     proposal.signatures || [],
     tokenInfo?.decimals,
-    tokenInfo?.symbol
+    tokenInfo?.symbol,
   )
   const displayTitle = buildProposalTitle(bracketCode, parsedActions, t)
 
@@ -43,13 +48,13 @@ export function ProposalListItem({ proposal, numericCode, proposalNumber }: Prop
       // pending / active -> remaining time (relative future)
       timeLabel = `${t('home.votingEndsIn')}: ${formatRelativeTime(
         endInfo.timestamp,
-        t('lang') as string
+        t('lang') as string,
       )}`
     } else {
       // finalized or other states -> date only (no time of day)
       timeLabel = `${t('home.votingEndedAt')}: ${formatGraphTimestamp(
         endInfo.timestamp,
-        t('lang') as string
+        t('lang') as string,
       )}`
     }
   }
@@ -64,7 +69,9 @@ export function ProposalListItem({ proposal, numericCode, proposalNumber }: Prop
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
           <div className="space-y-2 flex-1 min-w-0">
             <div className="flex justify-start items-start md:items-center gap-2 flex-col md:flex-row">
-              <h3 className="text-lg font-semibold break-words flex-1 min-w-0">{displayTitle}</h3>
+              <h3 className="text-lg font-semibold break-words flex-1 min-w-0">
+                {displayTitle}
+              </h3>
               <Badge color="slate" outline={true}>
                 Proposal #{proposalNumber}
               </Badge>
@@ -76,7 +83,10 @@ export function ProposalListItem({ proposal, numericCode, proposalNumber }: Prop
         </div>
         <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1 text-xs">
           <span className={numericCode === null ? 'invisible' : 'visible'}>
-            <ProposalStatusBadge proposal={proposal} numericCode={numericCode as any} />
+            <ProposalStatusBadge
+              proposal={proposal}
+              numericCode={numericCode}
+            />
           </span>
           <span>{timeLabel}</span>
         </div>
