@@ -9,6 +9,7 @@ import { useTokenInfo } from '@/hooks/useTokenInfo'
 import { useGovernorQuorum } from '@/hooks/useGovernorQuorum'
 import { usePastTotalSupply } from '@/hooks/usePastTotalSupply'
 import type { Proposal } from '@/types'
+import { FaPoll } from 'react-icons/fa'
 
 export interface ProposalResultsProps {
   proposal: Proposal
@@ -51,7 +52,10 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold flex items-center justify-between">
-        <span>{t('proposal.results')}</span>
+        <span className="flex items-center gap-2">
+          <FaPoll />
+          {t('proposal.results')}
+        </span>
         <span className="text-sm font-normal text-muted-foreground">
           {formatNumber(totalVotes)} votes
         </span>

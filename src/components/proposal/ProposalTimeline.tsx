@@ -5,6 +5,7 @@ import { short, formatGraphTimestampLocalMinutes } from '@/utils/format'
 import React from 'react'
 import type { Proposal } from '@/types'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
+import { IoMdTime } from 'react-icons/io'
 
 export interface TimelineEvent {
   key: string
@@ -165,7 +166,10 @@ export function ProposalTimeline({
   ])
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold">{t('proposal.timeline')}</h2>
+      <h2 className="text-lg font-semibold flex items-center gap-2">
+        <IoMdTime />
+        {t('proposal.timeline')}
+      </h2>
       <div className="relative">
         <div className="absolute left-2 top-3 bottom-3 w-px bg-border" />
         <ul className="flex flex-col-reverse gap-6 pl-0 m-0 list-none">

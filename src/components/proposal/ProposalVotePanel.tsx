@@ -8,6 +8,7 @@ import { useIsDelegated } from '@/hooks/useIsDelegated'
 import type { Proposal } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useConnectWallet } from '@web3-onboard/react'
+import { MdAdsClick } from 'react-icons/md'
 
 // WHY: This panel previously accepted many derived props (canExecute, executing, hasVoted, etc.)
 // which tightly coupled the page to voting logic. We internalize the hooks + derivations here,
@@ -38,9 +39,6 @@ export function ProposalVotePanel({
   const canExecute = !proposal?.executed && (stateCode === 4 || stateCode === 5)
   const isExecuted = !!proposal?.executed
 
-  if (isExecuted) {
-    return null
-  }
 
   const {
     cast,
@@ -76,7 +74,7 @@ export function ProposalVotePanel({
     execute,
     status: execStatus,
     error: execError,
-    txHash: execTx,
+  // txHash removed (panel unmounts on success)
   } = useExecuteProposal({
     onSuccess: () => {
       if (proposal?.id) {
@@ -89,6 +87,10 @@ export function ProposalVotePanel({
     execStatus === 'building' ||
     execStatus === 'signing' ||
     execStatus === 'pending'
+  const justExecuted = execStatus === 'success'
+  if (isExecuted || justExecuted) {
+    return null
+  }
   const voteDisabled =
     !canVote
     || hasVoted
@@ -98,7 +100,8 @@ export function ProposalVotePanel({
 
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold flex items-center justify-between">
+      <h2 className="text-lg font-semibold flex items-center justify-start gap-2">
+        <MdAdsClick />
         <span>{t('proposal.vote.sectionTitle')}</span>
       </h2>
       <div className="p-4 border rounded-md bg-background/50 flex flex-col gap-3">
@@ -135,19 +138,7 @@ export function ProposalVotePanel({
                 {t('proposal.execute.pending', 'Executing…')}
               </p>
             )}
-            {execStatus === 'success' && execTx && (
-              <p className="text-[11px] text-green-600 break-all">
-                {t('proposal.execute.success', 'Execution succeeded!')}{' '}
-                <a
-                  href={getExplorerTxUrl(execTx)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:no-underline"
-                >
-                  {short(execTx)}
-                </a>
-              </p>
-            )}
+            {/* Success state removed because panel unmounts when justExecuted */}
             {execStatus === 'error' && execError ? (
               <p className="text-[11px] text-destructive break-words">
                 {t('proposal.execute.error', 'Execution failed')}:{' '}
