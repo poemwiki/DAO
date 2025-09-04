@@ -7,7 +7,19 @@ import { config } from '@/config'
 
 type Status = 'idle' | 'building' | 'signing' | 'pending' | 'success' | 'error'
 
-export function useExecuteProposal(opts: { onSuccess?: () => void } = {}) {
+interface UseExecuteProposalOptions {
+  onSuccess?: () => void
+  /** detail cache id, to target invalidate + poll */
+  proposalId?: string | bigint | null
+  /** how many polling attempts after success (default 5) */
+  pollAttempts?: number
+  /** delay before first poll ms (default 2000) */
+  initialDelayMs?: number
+  /** interval between polls ms (default 2500) */
+  pollIntervalMs?: number
+}
+
+export function useExecuteProposal(opts: UseExecuteProposalOptions = {}) {
   const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
   const queryClient = useQueryClient()
@@ -17,7 +29,7 @@ export function useExecuteProposal(opts: { onSuccess?: () => void } = {}) {
 
   const execute = useCallback(
     async (
-      _proposalId: bigint | string, // kept for API compatibility; Governor.execute doesn't take the id
+      _proposalId: bigint | string, // API compat (Governor.execute doesn't need it)
       targets: `0x${string}`[],
       values: bigint[],
       calldatas: `0x${string}`[],
@@ -43,13 +55,29 @@ export function useExecuteProposal(opts: { onSuccess?: () => void } = {}) {
         setStatus('pending')
         await publicClient.waitForTransactionReceipt({ hash })
         setStatus('success')
-        // Invalidate proposal-related queries (detail + list) so UI refreshes like after vote
+        // Immediate targeted invalidation
         try {
+          if (opts.proposalId) {
+            queryClient.invalidateQueries({
+              queryKey: ['proposal', String(opts.proposalId)],
+            })
+          }
           queryClient.invalidateQueries({ queryKey: ['proposal'] })
-          // If caller knows a specific proposal id, they can still manually invalidate outside.
         }
-        catch {
-          // ignore cache invalidation error (unlikely)
+        catch {}
+        // Lightweight polling to pick up executed flag (subgraph lag)
+        if (opts.proposalId) {
+          const attempts = opts.pollAttempts ?? 5
+          ;(async () => {
+            const delay = (ms: number) => new Promise(r => setTimeout(r, ms))
+            await delay(opts.initialDelayMs ?? 2000)
+            for (let i = 0; i < attempts; i++) {
+              queryClient.invalidateQueries({
+                queryKey: ['proposal', String(opts.proposalId)],
+              })
+              await delay(opts.pollIntervalMs ?? 2500)
+            }
+          })()
         }
         opts.onSuccess?.()
       }
