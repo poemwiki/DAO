@@ -52,7 +52,7 @@
     "proposalThreshold": "提案门槛",
     "proposalThresholdHelp": "创建提案所需的最少投票权。",
     "quorumPercent": "法定票数比例",
-    "quorumPercentHelp": "提案有效所需票数与总投票权的比例。",
+    "quorumPercentHelp": "提案有效所需赞成+弃权票数之和与总投票权的比例。",
     "votingDelay": "投票延迟",
     "votingDelayHelp": "从提案创建到开始投票之间的区块数，给投票人准备时间。",
     "votingPeriod": "投票时长",
@@ -149,6 +149,7 @@
       "syncing": "正在同步最新投票数据…",
       "alreadyVoted": "你已投过票。",
       "cannotVote": "当前不可投票。",
+      "needVotingPower": "需要投票权才可以投票。",
       "tx": "交易: {{hash}}"
     },
     "execute": {

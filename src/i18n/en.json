@@ -168,6 +168,7 @@
       "syncing": "Syncing updated vote data…",
       "alreadyVoted": "You have already voted.",
       "cannotVote": "Voting not active.",
+      "needVotingPower": "You need voting power to vote.",
       "tx": "Tx: {{hash}}"
     }
   },

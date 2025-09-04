@@ -4,6 +4,7 @@ import { getExplorerTxUrl } from '@/config'
 import React from 'react'
 import { useCastVote } from '@/hooks/useCastVote'
 import { useExecuteProposal } from '@/hooks/useExecuteProposal'
+import { useIsDelegated } from '@/hooks/useIsDelegated'
 import type { Proposal } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useConnectWallet } from '@web3-onboard/react'
@@ -30,9 +31,16 @@ export function ProposalVotePanel({
   const hasVoted = voterAddress
     ? voteCasts.some(v => v.voter?.id?.toLowerCase() === voterAddress)
     : false
+  const { isDelegated } = useIsDelegated()
+  const hasVotingPower = isDelegated // self or delegated balance
 
   const canVote = stateCode === 1 // Active
   const canExecute = !proposal?.executed && (stateCode === 4 || stateCode === 5)
+  const isExecuted = !!proposal?.executed
+
+  if (isExecuted) {
+    return null
+  }
 
   const {
     cast,
@@ -82,7 +90,11 @@ export function ProposalVotePanel({
     execStatus === 'signing' ||
     execStatus === 'pending'
   const voteDisabled =
-    !canVote || hasVoted || castStatus === 'pending' || castStatus === 'signing'
+    !canVote
+    || hasVoted
+    || castStatus === 'pending'
+    || castStatus === 'signing'
+    || !hasVotingPower
 
   return (
     <div className="space-y-3">
@@ -183,6 +195,11 @@ export function ProposalVotePanel({
             {!hasVoted && !canVote && (
               <p className="text-xs text-muted-foreground">
                 {t('proposal.vote.cannotVote')}
+              </p>
+            )}
+            {!hasVoted && canVote && !hasVotingPower && (
+              <p className="text-xs text-muted-foreground">
+                {t('proposal.vote.needVotingPower', '需要投票权才可以投票')}
               </p>
             )}
             {castStatus === 'signing' && (
