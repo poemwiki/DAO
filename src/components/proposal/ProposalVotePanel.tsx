@@ -9,6 +9,7 @@ import type { Proposal } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useConnectWallet } from '@web3-onboard/react'
 import { MdAdsClick } from 'react-icons/md'
+import { Button } from '../ui/button'
 
 // WHY: This panel previously accepted many derived props (canExecute, executing, hasVoted, etc.)
 // which tightly coupled the page to voting logic. We internalize the hooks + derivations here,
@@ -110,7 +111,7 @@ export function ProposalVotePanel({
             <p className="text-sm text-muted-foreground">
               {t('proposal.execute.description', 'Execute this proposal')}
             </p>
-            <button
+            <Button
               type="button"
               disabled={executing}
               onClick={() =>
@@ -127,7 +128,7 @@ export function ProposalVotePanel({
               {executing
                 ? t('proposal.execute.pending', 'Executing…')
                 : t('proposal.execute.button', 'Execute Proposal')}
-            </button>
+            </Button>
             {execStatus === 'signing' && (
               <p className="text-[11px] text-muted-foreground">
                 {t('proposal.execute.signing', 'Please sign in wallet…')}
@@ -153,30 +154,30 @@ export function ProposalVotePanel({
         ) : (
           <>
             <div className="flex gap-3">
-              <button
+              <Button
                 type="button"
                 disabled={voteDisabled}
                 onClick={() => cast(proposal.id, 1)}
                 className="flex-1 text-sm px-3 py-2 rounded border bg-primary text-primary-foreground disabled:opacity-50"
               >
                 {t('proposal.vote.for')}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 disabled={voteDisabled}
                 onClick={() => cast(proposal.id, 0)}
                 className="flex-1 text-sm px-3 py-2 rounded border bg-destructive text-destructive-foreground disabled:opacity-50"
               >
                 {t('proposal.vote.against')}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 disabled={voteDisabled}
                 onClick={() => cast(proposal.id, 2)}
                 className="flex-1 text-sm px-3 py-2 rounded border bg-yellow-500 text-primary-foreground disabled:opacity-50"
               >
                 {t('proposal.vote.abstain')}
-              </button>
+              </Button>
             </div>
             {hasVoted && (
               <p className="text-xs text-muted-foreground">
