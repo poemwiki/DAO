@@ -7,7 +7,11 @@ export interface DefaultLogoProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string
 }
 
-export const DefaultLogo: React.FC<DefaultLogoProps> = ({ size = 64, className = '', ...rest }) => (
+export const DefaultLogo: React.FC<DefaultLogoProps> = ({
+  size = 64,
+  className = '',
+  ...rest
+}) => (
   <svg
     width={size}
     height={size}

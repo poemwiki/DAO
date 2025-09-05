@@ -52,7 +52,7 @@ export function ProposalListItem({
       )}`
     } else {
       // finalized or other states -> date only (no time of day)
-      timeLabel = `${t('home.votingEndedAt')}: ${formatGraphTimestamp(
+      timeLabel = `${t('home.votingEndedAt')} ${formatGraphTimestamp(
         endInfo.timestamp,
         t('lang') as string,
       )}`

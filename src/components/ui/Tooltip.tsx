@@ -1,6 +1,7 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { cn } from '@/utils/format'
-import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef } from 'react'
+import { forwardRef } from 'react'
 
 const TooltipProvider = TooltipPrimitive.Provider
 
@@ -21,7 +22,7 @@ const TooltipContent = forwardRef<
       'data-[side=top]:slide-in-from-bottom-1 data-[side=bottom]:slide-in-from-top-1',
       'data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1',
       'break-words whitespace-pre-wrap',
-      className
+      className,
     )}
     {...props}
   >
@@ -34,7 +35,7 @@ TooltipContent.displayName = TooltipPrimitive.Content.displayName
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
 
 // Backwards compatible simple wrapper for previous usage pattern: <Tooltip content=...><child/></Tooltip>
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 interface LegacyWrapperProps {
   content: ReactNode
   children: ReactNode
@@ -58,17 +59,25 @@ function LegacyTooltip({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className={cn('inline-flex cursor-help', className)}>{children}</span>
+        <span className={cn('inline-flex cursor-help', className)}>
+          {children}
+        </span>
       </TooltipTrigger>
       <TooltipContent
         side={side}
         align={align}
         style={{
           ...(maxWidth
-            ? { maxWidth: typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth }
+            ? {
+                maxWidth:
+                  typeof maxWidth === 'number' ? `${maxWidth}px` : maxWidth,
+              }
             : { maxWidth: 'min(calc(100vw - 2rem),480px)' }),
           ...(minWidth
-            ? { minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }
+            ? {
+                minWidth:
+                  typeof minWidth === 'number' ? `${minWidth}px` : minWidth,
+              }
             : {}),
         }}
         className={contentClassName}

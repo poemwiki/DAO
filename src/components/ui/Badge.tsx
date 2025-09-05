@@ -27,7 +27,7 @@ const badgeVariants = cva(
       },
     },
     defaultVariants: { color: 'neutral', outline: false },
-  }
+  },
 )
 
 type VariantColor = NonNullable<VariantProps<typeof badgeVariants>['color']>
@@ -52,13 +52,17 @@ export const Badge: React.FC<BadgeProps> = ({
     <span
       className={clsx(
         badgeVariants({ color: color as VariantColor | undefined, outline }),
-        className
+        className,
       )}
       {...rest}
     >
-      {leftIcon && <span className="mr-1 inline-flex items-center">{leftIcon}</span>}
+      {leftIcon && (
+        <span className="mr-1 inline-flex items-center">{leftIcon}</span>
+      )}
       {children}
-      {rightIcon && <span className="ml-1 inline-flex items-center">{rightIcon}</span>}
+      {rightIcon && (
+        <span className="ml-1 inline-flex items-center">{rightIcon}</span>
+      )}
     </span>
   )
 }

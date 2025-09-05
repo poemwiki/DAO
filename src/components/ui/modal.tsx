@@ -15,14 +15,22 @@ interface ModalProps {
   children: React.ReactNode
 }
 
-export function Modal({ open, onClose, title, description, children }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  description,
+  children,
+}: ModalProps) {
   return (
     <Dialog open={open} onOpenChange={open => !open && onClose?.()}>
       <DialogContent>
         {(title || description) && (
           <DialogHeader>
             {title && <DialogTitle>{title}</DialogTitle>}
-            {description && <DialogDescription>{description}</DialogDescription>}
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
           </DialogHeader>
         )}
         {children}

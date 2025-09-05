@@ -1,5 +1,6 @@
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react'
+import type { ElementRef, ComponentPropsWithoutRef } from 'react'
+import { forwardRef } from 'react'
 import { cn } from '@/utils/format'
 
 const Popover = PopoverPrimitive.Root
@@ -22,7 +23,7 @@ const PopoverContent = forwardRef<
         'data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2',
         'data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2',
         'break-words whitespace-pre-wrap text-sm',
-        className
+        className,
       )}
       {...props}
     />

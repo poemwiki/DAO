@@ -34,7 +34,8 @@
     "close": "Close",
     "loading": "Loading...",
     "submit": "Submit",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "remove": "Remove"
   },
   "delegate": {
     "changeButton": "Change Delegate",

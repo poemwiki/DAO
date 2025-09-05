@@ -34,7 +34,8 @@
     "close": "关闭",
     "loading": "加载中...",
     "submit": "提交",
-    "submitting": "提交中..."
+    "submitting": "提交中...",
+    "remove": "Remove"
   },
   "delegate": {
     "changeButton": "更改代理人",

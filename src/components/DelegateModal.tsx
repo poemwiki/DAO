@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 import {
   useAccount,
   useWriteContract,
-  useSimulateContract,
   useWaitForTransactionReceipt,
   useConfig,
+  useChainId,
 } from 'wagmi'
 import { useQuery } from '@tanstack/react-query'
 import { getTokenHolders, type TokenHoldersResponseData } from '@/graphql'
@@ -38,6 +38,7 @@ export default function DelegateModal({
 }: DelegateModalProps) {
   const { t } = useTranslation()
   const { address } = useAccount()
+  const chainId = useChainId()
   const wagmiConfig = useConfig()
   const [selectedDelegate, setSelectedDelegate] = useState<string>('')
   const [txHash, setTxHash] = useState<string>('')
@@ -74,23 +75,7 @@ export default function DelegateModal({
 
   // Prepare the contract write
   const activeChain = wagmiConfig.chains[0]
-  const { data: simulateData, error: simulateError } = useSimulateContract({
-    address: config.contracts.token as `0x${string}`,
-    abi: tokenABI,
-    functionName: 'delegate',
-    args: selectedDelegate ? [selectedDelegate as `0x${string}`] : undefined,
-    account: address,
-    chainId: activeChain?.id,
-  })
-
-  // Add debug log for simulation data
-  useEffect(() => {
-    console.log('Simulate data:', {
-      selectedDelegate,
-      simulateData,
-      simulateError,
-    })
-  }, [selectedDelegate, simulateData, simulateError])
+  console.log('Active chain:', activeChain)
 
   const { writeContractAsync, isPending: isWritePending } = useWriteContract()
 
@@ -120,8 +105,9 @@ export default function DelegateModal({
   const handleDelegate = async () => {
     console.log('Handle delegate called', {
       selectedDelegate,
-      simulateData,
-      hasRequest: !!simulateData?.request,
+      walletChainId: chainId,
+      activeChainId: activeChain?.id,
+      chainMatch: chainId === activeChain?.id,
     })
 
     // If already delegated to this target, short-circuit to success UI
@@ -133,11 +119,8 @@ export default function DelegateModal({
       return
     }
 
-    if (!selectedDelegate || !simulateData?.request) {
-      console.log('Early return due to:', {
-        hasDelegate: !!selectedDelegate,
-        hasRequest: !!simulateData?.request,
-      })
+    if (!selectedDelegate) {
+      console.log('No delegate selected')
       return
     }
 
@@ -146,8 +129,12 @@ export default function DelegateModal({
     setTxStatus('signing')
     try {
       const hash = await writeContractAsync({
-        ...simulateData.request,
+        address: config.contracts.token as `0x${string}`,
+        abi: tokenABI,
+        functionName: 'delegate',
+        args: [selectedDelegate as `0x${string}`],
         chainId: activeChain?.id,
+        chain: activeChain,
       })
       setTxHash(hash)
       setTxStatus('pending')
@@ -273,12 +260,6 @@ export default function DelegateModal({
         {txStatus === 'error' && txError && (
           <div className="text-xs text-red-500 whitespace-pre-wrap break-all">
             {txError}
-          </div>
-        )}
-        {selectedDelegate && simulateError && (
-          <div className="text-xs text-amber-600 whitespace-pre-wrap break-all">
-            {t('delegate.simulateError', 'Simulation failed')}:{' '}
-            {simulateError.message}
           </div>
         )}
         {/* onDelegated side-effect handled in effect below */}
