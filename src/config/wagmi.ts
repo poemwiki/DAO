@@ -2,8 +2,13 @@ import { mainnet, polygon, polygonAmoy, sepolia } from 'viem/chains'
 import { createConfig, http } from 'wagmi'
 import { config } from '.'
 
-// Parse chain ID from environment variable (remove '0x' prefix if present)
-const chainId = Number.parseInt(config.network.chainId.replace('0x', ''), 16)
+// WHY: Previously we always parsed the env chain id as hex which breaks when a
+// user supplies a decimal string (e.g. "80002") – it was interpreted as hex
+// and produced an invalid id (524290). We now detect format explicitly.
+const rawChainId = config.network.chainId.trim()
+const chainId = rawChainId.startsWith('0x')
+  ? Number.parseInt(rawChainId.slice(2), 16)
+  : Number.parseInt(rawChainId, 10)
 
 // Get the chain configuration from viem's built-in chains
 const supportedChains = [mainnet, polygon, polygonAmoy, sepolia]
