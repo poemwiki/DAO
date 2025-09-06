@@ -7,6 +7,8 @@ import { wagmiConfig } from '@/config/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TokenInfoProvider } from '@/context/TokenInfoContext'
 import { BrowserRouter } from 'react-router-dom'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
 
 // Central place to register all app-wide providers.
 // Add future providers here (Theme, i18n already side-effect imported in main).
@@ -37,6 +39,7 @@ export function Providers({ children }: ProvidersProps) {
             </TokenInfoProvider>
           </WagmiProvider>
         </Web3OnboardProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </BrowserRouter>
   )
