@@ -240,7 +240,7 @@ export default function Proposal() {
             {debug && (
               <ProposalDebugPanel
                 proposal={proposal}
-                stateCode={stateCode ?? null}
+                stateCode={stateCode}
               />
             )}
             <ProposalActions
@@ -253,7 +253,7 @@ export default function Proposal() {
           <div className="md:w-1/3 w-full space-y-6">
             <ProposalVotePanel
               proposal={proposal}
-              stateCode={stateCode ?? null}
+              stateCode={stateCode}
             />
             <ProposalResults proposal={proposal} />
             {startBlockNum && endBlockNum && (

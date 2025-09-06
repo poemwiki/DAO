@@ -2,10 +2,11 @@ import { useGovernorQuorum } from '@/hooks/useGovernorQuorum'
 import { usePastTotalSupply } from '@/hooks/usePastTotalSupply'
 import { useQuorumNumerator } from '@/hooks/useQuorumNumerator'
 import type { Proposal } from '@/types'
+import { GovernorStateCode } from '@/utils/governor'
 
 export interface ProposalDebugPanelProps {
   proposal: Proposal
-  stateCode: number | null
+  stateCode: GovernorStateCode | null
 }
 
 // WHY: Internalize quorum + supply reads; caller only passes proposal + stateCode.

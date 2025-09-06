@@ -2,7 +2,15 @@ import type { PublicClient } from 'viem'
 import { governorABI } from '@/abis/governorABI'
 import { config } from '@/config'
 
-// Governor state codes (OpenZeppelin Governor) are 0..7
+// Governor state codes (OpenZeppelin Governor) are 0..7:
+// 0 = Pending        (proposal created, voting delay not elapsed)
+// 1 = Active         (voting open)
+// 2 = Canceled       (canceled by proposer / guardian)
+// 3 = Defeated       (did not reach quorum or for-votes <= against-votes)
+// 4 = Succeeded      (passed; ready for queue if timelock, else executable)
+// 5 = Queued         (queued in timelock)
+// 6 = Expired        (not executed within grace period)
+// 7 = Executed       (successfully executed)
 export type GovernorStateCode = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
 
 function assertGovernorStateCode(n: number): asserts n is GovernorStateCode {

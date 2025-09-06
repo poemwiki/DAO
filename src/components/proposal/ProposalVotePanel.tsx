@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useConnectWallet } from '@web3-onboard/react'
 import { MdAdsClick, MdCheck, MdCheckBoxOutlineBlank, MdClear, MdOutlineRocketLaunch } from 'react-icons/md'
 import { Button } from '../ui/button'
+import { GovernorStateCode } from '@/utils/governor'
 
 // WHY: This panel previously accepted many derived props (canExecute, executing, hasVoted, etc.)
 // which tightly coupled the page to voting logic. We internalize the hooks + derivations here,
@@ -18,7 +19,7 @@ import { Button } from '../ui/button'
 
 export interface ProposalVotePanelProps {
   proposal: Proposal
-  stateCode: number | null
+  stateCode: GovernorStateCode | null
 }
 
 export function ProposalVotePanel({
@@ -91,7 +92,8 @@ export function ProposalVotePanel({
     execStatus === 'signing' ||
     execStatus === 'pending'
   const justExecuted = execStatus === 'success'
-  if (isExecuted || justExecuted) {
+  // Hide panel once voting period is over (stateCode !== 1) or executed
+  if (isExecuted || justExecuted || stateCode !== 1) {
     return null
   }
   const voteDisabled =
