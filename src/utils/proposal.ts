@@ -150,7 +150,7 @@ export function extractBracketCode(description?: string): string | undefined {
   if (!description) {
     return undefined
   }
-  const match = description.match(/\[[^\]]+\]/)
+  const match = description.match(/^\s*\[[^\]]+\]/)
   return match ? match[0] : undefined
 }
 
@@ -206,14 +206,25 @@ export function deriveFallbackProposalTitle(actions: ParsedAction[]): {
   return { key: map[type] || map.unknown, type }
 }
 
+export function getDisplayDescription(description?: string): string {
+  return description?.replace(/^\s*#\s+([^\r\n]+)\s*/, '').replace(/^\s*\[.*?\]\s*/, '') || ''
+}
+
 // Given original bracket code and parsed actions, produce the display title.
 // If bracket code is numeric-only (e.g. "[123]") we return a localized fallback.
 export function buildProposalTitle(
-  bracketCode: string | undefined,
+  description: string | undefined,
   actions: ParsedAction[],
   t: (_key: string) => string,
 ): string {
   // New: Prefer Markdown H1 (# Title) at top of description if present.
+  // Safer regex: avoid greedy (.*) after \s+ to prevent excessive backtracking
+  const h1Match = description?.match(/^\s*#\s+([^\r\n]+)/)
+  if (h1Match) {
+    return h1Match[1]
+  }
+
+  const bracketCode = extractBracketCode(description)
   // Caller must pass bracketCode extracted earlier; to support markdown we allow passing raw description instead in future.
   // For backwards compatibility we keep existing bracket logic when no markdown H1 is provided.
   if (bracketCode) {

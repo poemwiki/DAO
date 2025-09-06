@@ -149,7 +149,7 @@ function ResultRow({
         {help && (
           <Popover>
             <PopoverTrigger asChild>
-              <span className="inline-block w-3 h-3 text-[10px] leading-2.5 text-center border rounded-full cursor-pointer select-none opacity-60 hover:opacity-100 text-foreground">
+              <span className="inline-block w-3 h-3 text-[10px] leading-2.5 text-center border rounded-full cursor-pointer select-none text-secondary">
                 i
               </span>
             </PopoverTrigger>

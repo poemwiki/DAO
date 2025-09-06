@@ -56,106 +56,123 @@ export function ProposalTimeline({
     return estimated ? `≈ ${label}` : label
   }
 
+  // WHY: Original implementation relied on sorting by (possibly undefined) timestamps, then
+  // updating when async block timestamp estimates arrived — causing order flicker.
+  // We want a deterministic visual order from first paint. Strategy:
+  // 1. Use a fixed priority sequence independent of async timestamps.
+  // 2. Only order votes among themselves (their timestamps are already concrete from subgraph).
+  // 3. Do not re-sort structural events when estimates resolve; only their display text changes.
+  // Visual top -> bottom (descending lifecycle):
+  //   executed|canceled (terminal) > end/result (future or finished) > votes (newest->oldest) > start > created
   const events = React.useMemo(() => {
-    if (!proposal) {
-      return [] as TimelineEvent[]
-    }
-    const ev: TimelineEvent[] = []
+    if (!proposal) return [] as TimelineEvent[]
+    const list: TimelineEvent[] = []
+
     const createdMs = normalizeTs(proposal.createdAt)
-    if (createdMs) {
-      ev.push({
-        key: 'created',
-        label: `${proposerName || ''} ${t('proposal.events.created')}`,
-        ts: createdMs,
-        display: formatGraphTimestampLocalMinutes(
-          createdMs,
-          t('lang') as string,
-        ),
-        tx: proposal.proposeTx || undefined,
-      })
-    }
-    if (startBlockNum) {
-      const ms = startInfo?.timestamp
-        ? normalizeTs(startInfo.timestamp)
-        : undefined
-      ev.push({
-        key: 'start',
-        label: t('proposal.events.start'),
-        ts: ms,
-        display: fmtTs(ms, startInfo?.isEstimated),
-        block: startBlockNum,
-      })
-    }
-    if (endBlockNum) {
-      const ms = endInfo?.timestamp ? normalizeTs(endInfo.timestamp) : undefined
-      ev.push({
-        key: 'end',
-        label: t('proposal.events.end'),
-        ts: ms,
-        display: fmtTs(ms, endInfo?.isEstimated),
-        block: endBlockNum,
-      })
-    }
+    const createdEvent: TimelineEvent | null = createdMs
+      ? {
+          key: 'created',
+          label: `${proposerName || ''} ${t('proposal.events.created')}`,
+          ts: createdMs,
+          display: formatGraphTimestampLocalMinutes(createdMs, t('lang') as string),
+          tx: proposal.proposeTx || undefined,
+        }
+      : null
+
+    const startMs = startInfo?.timestamp ? normalizeTs(startInfo.timestamp) : undefined
+    const startEvent: TimelineEvent | null = startBlockNum
+      ? {
+          key: 'start',
+          label: t('proposal.events.start'),
+          ts: startMs,
+          display: fmtTs(startMs, startInfo?.isEstimated),
+          block: startBlockNum,
+        }
+      : null
+
+    const endMs = endInfo?.timestamp ? normalizeTs(endInfo.timestamp) : undefined
+    const endEvent: TimelineEvent | null = endBlockNum
+      ? {
+          key: 'end',
+          label: t('proposal.events.end'),
+          ts: endMs,
+          display: fmtTs(endMs, endInfo?.isEstimated),
+          block: endBlockNum,
+        }
+      : null
+
     const statusInfo = proposal.status || ''
-    const finalized = [
-      'succeeded',
-      'defeated',
-      'canceled',
-      'expired',
-      'executed',
-    ]
-    if (finalized.includes(statusInfo)) {
-      const ms = endInfo?.timestamp ? normalizeTs(endInfo.timestamp) : undefined
-      ev.push({
-        key: 'result',
-        label: t(`proposalStatus.${statusInfo}`, statusInfo) as string,
-        ts: ms,
-        display: fmtTs(ms, endInfo?.isEstimated),
+    const finalized = ['succeeded', 'defeated', 'canceled', 'expired', 'executed']
+    const resultEvent: TimelineEvent | null = finalized.includes(statusInfo)
+      ? {
+          key: 'result',
+          label: t(`proposalStatus.${statusInfo}`, statusInfo) as string,
+          ts: endMs,
+          display: fmtTs(endMs, endInfo?.isEstimated),
+        }
+      : null
+
+    const executedEvent: TimelineEvent | null = proposal.executed
+      ? (() => {
+          const execMs = normalizeTs(proposal.executeTime)
+          return {
+            key: 'executed',
+            label: t('proposalStatus.executed', 'Executed'),
+            ts: execMs,
+            display: execMs
+              ? formatGraphTimestampLocalMinutes(execMs, t('lang') as string)
+              : '-',
+            accent: 'executed',
+            tx: proposal.executeTx || undefined,
+          }
+        })()
+      : null
+
+    const canceledEvent: TimelineEvent | null = proposal.canceled
+      ? (() => {
+          const cancelMs = normalizeTs(proposal.cancelTime)
+          return {
+            key: 'canceled',
+            label: t('proposal.events.canceled', '取消'),
+            ts: cancelMs,
+            display: cancelMs
+              ? formatGraphTimestampLocalMinutes(cancelMs, t('lang') as string)
+              : '-',
+            accent: 'canceled',
+            tx: proposal.cancelTx || undefined,
+          }
+        })()
+      : null
+
+    // Votes sorted newest -> oldest to sit immediately under end/result cluster
+    const voteEvents: TimelineEvent[] = (proposal.voteCasts || [])
+      .map(v => {
+        const voteMs = normalizeTs(v.createdAt)
+        return {
+          key: `vote-${v.id}`,
+          type: 'vote',
+            voteAddress: v.voter?.id,
+            voteSupport: v.support,
+            ts: voteMs,
+            display: voteMs
+              ? formatGraphTimestampLocalMinutes(voteMs, t('lang') as string)
+              : '-',
+            tx: v.tx || undefined,
+            label: v.voter?.id,
+        } as TimelineEvent
       })
-    }
-    if (proposal.executed) {
-      const execMs = normalizeTs(proposal.executeTime)
-      ev.push({
-        key: 'executed',
-        label: t('proposalStatus.executed', 'Executed'),
-        ts: execMs,
-        display: execMs
-          ? formatGraphTimestampLocalMinutes(execMs, t('lang') as string)
-          : '-',
-        accent: 'executed',
-        tx: proposal.executeTx || undefined,
-      })
-    }
-    if (proposal.canceled) {
-      const cancelMs = normalizeTs(proposal.cancelTime)
-      ev.push({
-        key: 'canceled',
-        label: t('proposal.events.canceled', '取消'),
-        ts: cancelMs,
-        display: cancelMs
-          ? formatGraphTimestampLocalMinutes(cancelMs, t('lang') as string)
-          : '-',
-        accent: 'canceled',
-        tx: proposal.cancelTx || undefined,
-      })
-    }
-    ;(proposal.voteCasts || []).forEach(v => {
-      const voteMs = normalizeTs(v.createdAt)
-      ev.push({
-        key: `vote-${v.id}`,
-        type: 'vote',
-        voteAddress: v.voter?.id,
-        voteSupport: v.support,
-        ts: voteMs,
-        display: voteMs
-          ? formatGraphTimestampLocalMinutes(voteMs, t('lang') as string)
-          : '-',
-        tx: v.tx || undefined,
-        label: v.voter?.id,
-      })
-    })
-    ev.sort((a, b) => (a.ts && b.ts ? a.ts - b.ts : 0))
-    return ev
+      .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+
+    // Assemble in fixed visual order (top -> bottom)
+    if (executedEvent) list.push(executedEvent)
+    if (canceledEvent) list.push(canceledEvent)
+    if (endEvent) list.push(endEvent)
+    if (resultEvent) list.push(resultEvent)
+    list.push(...voteEvents)
+    if (startEvent) list.push(startEvent)
+    if (createdEvent) list.push(createdEvent)
+
+    return list
   }, [
     proposal,
     proposerName,
@@ -180,10 +197,9 @@ export function ProposalTimeline({
           const lastCompletedIdx = events
             .map((e, i) => ({ i, ts: e.ts }))
             .filter(x => typeof x.ts === 'number' && (x.ts as number) <= now)
-            .sort((a, b) => (a.ts! - b.ts!))
             .at(-1)?.i
           return (
-            <ul className="flex flex-col-reverse gap-6 pl-0 m-0 list-none">
+            <ul className="flex flex-col gap-6 pl-0 m-0 list-none">
               {events.map((e, idx) => {
                 const safeKey = e.key || `evt-${idx}`
                 const isCompleted = typeof e.ts === 'number' && e.ts <= now

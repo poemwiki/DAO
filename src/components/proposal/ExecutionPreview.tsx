@@ -22,13 +22,15 @@ export const ExecutionPreview: React.FC<ExecutionPreviewProps> = ({ form, t, pro
       lines.push(`token.mintAndApprove(${form.address || proposerAddress || '<address>'}, ${form.amount || '0'} * 1e18)`) // fallback to connected wallet
       break
     case PROPOSAL_TYPE.BATCH_MINT:
-      lines.push('token.batchMint([')
-      form.batch.forEach((r, i) => {
-        if (r.address || r.amount) {
-          lines.push(`  ${i}. ${r.address || '<address>'}, ${r.amount || '0'} * 1e18`)
-        }
-      })
-      lines.push('])')
+      // Build arrays matching contract signature: batchMint(address[] toArray, uint256[] amountArray)
+      const validRows = form.batch.filter(r => r.address || r.amount)
+      if (validRows.length === 0) {
+        lines.push('token.batchMint([<address1>, <address2>], [<amt1> * 1e18, <amt2> * 1e18])')
+      } else {
+        const addrList = validRows.map(r => r.address || '<address>').join(', ')
+        const amtList = validRows.map(r => `${r.amount || '0'} * 1e18`).join(', ')
+        lines.push(`token.batchMint([${addrList}], [${amtList}])`)
+      }
       break
     case PROPOSAL_TYPE.GOVERNOR_SETTING:
       if (form.governorFunction === 'setProposalThreshold') {

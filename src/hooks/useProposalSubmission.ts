@@ -1,5 +1,5 @@
 import type { ProposalForm } from '@/hooks/useProposalForm'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useCreateProposal } from '@/hooks/useCreateProposal'
 import { buildCreateProposalPayload } from '@/utils/buildProposalPayload'
 
@@ -21,19 +21,13 @@ export function useProposalSubmission({
   const [errors, setErrors] = useState<string[]>([])
   const [friendlyError, setFriendlyError] = useState<string | null>(null)
 
-  const {
-    create,
-    status,
-    error,
-    result,
-  } = useCreateProposal({
-    onSuccess: () => {
-      onSuccess?.(result?.proposalId)
-    },
+  const { create, status, error } = useCreateProposal({
+    onSuccess: r => onSuccess?.(r.proposalId),
   })
 
-  // derive user-friendly error
-  if (error && !friendlyError) {
+  // Derive friendly error only when status === 'error'; prevents old error flashing after submit.
+  useEffect(() => {
+    if (status !== 'error' || !error) return
     const e = error as unknown as {
       shortMessage?: string
       message?: string
@@ -43,12 +37,13 @@ export function useProposalSubmission({
       raw = t('wallet.userRejected')
     }
     else {
-      raw = raw.replace(/0x[0-9a-fA-F]{120,}/g, (m: string) => `${m.slice(0, 20)}…`)
+      raw = raw.replace(/0x[0-9a-fA-F]{120,}/g, m => `${m.slice(0, 20)}…`)
       if (raw.length > 360)
         raw = `${raw.slice(0, 360)}…`
     }
+    if (friendlyError === raw) return
     queueMicrotask(() => setFriendlyError(raw))
-  }
+  }, [status, error, t, friendlyError])
 
   const submit = useCallback(
     async (form: ProposalForm) => {
@@ -73,7 +68,6 @@ export function useProposalSubmission({
     status,
     errors,
     friendlyError,
-    proposalId: result?.proposalId,
     reset: () => {
       setErrors([])
       setFriendlyError(null)

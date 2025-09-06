@@ -22,20 +22,20 @@
     "mint": "Distribute {{amount}} {{symbol}} to {{who}}",
     "mintAndApprove": "Request {{amount}} {{symbol}} budget for {{who}}",
     "parseError": "Failed to parse call",
-    "setProposalThreshold": "Proposal Threshold => {{value}}",
-    "setVotingDelay": "Voting Delay (blocks) => {{value}}",
-    "setVotingPeriod": "Voting Period (blocks) => {{value}}",
+    "setProposalThreshold": "Set Proposal Threshold to {{value}}",
+    "setVotingDelay": "Set Voting Delay to {{value}} blocks",
+    "setVotingPeriod": "Set Voting Period to {{value}} blocks",
     "unknown": "Unknown Action",
-    "updateQuorumNumerator": "Quorum Numerator => {{value}}"
+    "updateQuorumNumerator": "Set Quorum Numerator to {{value}}"
   },
   "common": {
     "backToHome": "Back to Home",
     "cancel": "Cancel",
     "close": "Close",
     "loading": "Loading...",
+    "remove": "Remove",
     "submit": "Submit",
-    "submitting": "Submitting...",
-    "remove": "Remove"
+    "submitting": "Submitting..."
   },
   "delegate": {
     "changeButton": "Change My Delegate",
@@ -64,20 +64,21 @@
     "backToProposals": "Back to proposals",
     "closedProposals": "Closed",
     "created": "Created",
-    "votingEnds": "Voting Ends",
-    "votingEndsIn": "Ends In",
-    "votingEndedAt": "Ended",
     "governanceProposals": "Proposals",
     "noProposals": "No proposals yet",
     "totalProposals": "Total Proposals",
     "totalVotes": "Total Votes",
-    "updated": "Updated"
+    "updated": "Updated",
+    "votingEndedAt": "Ended",
+    "votingEnds": "Voting Ends",
+    "votingEndsIn": "Ends In"
   },
   "proposal": {
-    "amount": "Amount",
+    "actions": "Actions",
     "addRow": "Add Row",
-    "batchMintRows": "Batch Distribution Rows",
+    "amount": "Amount",
     "batchMintHint": "Enter multiple recipient addresses and amounts. Empty rows are ignored.",
+    "batchMintRows": "Batch Distribution Rows",
     "batchTotal": "Total: {{total}} {{symbol}}",
     "connectWalletFirst": "Please connect your wallet first",
     "create": "Create Proposal",
@@ -89,49 +90,35 @@
     "enterDescription": "Enter proposal description",
     "enterNewValue": "Enter new value",
     "enterTitle": "Enter proposal title",
-    "executionPreview": "Execution Preview",
-    "governorFunction": "Governor Param",
-    "newValue": "New Value",
-    "governorSettingHint": "These values are raw units (blocks or token units). Ensure they are correct before submitting.",
-    "govFn": {
-      "setVotingDelay": "Set Voting Delay (blocks)",
-      "setVotingPeriod": "Set Voting Period (blocks)",
-      "setProposalThreshold": "Set Proposal Threshold",
-      "updateQuorumNumerator": "Update Quorum Numerator"
-    },
-    "estimatedDuration": "≈ {{human}}",
     "err": {
-      "noBatchRows": "Please add at least one batch row.",
       "badAddress": "Row {{idx}} has invalid address.",
       "badAmount": "Row {{idx}} has invalid amount.",
-      "tooManyRows": "Too many rows (max 100).",
-      "missingGovFunction": "Select a governor function.",
-      "missingGovValue": "Enter a new value.",
       "badGovValue": "Invalid new value.",
       "badQuorumPercentRange": "Quorum numerator must be within {{range}}.",
       "badSingleAddress": "Invalid recipient address.",
-      "badSingleAmount": "Invalid amount."
+      "badSingleAmount": "Invalid amount.",
+      "missingGovFunction": "Select a governor function.",
+      "missingGovValue": "Enter a new value.",
+      "noBatchRows": "Please add at least one batch row.",
+      "tooManyRows": "Too many rows (max 100)."
+    },
+    "estimatedDuration": "≈ {{human}}",
+    "events": {
+      "canceled": "Canceled",
+      "created": "Proposal Created",
+      "end": "Voting End",
+      "executed": "Executed",
+      "start": "Voting Start"
     },
     "execute": {
       "button": "Execute Proposal",
+      "description": "Click to execute this proposal",
+      "error": "Execution failed",
       "pending": "Executing…",
       "signing": "Awaiting wallet signature…",
-      "success": "Execution succeeded!",
-      "error": "Execution failed",
-      "description": "Execute this proposal"
+      "success": "Execution succeeded!"
     },
-    "results": "Results",
-    "timeline": "Timeline",
-    "actions": "Actions",
-    "events": {
-      "created": "Proposal Created",
-      "start": "Voting Start",
-      "end": "Voting End",
-      "executed": "Executed",
-      "canceled": "Canceled"
-    },
-    "quorumHelp": "Quorum = (total voting supply at the proposal snapshot / start block) * quorumPercent. Undelegated tokens still count toward total supply (they increase the absolute quorum requirement) even if they themselves have no delegated voting power. This value is the absolute participation threshold (For + Abstain).",
-    "quorum": "Quorum",
+    "executionPreview": "Execution Preview",
     "fallbackTitle": {
       "batchMint": "Batch Token Distribution",
       "default": "Governance Proposal",
@@ -139,9 +126,38 @@
       "mint": "Token Distribution",
       "mintAndApprove": "Budget Request"
     },
+    "govFn": {
+      "setProposalThreshold": "Set Proposal Threshold",
+      "setVotingDelay": "Set Voting Delay (blocks)",
+      "setVotingPeriod": "Set Voting Period (blocks)",
+      "updateQuorumNumerator": "Update Quorum Numerator"
+    },
+    "govFnHelp": {
+      "setProposalThreshold": "Adjust the minimum voting power required to create proposals.",
+      "setVotingDelay": "Adjust number of blocks between proposal creation and when voting starts.",
+      "setVotingPeriod": "Adjust number of blocks during which voting is open.",
+      "updateQuorumNumerator": "Adjust quorum."
+    },
+    "governorFunction": "Governor Param",
+    "governorSettingHint": "These values are raw units (blocks or token units). Ensure they are correct before submitting.",
+    "indexing": {
+      "finalFail": "Indexer timeout. Please retry later or check explorer.",
+      "lastTried": "Last attempt {{ts}}",
+      "manualRefresh": "Refresh",
+      "notFound": "Proposal not found on-chain.",
+      "onChainFound": "Proposal exists on-chain. Waiting for indexer…",
+      "probingChain": "Subgraph not yet indexed. Probing chain…",
+      "refresh": "Refresh now",
+      "retryIn": "Retrying in {{seconds}}s…",
+      "stale": "Still indexing. Data will appear shortly."
+    },
+    "newValue": "New Value",
     "proposer": "Proposer",
+    "quorum": "Quorum",
+    "quorumHelp": "Quorum = (total voting supply at the proposal snapshot / start block) * quorumPercent. Undelegated tokens still count toward total supply (they increase the absolute quorum requirement) even if they themselves have no delegated voting power. This value is the absolute participation threshold (For + Abstain).",
     "recipientAddress": "Recipient Address",
     "requestAddress": "Applicant Address",
+    "results": "Results",
     "status": {
       "building": "Building transaction...",
       "error": "Failed to create proposal.",
@@ -151,39 +167,34 @@
       "success": "Proposal created successfully! Redirecting..."
     },
     "submit": "Create Proposal",
+    "timeline": "Timeline",
     "title": "Title",
     "type": "Proposal Type",
+    "typeHelp": {
+      "batchMint": "Distribute tokens to multiple addresses in a single proposal.",
+      "budget": "If approved, the applicant address will receive the requested amount of {{token}} with spending authority.",
+      "governorSetting": "Adjust a governance parameter.",
+      "mint": "Distribute tokens directly to the specified recipient (one address)."
+    },
     "typePlaceholder": "Select type",
     "types": {
-      "budget": "Budget Request",
-      "mint": "Token Distribution",
       "batchMint": "Batch Distribution",
-      "governorSetting": "Governance Setting"
-    },
-    "typeHelp": {
-      "mint": "Distribute tokens directly to the specified recipient (one address).",
-      "budget": "If approved, the applicant address will receive the requested amount of {{token}} with spending authority.",
-      "batchMint": "Distribute tokens to multiple addresses in a single proposal.",
-      "governorSetting": "Adjust a governance parameter."
-    },
-    "govFnHelp": {
-      "setVotingDelay": "Adjust number of blocks between proposal creation and when voting starts.",
-      "setVotingPeriod": "Adjust number of blocks during which voting is open.",
-      "setProposalThreshold": "Adjust the minimum voting power required to create proposals.",
-      "updateQuorumNumerator": "Adjust quorum."
+      "budget": "Budget Request",
+      "governorSetting": "Governance Setting",
+      "mint": "Token Distribution"
     },
     "vote": {
-      "sectionTitle": "Cast Your Vote",
-      "for": "For",
-      "against": "Against",
       "abstain": "Abstain",
-      "signing": "Signing…",
-      "pending": "Pending…",
-      "success": "Vote submitted!",
-      "syncing": "Syncing updated vote data…",
+      "against": "Against",
       "alreadyVoted": "You have already voted.",
       "cannotVote": "Voting not active.",
+      "for": "For",
       "needVotingPower": "You need voting power to vote.",
+      "pending": "Pending…",
+      "sectionTitle": "Cast Your Vote",
+      "signing": "Signing…",
+      "success": "Vote submitted!",
+      "syncing": "Syncing updated vote data…",
       "tx": "Tx: {{hash}}"
     }
   },

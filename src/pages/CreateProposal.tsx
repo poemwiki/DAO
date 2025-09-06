@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react'
+import React, { useMemo, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useConnectWallet } from '@web3-onboard/react'
@@ -58,13 +58,14 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
     }
     const userTitle = f.title.trim()
     const fallbackTitle = fallbackTitleMap[f.type] || t('proposal.fallbackTitle.default')
-    let desc = f.description
+    let desc = f.description.trim()
     if (userTitle && userTitle !== fallbackTitle) {
       desc = `# ${userTitle}  \n${desc}`
     }
     return desc
   }
 
+  const [createdId, setCreatedId] = useState<string | null>(null)
   const submission = useProposalSubmission({
     proposerAddress,
     formatDescription,
@@ -80,10 +81,14 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
       // reset local form state immediately
       setForm(f => makeInitialForm(f.type))
       submission.reset()
-      setTimeout(() =>
-        navigate(ROUTES.PROPOSAL, {
-          state: { id: proposalId },
-        }), 800)
+      setCreatedId(proposalId || null)
+      console.warn('Navigate soon to proposal', { proposalId })
+      setTimeout(() => {
+        if (proposalId)
+          navigate(ROUTES.PROPOSAL.replace(':id', proposalId))
+        else
+          navigate(ROUTES.HOME)
+      }, 2000)
     },
     t,
   })
@@ -119,8 +124,6 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
   ])
 
   const createStatus = submission.status
-  const createErrorMessage = submission.friendlyError
-  const createResult = submission.proposalId
 
   const { fieldErrors, validateField } = useProposalFieldValidation({ form, t })
 
@@ -145,7 +148,14 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (disabledReason || !wallet || !gov || ['building', 'signing', 'pending'].includes(createStatus)) return
+  submission.reset()
+    if (
+      disabledReason ||
+      !wallet ||
+      !gov ||
+      ['building', 'signing', 'pending'].includes(createStatus)
+    )
+      return
     await submission.submit(form)
   }
 
@@ -263,14 +273,15 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
             />
             <div className="flex flex-col gap-2">
               <Label>{t('proposal.description')}</Label>
-      <Textarea
+              <Textarea
+                rows={10}
                 name="description"
-    value={form.description}
+                value={form.description}
                 onChange={onChange}
                 onBlur={onBlur}
                 required
-        placeholder={t('proposal.enterDescription')}
-        className="placeholder:text-muted-foreground"
+                placeholder={t('proposal.enterDescription')}
+                className="placeholder:text-muted-foreground"
               />
             </div>
             {/* Execution preview */}
@@ -288,16 +299,16 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
 
               <p
                 className={cn('text-xs text-destructive break-words', {
-                  invisible: !createErrorMessage,
+                  invisible: !(createStatus === 'error' && submission.friendlyError),
                 })}
               >
-                {createErrorMessage}
+                {createStatus === 'error' ? submission.friendlyError : ''}
               </p>
 
-      {createResult && (
+              {createdId && (
                 <p className="text-xs text-right break-words">
                   {t('proposal.status.proposalId', {
-        id: short(createResult),
+                    id: short(createdId || ''),
                   })}
                 </p>
               )}

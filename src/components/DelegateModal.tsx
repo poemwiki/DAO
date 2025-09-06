@@ -320,7 +320,7 @@ function MemberSelectItem({
         <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>
           {primaryLabel}
         </span>
-        <span className="text-sm mt-0.5 font-mono text-secondary tracking-tight">
+        <span className="text-xs mt-0.5 font-mono text-secondary tracking-tight">
           {secondary}
         </span>
         {member.delegate &&
@@ -353,7 +353,7 @@ function SelectedDelegateDisplay({
     <div className="flex items-center gap-2 truncate">
       <span className="text-sm font-medium truncate">{primaryLabel}</span>
       <span className="text-xs font-mono text-secondary truncate">
-        {short(member.id)}
+        {member.id}
       </span>
     </div>
   )

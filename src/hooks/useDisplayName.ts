@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useSyncExternalStore } from 'react'
 import { useEnsName } from 'wagmi'
 import { config } from '@/config'
 import { short } from '@/utils/format'
@@ -9,7 +9,7 @@ function normalize(addr?: string | null) {
 }
 
 export interface DisplayNameOptions {
-  address?: string
+  address: string
   disableEns?: boolean
 }
 
@@ -30,44 +30,45 @@ export function __resetAddressBookCache() {
 }
 
 export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
-  const [name, setName] = useState<string | undefined>()
-  const [staticName, setStaticName] = useState<string | undefined>()
+  // Expose addressBook names via useSyncExternalStore to avoid setState-in-effect warnings.
   const lower = normalize(address)
 
-  // load address book once
-  useEffect(() => {
-    let cancelled = false
+  const subscribe = (onStoreChange: () => void) => {
     if (!addressBookCache.subscribers) {
       addressBookCache.subscribers = new Set()
     }
+    addressBookCache.subscribers.add(onStoreChange)
+    return () => addressBookCache.subscribers?.delete(onStoreChange)
+  }
 
-    const notify = () => {
-      if (cancelled) {
-        return
-      }
-      if (lower && addressBookCache.data) {
-        setStaticName(addressBookCache.data[lower])
-      }
-    }
+  const getSnapshot = () => {
+    if (!lower)
+      return undefined
+    return addressBookCache.data?.[lower]
+  }
 
-    addressBookCache.subscribers.add(notify)
+  const getServerSnapshot = () => undefined
 
-    async function load() {
-      if (addressBookCache.data || addressBookCache.loading) {
-        return
-      }
-      addressBookCache.loading = true
+  const staticName = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+
+  // Load addressBook lazily on first consumer mount (once globally)
+  useEffect(() => {
+    let ignore = false
+    if (addressBookCache.data || addressBookCache.loading)
+      return
+    addressBookCache.loading = true
+    ;(async () => {
       try {
         const res = await fetch(config.features.addressBookUrl)
-        if (!res.ok) {
+        if (!res.ok)
           throw new Error('addressBook fetch failed')
-        }
         const json = (await res.json()) as Record<string, string>
         addressBookCache.data = Object.fromEntries(
           Object.entries(json).map(([k, v]) => [k.toLowerCase(), v]),
         )
-        // notify all
-        addressBookCache.subscribers?.forEach(cb => cb())
+        if (!ignore) {
+          addressBookCache.subscribers?.forEach(cb => cb())
+        }
       }
       catch (e) {
         addressBookCache.error = e
@@ -75,22 +76,11 @@ export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
       finally {
         addressBookCache.loading = false
       }
-    }
-    load()
-    // run once immediately in case data already there
-    notify()
+    })()
     return () => {
-      cancelled = true
-      addressBookCache.subscribers?.delete(notify)
+      ignore = true
     }
-  }, [lower])
-
-  // update staticName when cache already present
-  useEffect(() => {
-    if (lower && addressBookCache.data) {
-      setStaticName(addressBookCache.data[lower])
-    }
-  }, [lower])
+  }, [])
 
   const ensEnabled = config.features?.enableEns && !disableEns && !staticName
 
@@ -100,19 +90,12 @@ export function useDisplayName({ address, disableEns }: DisplayNameOptions) {
     chainId: 1,
   })
 
-  useEffect(() => {
-    if (staticName) {
-      setName(staticName)
-    }
-    else if (ensName) {
-      setName(ensName)
-    }
-    else if (address) {
-      setName(short(address))
-    }
-    else {
-      setName(undefined)
-    }
+  const name = useMemo(() => {
+    if (staticName)
+      return staticName
+    if (ensName)
+      return ensName
+    return short(address)
   }, [staticName, ensName, address])
 
   return name

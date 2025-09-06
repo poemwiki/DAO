@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
 import { ProposalForm } from '@/hooks/useProposalForm'
+import { MdClear } from 'react-icons/md'
+import { cn } from '@/utils/format'
 
 interface Props {
   form: ProposalForm
@@ -32,6 +34,9 @@ export const BatchMintFields: React.FC<Props> = ({
   return (
     <div className="space-y-3">
       <Label>{t('proposal.batchMintRows')}</Label>
+      <p className="text-xs text-muted-foreground">
+        {t('proposal.batchMintHint')}
+      </p>
       <div className="space-y-2">
         {form.batch.map((row, i) => {
           const addrKey = `batch.${i + 1}.address`
@@ -43,13 +48,23 @@ export const BatchMintFields: React.FC<Props> = ({
                   value={row.address}
                   onChange={e => updateRow(i, 'address', e.target.value)}
                   onBlur={e => {
-                    if (onBlur) onBlur({ ...e, target: { ...e.target, name: addrKey } } as any)
+                    if (onBlur)
+                      onBlur({
+                        ...e,
+                        target: { ...e.target, name: addrKey },
+                      } as any)
                   }}
                   placeholder={t('proposal.enterAddress')}
-                  className={(fieldErrors?.[addrKey] ? 'border-destructive focus-visible:ring-destructive ' : '') + 'placeholder:text-muted-foreground'}
+                  className={
+                    (fieldErrors?.[addrKey]
+                      ? 'border-destructive focus-visible:ring-destructive '
+                      : '') + 'placeholder:text-muted-foreground font-mono'
+                  }
                 />
                 {fieldErrors?.[addrKey] && (
-                  <p className="text-xs text-destructive">{fieldErrors[addrKey]}</p>
+                  <p className="text-xs text-destructive">
+                    {fieldErrors[addrKey]}
+                  </p>
                 )}
               </div>
               <div className="w-40 space-y-1">
@@ -58,15 +73,26 @@ export const BatchMintFields: React.FC<Props> = ({
                   value={row.amount}
                   onChange={e => updateRow(i, 'amount', e.target.value)}
                   onBlur={e => {
-                    if (onBlur) onBlur({ ...e, target: { ...e.target, name: amtKey } } as any)
+                    if (onBlur)
+                      onBlur({
+                        ...e,
+                        target: { ...e.target, name: amtKey },
+                      } as any)
                   }}
                   placeholder={t('proposal.enterAmount')}
-                  className={(fieldErrors?.[amtKey] ? 'border-destructive focus-visible:ring-destructive ' : '') + 'placeholder:text-muted-foreground'}
+                  className={
+                    (fieldErrors?.[amtKey]
+                      ? 'border-destructive focus-visible:ring-destructive '
+                      : '') +
+                    'placeholder:text-muted-foreground font-mono text-right'
+                  }
                   min="0"
                   step="0.000000000000000001"
                 />
                 {fieldErrors?.[amtKey] && (
-                  <p className="text-xs text-destructive">{fieldErrors[amtKey]}</p>
+                  <p className="text-xs text-destructive">
+                    {fieldErrors[amtKey]}
+                  </p>
                 )}
               </div>
               <Button
@@ -74,23 +100,25 @@ export const BatchMintFields: React.FC<Props> = ({
                 variant="ghost"
                 onClick={() => removeRow(i)}
                 disabled={form.batch.length === 1}
-                className="px-2"
+                className={cn('px-2', { invisible: form.batch.length === 1 })}
               >
-                {t('common.remove')}
+                <MdClear />
               </Button>
             </div>
           )
         })}
-        <div>
+        <div className="flex justify-between items-center mt-1 pr-11">
           <Button type="button" variant="outline" onClick={addRow} size="sm">
             {t('proposal.addRow')}
           </Button>
+          <p className="text-xs">
+            {t('proposal.batchTotal', {
+              total: batchTotal,
+              symbol: symbol || '',
+            })}
+          </p>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">{t('proposal.batchMintHint')}</p>
-      <p className="text-xs">
-        {t('proposal.batchTotal', { total: batchTotal, symbol: symbol || '' })}
-      </p>
     </div>
   )
 }

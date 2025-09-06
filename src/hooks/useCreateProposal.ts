@@ -8,7 +8,6 @@ import {
   stringToBytes,
 } from 'viem'
 import { usePublicClient, useWalletClient } from 'wagmi'
-// governor full ABI not needed; using minimal fragments below for typing
 import { tokenABI } from '@/abis/tokenABI'
 import { config } from '@/config'
 import { PROPOSAL_TYPE } from '@/constants'
@@ -65,12 +64,23 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
     let amountWei: bigint | undefined
     let recipient: Address | undefined
     let data: `0x${string}`
-    if (input.type === PROPOSAL_TYPE.MINT) {
-      const amount = Number(input.amount)
-      if (Number.isNaN(amount) || amount <= 0) {
-        throw new Error('Invalid amount')
+    // helper to parse human readable token amount into wei using token decimals
+    const parseHumanAmount = (rawInput: string, ctx: { label?: string } = {}) => {
+      const raw = (rawInput || '').trim()
+      if (!raw)
+        throw new Error(ctx.label ? `Invalid amount (${ctx.label})` : 'Invalid amount')
+      if (!/^\d+(?:\.\d+)?$/.test(raw))
+        throw new Error(ctx.label ? `Invalid amount (${ctx.label})` : 'Invalid amount')
+      const tokenDecimals = tokenInfo?.decimals ?? 18
+      const frac = raw.split('.')[1]
+      if (frac && frac.length > tokenDecimals) {
+        throw new Error(ctx.label ? `Too many decimal places (${ctx.label})` : 'Too many decimal places')
       }
-      amountWei = BigInt(Math.round(amount * 1e18))
+      return parseUnits(raw, tokenDecimals)
+    }
+    if (input.type === PROPOSAL_TYPE.MINT) {
+      // use exact decimal parsing instead of floating point * 1e18
+      amountWei = parseHumanAmount(input.amount)
       recipient = input.address as Address
       if (
         !recipient
@@ -86,11 +96,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
       })
     }
     else if (input.type === PROPOSAL_TYPE.BUDGET) {
-      const amount = Number(input.amount)
-      if (Number.isNaN(amount) || amount <= 0) {
-        throw new Error('Invalid amount')
-      }
-      amountWei = BigInt(Math.round(amount * 1e18))
+      amountWei = parseHumanAmount(input.amount)
       recipient = input.address as Address
       if (
         !recipient
@@ -111,7 +117,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
         throw new Error('Empty batch')
       }
       const toArr = items.map(i => i.address as Address)
-      const amtArr = items.map(i => BigInt(Math.round(Number(i.amount) * 1e18)))
+      const amtArr = items.map(i => parseHumanAmount(i.amount, { label: 'batch' }))
       data = encodeFunctionData({
         abi: tokenABI,
         functionName: 'batchMint',
@@ -193,7 +199,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
       setStatus('building')
       const { targets, values, calldatas } = buildCalldata(input)
       const governor = config.contracts.governor as `0x${string}`
-      const description = nowDescriptionPrefix() + (input.description || '')
+      const description = input.description || ''
 
       setStatus('signing')
       // submit transaction
@@ -257,9 +263,21 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
+      // normalize proposalId to 0x hex string for routing
+      if (proposalId && /^\d+$/.test(proposalId)) {
+        try {
+          const big = BigInt(proposalId)
+          proposalId = `0x${big.toString(16)}`
+        }
+        catch {
+          // ignore conversion failure
+        }
+      }
+      console.log('created proposal', { proposalId, txHash: receipt.transactionHash })
       return { proposalId, txHash: receipt.transactionHash }
     },
     onSuccess: (data) => {
+      console.warn('create proposal success', data)
       setStatus('success')
       setResult(data)
       // invalidate proposals list

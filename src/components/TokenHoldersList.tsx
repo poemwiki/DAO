@@ -33,10 +33,6 @@ export default function TokenHoldersList() {
     (acc, m) => acc + BigInt(m.balance),
     0n,
   )
-  const totalVotes = members.reduce(
-    (acc, m) => acc + BigInt(m.delegateBalance),
-    0n,
-  )
 
   const formatDelegateAddress = (delegate: string) => {
     return delegate === ZERO_ADDRESS
@@ -128,7 +124,7 @@ function MemberRow({
   const votesPct = totalBalance === 0n ? 0 : Number((votes * 10000n) / totalBalance) / 100
 
   return (
-    <tr className="font-mono bg-background border-b hover:bg-card">
+    <tr className="font-mono text-xs bg-background border-b hover:bg-card">
       <td className="px-6 py-4">{displayName}</td>
       <td className="px-6 py-4">
         {member.delegate === ZERO_ADDRESS

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import Badge from '@/components/ui/Badge'
 import { ROUTES } from '@/constants'
-import { extractBracketCode, buildProposalTitle } from '@/utils/proposal'
+import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
 import { parseProposalActions } from '@/lib/parseProposalActions'
 import { formatRelativeTime, formatGraphTimestamp } from '@/utils/format'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
@@ -28,7 +28,6 @@ export function ProposalListItem({
   const { t } = useTranslation()
   const { data: tokenInfo } = useTokenInfo()
   const desc = proposal.description || ''
-  const bracketCode = extractBracketCode(desc)
   const parsedActions = parseProposalActions(
     proposal.targets || [],
     proposal.calldatas || [],
@@ -36,7 +35,8 @@ export function ProposalListItem({
     tokenInfo?.decimals,
     tokenInfo?.symbol,
   )
-  const displayTitle = buildProposalTitle(bracketCode, parsedActions, t)
+  const displayTitle = buildProposalTitle(proposal.description, parsedActions, t)
+  const displayDescription = getDisplayDescription(proposal.description)
 
   // Estimate end timestamp using block number (more accurate than treating block as unix time)
   const endBlockNum = proposal.endBlock ? Number(proposal.endBlock) : undefined
@@ -76,8 +76,8 @@ export function ProposalListItem({
                 Proposal #{proposalNumber}
               </Badge>
             </div>
-            <p className="text-secondary line-clamp-3 break-words text-sm sm:text-base">
-              {desc.replace(/^[^\]]*\]\s*/, '')}
+            <p className="text-secondary line-clamp-1 break-words text-sm sm:text-base">
+              {displayDescription}
             </p>
           </div>
         </div>

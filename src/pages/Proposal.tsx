@@ -5,7 +5,7 @@ import type { ProposalResponseData } from '@/graphql'
 import { getProposal } from '@/graphql'
 import { useTranslation } from 'react-i18next'
 import { short, formatRelativeTime } from '@/utils/format'
-import { extractBracketCode, buildProposalTitle } from '@/utils/proposal'
+import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
 import { useProposalState } from '@/hooks/useProposalState'
 import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import { getExplorerTxUrl } from '@/config'
@@ -19,6 +19,8 @@ import { ProposalActions } from '@/components/proposal/ProposalActions'
 import { ProposalResults } from '@/components/proposal/ProposalResults'
 import { ProposalTimeline } from '@/components/proposal/ProposalTimeline'
 import { ProposalVotePanel } from '@/components/proposal/ProposalVotePanel'
+import Loading from '@/components/Loading'
+import { Button } from '@/components/ui/button'
 
 export default function Proposal() {
   const { id } = useParams()
@@ -27,23 +29,50 @@ export default function Proposal() {
   const debug =
     typeof window !== 'undefined' &&
     new URLSearchParams(window.location.search).get('debug') === '1'
-  const { isLoading, error, data } = useQuery<ProposalResponseData>({
-    queryKey: ['proposal', id],
+  // Progressive loading: first attempt subgraph; if missing, perform limited retries
+  const MAX_RETRIES = 3
+  const retryDelays = [3000, 5000, 8000] // ms sequence
+  const [attempt, setAttempt] = React.useState(0)
+  const [manualTick, setManualTick] = React.useState(0)
+
+  const { isLoading, error, data, refetch } = useQuery<ProposalResponseData>({
+    queryKey: ['proposal', id, attempt, manualTick],
     queryFn: () => getProposal(id!),
     enabled: !!id,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   })
 
   const proposal = data?.proposal
-  const proposerName = useDisplayName({ address: proposal?.proposer?.id })
+
+  // Trigger timed retries only while no subgraph data
+  React.useEffect(() => {
+    if (isLoading || proposal || attempt >= MAX_RETRIES) return
+    const delay = retryDelays[attempt] ?? 0
+    if (!delay) return
+    const handle = setTimeout(() => {
+      setAttempt(a => a + 1)
+      refetch()
+    }, delay)
+    return () => clearTimeout(handle)
+  }, [isLoading, proposal, attempt])
+
+  // Probe existence & state directly from chain. We intentionally DO NOT depend on tx hashes.
+  // Explicit refresh after lifecycle transitions is handled by a manual tick (see below hook usage in action panels).
+  const { stateCode: probeStateCode, loading: probeLoading, error: probeError } = useProposalState({
+    proposalId: proposal?.id || id,
+  })
+
+  const existsOnChain = probeStateCode !== null
+  // proposer name (stable even while indexing)
+  const proposerName = useDisplayName({ address: proposal?.proposer?.id || '' })
   const startBlockNum = proposal?.startBlock
     ? Number(proposal.startBlock)
     : undefined
   const endBlockNum = proposal?.endBlock ? Number(proposal.endBlock) : undefined
 
-  const { stateCode } = useProposalState({
-    proposalId: proposal?.id || id,
-    tx: proposal?.proposeTx,
-  })
+  // Use canonical state hook (same call as probe; avoid double call by reusing probeStateCode)
+  const stateCode = probeStateCode
 
   // Token info only for parsing action human-readable values
   const { data: tokenInfo } = useTokenInfo()
@@ -51,7 +80,6 @@ export default function Proposal() {
   // Voting + execution logic moved into ProposalVotePanel to reduce prop surface & duplication.
 
   // Parse proposal actions for display & derive code / events
-  const bracketCode = proposal ? extractBracketCode(proposal.description) : ''
   const parsedActions = React.useMemo(
     () =>
       proposal
@@ -66,7 +94,12 @@ export default function Proposal() {
     [proposal, tokenInfo?.decimals, tokenInfo?.symbol],
   )
   // Build title code (includes bracket code + action context)
-  const code = buildProposalTitle(bracketCode, parsedActions, t)
+  const displayTitle = buildProposalTitle(
+    proposal?.description,
+    parsedActions,
+    t,
+  )
+  const displayDescription = getDisplayDescription(proposal?.description)
 
   // Helper: normalize seconds/milliseconds timestamp (string or number)
   // Timeline events are now built inside ProposalTimeline.
@@ -75,17 +108,63 @@ export default function Proposal() {
     ? getExplorerTxUrl(proposal.proposeTx)
     : undefined
 
-  if (isLoading || !proposal) {
-    return (
-      <div className="p-6 text-sm">
-        {t('proposal.loading', 'Loading proposal…')}
-      </div>
-    )
+  // Initial load -> generic loader
+  if (isLoading && attempt === 0 && !proposal) {
+    return <Loading text={t('common.loading')} />
   }
-  if (error) {
+
+  // Subgraph returned null; decide between indexing state vs 404
+  if (!proposal) {
+    // If chain probe finished and still no state -> 404 immediately
+    if (!probeLoading && !existsOnChain) {
+      return (
+        <div className="w-full min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4 px-6">
+          <h1 className="text-4xl font-bold tracking-tight">404</h1>
+          <p className="text-sm text-secondary max-w-md">{t('proposal.indexing.notFound')}</p>
+          <Button
+            onClick={() => {
+              setManualTick(tk => tk + 1)
+              refetch()
+            }}
+          >
+            {t('proposal.indexing.manualRefresh')}
+          </Button>
+        </div>
+      )
+    }
+
+    // Proposal exists on chain (or probing) but subgraph hasn't indexed yet
+    const autoRetryRemaining = attempt < MAX_RETRIES
     return (
-      <div className="p-6 text-sm text-destructive">
-        {t('proposal.error', 'Failed to load')}
+      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4 px-6 text-sm">
+        <p className="text-secondary">{t('proposal.indexing.probingChain')}</p>
+        {existsOnChain && (
+          <p className="text-secondary">
+            {t('proposal.indexing.onChainFound')}
+            {!autoRetryRemaining && ' ' + t('proposal.indexing.finalFail')}
+          </p>
+        )}
+        <div className="flex gap-3 items-center">
+          <Button
+            onClick={() => {
+              setManualTick(tk => tk + 1)
+              refetch()
+            }}
+          >
+            {t('proposal.indexing.manualRefresh')}
+          </Button>
+          {error && (
+            <span className="text-destructive text-xs">
+              {t('proposal.error', 'Failed to load')}
+            </span>
+          )}
+        </div>
+        {existsOnChain && (
+          <p className="text-xs text-secondary">State code: {probeStateCode}</p>
+        )}
+        {probeError && (
+          <p className="text-xs text-destructive">{probeError.message}</p>
+        )}
       </div>
     )
   }
@@ -102,7 +181,7 @@ export default function Proposal() {
       </div>
       <header className="flex flex-col gap-4 border-b pb-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <h1 className="text-3xl font-bold break-all">{code}</h1>
+          <h1 className="text-3xl font-bold break-all">{displayTitle}</h1>
         </div>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <span className={stateCode === null ? 'invisible' : 'visible'}>
@@ -155,7 +234,7 @@ export default function Proposal() {
                 {t('proposal.description')}
               </h2>
               <p className="leading-loose whitespace-pre-wrap break-words">
-                {proposal.description.replace(/\[.*?\]\s*/, '')}
+                {displayDescription}
               </p>
             </div>
             {debug && (
@@ -180,7 +259,7 @@ export default function Proposal() {
             {startBlockNum && endBlockNum && (
               <ProposalTimeline
                 proposal={proposal}
-                proposerName={proposerName || ''}
+                proposerName={proposerName}
                 startBlockNum={startBlockNum}
                 endBlockNum={endBlockNum}
               />

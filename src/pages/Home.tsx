@@ -26,6 +26,7 @@ import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
 import { useConnectWallet } from '@web3-onboard/react'
+import Loading from '@/components/Loading'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -89,13 +90,7 @@ export default function Home() {
   )
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="text-lg">Loading proposals...</div>
-        </div>
-      </div>
-    )
+    return <Loading text={t('common.loading')} />
   }
 
   if (error) {

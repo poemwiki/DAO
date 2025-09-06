@@ -8,7 +8,7 @@ import { useIsDelegated } from '@/hooks/useIsDelegated'
 import type { Proposal } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useConnectWallet } from '@web3-onboard/react'
-import { MdAdsClick } from 'react-icons/md'
+import { MdAdsClick, MdCheck, MdCheckBoxOutlineBlank, MdClear, MdOutlineRocketLaunch } from 'react-icons/md'
 import { Button } from '../ui/button'
 
 // WHY: This panel previously accepted many derived props (canExecute, executing, hasVoted, etc.)
@@ -50,6 +50,7 @@ export function ProposalVotePanel({
     onSuccess: () => {
       if (proposal?.id) {
         queryClient.invalidateQueries({ queryKey: ['proposal', proposal.id] })
+        queryClient.invalidateQueries({ queryKey: ['proposalState', proposal.id] })
       }
     },
   })
@@ -80,6 +81,7 @@ export function ProposalVotePanel({
     onSuccess: () => {
       if (proposal?.id) {
         queryClient.invalidateQueries({ queryKey: ['proposal', proposal.id] })
+        queryClient.invalidateQueries({ queryKey: ['proposalState', proposal.id] })
       }
     },
   })
@@ -108,7 +110,7 @@ export function ProposalVotePanel({
       <div className="p-4 border rounded-md bg-background/50 flex flex-col gap-3">
         {canExecute ? (
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm">
               {t('proposal.execute.description', 'Execute this proposal')}
             </p>
             <Button
@@ -123,8 +125,8 @@ export function ProposalVotePanel({
                   proposal.description,
                 )
               }
-              className="text-sm px-3 py-2 rounded border bg-primary text-primary-foreground disabled:opacity-50"
             >
+              <MdOutlineRocketLaunch />
               {executing
                 ? t('proposal.execute.pending', 'Executing…')
                 : t('proposal.execute.button', 'Execute Proposal')}
@@ -160,6 +162,7 @@ export function ProposalVotePanel({
                 onClick={() => cast(proposal.id, 1)}
                 className="flex-1 text-sm px-3 py-2 rounded border bg-primary text-primary-foreground disabled:opacity-50"
               >
+                <MdCheck />
                 {t('proposal.vote.for')}
               </Button>
               <Button
@@ -168,6 +171,7 @@ export function ProposalVotePanel({
                 onClick={() => cast(proposal.id, 0)}
                 className="flex-1 text-sm px-3 py-2 rounded border bg-destructive text-destructive-foreground disabled:opacity-50"
               >
+                <MdClear />
                 {t('proposal.vote.against')}
               </Button>
               <Button
@@ -176,6 +180,7 @@ export function ProposalVotePanel({
                 onClick={() => cast(proposal.id, 2)}
                 className="flex-1 text-sm px-3 py-2 rounded border bg-yellow-500 text-primary-foreground disabled:opacity-50"
               >
+                <MdCheckBoxOutlineBlank />
                 {t('proposal.vote.abstain')}
               </Button>
             </div>

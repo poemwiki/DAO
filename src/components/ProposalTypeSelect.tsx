@@ -37,11 +37,11 @@ const ProposalTypeSelectComponent: React.FC<ProposalTypeSelectProps> = ({
         <SelectItem value={PROPOSAL_TYPE.MINT}>
           {t('proposal.types.mint')}
         </SelectItem>
-        <SelectItem value={PROPOSAL_TYPE.BUDGET}>
-          {t('proposal.types.budget')}
-        </SelectItem>
         <SelectItem value={PROPOSAL_TYPE.BATCH_MINT}>
           {t('proposal.types.batchMint')}
+        </SelectItem>
+        <SelectItem value={PROPOSAL_TYPE.BUDGET}>
+          {t('proposal.types.budget')}
         </SelectItem>
         <SelectItem value={PROPOSAL_TYPE.GOVERNOR_SETTING}>
           {t('proposal.types.governorSetting')}

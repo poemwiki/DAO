@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
+import { MdOutlineChair } from 'react-icons/md'
 
 export default function DelegateButton() {
   const { address } = useAccount()
@@ -21,6 +22,7 @@ export default function DelegateButton() {
         variant={isDelegated ? 'outline' : 'default'}
         onClick={() => setOpen(true)}
       >
+        <MdOutlineChair />
         {isDelegated
           ? t('delegate.changeButton', 'Change Delegate')
           : t('delegate.setButton', 'Set Delegate')}

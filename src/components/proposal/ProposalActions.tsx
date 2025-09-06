@@ -48,7 +48,7 @@ export function ProposalActions({
                 )}
               </div>
               {!isBatch && (
-                <div className="text-xs text-secondary break-all mb-1">
+                <div className="text-xs font-mono text-secondary break-all mb-1">
                   {a.functionName}(
                   {a.args
                     .map(x =>
