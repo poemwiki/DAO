@@ -27,7 +27,6 @@ export function ProposalListItem({
 }: Props) {
   const { t } = useTranslation()
   const { data: tokenInfo } = useTokenInfo()
-  const desc = proposal.description || ''
   const parsedActions = parseProposalActions(
     proposal.targets || [],
     proposal.calldatas || [],

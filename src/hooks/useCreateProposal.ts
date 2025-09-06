@@ -45,11 +45,6 @@ export type CreateStatus
     | 'success'
     | 'error'
 
-function nowDescriptionPrefix() {
-  const iso = new Date().toISOString().replace(/\D/g, '')
-  return `[${iso}] `
-}
-
 export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
   const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
