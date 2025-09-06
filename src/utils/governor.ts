@@ -1,5 +1,4 @@
 import type { PublicClient } from 'viem'
-import { decodeFunctionResult, encodeFunctionData } from 'viem'
 import { governorABI } from '@/abis/governorABI'
 import { config } from '@/config'
 
@@ -18,40 +17,49 @@ export function parseProposalId(raw?: string | null): bigint {
   }
   try {
     return BigInt(raw)
-  } catch {
+  }
+  catch {
     throw new Error('Invalid proposalId')
   }
 }
 
+// WHY: Provide narrower surface & simpler call path (viem readContract) to reduce
+// boilerplate & potential decoding mistakes. Dedicated error classes enable
+// upstream classification (config vs param vs onchain). Simplicity aligns with
+// Linus "勿增实体"; minimal data path aligns with Carmack principles.
+
+export class GovernorConfigError extends Error {}
+export class InvalidProposalIdError extends Error {}
+export class GovernorCallError extends Error {}
+
 export async function readGovernorState(
-  client: PublicClient | undefined,
-  proposalIdRaw: string | null | undefined,
+  client: PublicClient,
+  proposalId: bigint,
 ): Promise<GovernorStateCode> {
-  if (!client) {
-    throw new Error('No public client')
-  }
   if (!config.contracts.governor) {
-    throw new Error('Governor address not configured')
+    throw new GovernorConfigError('Governor address not configured')
   }
-  const id = parseProposalId(proposalIdRaw)
-  const data = encodeFunctionData({
-    abi: governorABI,
-    functionName: 'state',
-    args: [id],
-  })
-  const callResult = await client.call({
-    to: config.contracts.governor as `0x${string}`,
-    data,
-  })
-  if (!callResult.data) {
-    throw new Error('Empty call result data for state()')
+  try {
+    const num = (await client.readContract({
+      address: config.contracts.governor as `0x${string}`,
+      abi: governorABI,
+      functionName: 'state',
+      args: [proposalId],
+    })) as number
+    const value = Number(num)
+    assertGovernorStateCode(value)
+    return value
   }
-  const decoded = decodeFunctionResult({
-    abi: governorABI,
-    functionName: 'state',
-    data: callResult.data,
-  }) as number
-  const num = Number(decoded)
-  assertGovernorStateCode(num)
-  return num
+  catch (e) {
+    throw new GovernorCallError((e as Error).message)
+  }
+}
+
+export function safeParseProposalId(raw?: string | null): bigint {
+  try {
+    return parseProposalId(raw)
+  }
+  catch {
+    throw new InvalidProposalIdError('Invalid proposalId')
+  }
 }

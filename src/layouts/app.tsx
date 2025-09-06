@@ -6,7 +6,7 @@ import { DefaultLogo } from '@/components/ui/DefaultLogo'
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-50 w-full py-2 border-b bg-background">
         <div className="container flex h-16 items-center">
           <div className="mr-4 flex">
@@ -33,9 +33,19 @@ export default function AppLayout() {
           </div>
         </div>
       </header>
-      <main className="container pt-6 pb-12">
+      <main className="flex-1 container pt-6 pb-12">
         <Outlet />
       </main>
+      <footer className="w-full border-t bg-background">
+        <div className="container py-4 text-center text-sm text-secondary">
+          Powered by <a
+            className="hover:underline decoration-primary hover:text-primary"
+            href="https://github.com/poemwiki/govo"
+          >
+            {import.meta.env.VITE_APP_NAME}
+          </a>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -38,7 +38,7 @@
     "remove": "Remove"
   },
   "delegate": {
-    "changeButton": "Change Delegate",
+    "changeButton": "Change My Delegate",
     "confirmed": "Confirmed ✓",
     "confirming": "Confirming...",
     "description": "Please choose an address as your voting delegate. The delegate will vote on your behalf with your balance.",
@@ -89,7 +89,8 @@
     "enterDescription": "Enter proposal description",
     "enterNewValue": "Enter new value",
     "enterTitle": "Enter proposal title",
-    "governorFunction": "Governor Function",
+    "executionPreview": "Execution Preview",
+    "governorFunction": "Governor Param",
     "newValue": "New Value",
     "governorSettingHint": "These values are raw units (blocks or token units). Ensure they are correct before submitting.",
     "govFn": {
@@ -107,6 +108,7 @@
       "missingGovFunction": "Select a governor function.",
       "missingGovValue": "Enter a new value.",
       "badGovValue": "Invalid new value.",
+      "badQuorumPercentRange": "Quorum numerator must be within {{range}}.",
       "badSingleAddress": "Invalid recipient address.",
       "badSingleAmount": "Invalid amount."
     },
@@ -139,7 +141,7 @@
     },
     "proposer": "Proposer",
     "recipientAddress": "Recipient Address",
-    "requestAddress": "Request Address (Your Address)",
+    "requestAddress": "Applicant Address",
     "status": {
       "building": "Building transaction...",
       "error": "Failed to create proposal.",
@@ -157,6 +159,18 @@
       "mint": "Token Distribution",
       "batchMint": "Batch Distribution",
       "governorSetting": "Governance Setting"
+    },
+    "typeHelp": {
+      "mint": "Distribute tokens directly to the specified recipient (one address).",
+      "budget": "If approved, the applicant address will receive the requested amount of {{token}} with spending authority.",
+      "batchMint": "Distribute tokens to multiple addresses in a single proposal.",
+      "governorSetting": "Adjust a governance parameter."
+    },
+    "govFnHelp": {
+      "setVotingDelay": "Adjust number of blocks between proposal creation and when voting starts.",
+      "setVotingPeriod": "Adjust number of blocks during which voting is open.",
+      "setProposalThreshold": "Adjust the minimum voting power required to create proposals.",
+      "updateQuorumNumerator": "Adjust quorum."
     },
     "vote": {
       "sectionTitle": "Cast Your Vote",

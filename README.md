@@ -106,13 +106,11 @@ pnpm build
 ### Data Flow
 
 1. **The Graph Integration**
-
    - Subgraph indexes blockchain events
    - Frontend queries data through GraphQL
    - Real-time updates through subscriptions
 
 2. **State Management**
-
    - React Context for global state
    - Custom hooks for data fetching and caching
    - Local storage for user preferences
@@ -125,13 +123,11 @@ pnpm build
 ### Key Components
 
 - **Proposal System**
-
   - Create and view proposals
   - Vote on active proposals
   - Track proposal status and results
 
 - **User Interface**
-
   - Responsive layout system
   - Component-based architecture
   - Theme customization
@@ -140,6 +136,72 @@ pnpm build
   - Web3 wallet integration
   - Address resolution and ENS support
   - Permission management
+
+## Voting
+
+### Snapshot & Voting Power
+
+Each proposal has a snapshot block taken at the moment voting becomes active (`Governor.proposalSnapshot`). All voting power is read at exactly that block using `token.getPastVotes(account, snapshot)`. Delegation must be set _before_ the snapshot to count.
+
+### Delegation Model
+
+This [Governor](https://github.com/poemwiki/DAO-contracts/blob/b5676584e69840b3d1b48f0c87ae3487bab9c3bc/contracts/GovernorUpgradeable.sol) uses an ERC20Votes-compatible token (Votes extension). Voting weight comes from delegated balances:
+
+- If a holder delegates to themselves (or another address) before the snapshot, their balance contributes to that delegate's voting power.
+- If a holder never delegates, their tokens still exist in total supply but provide no voting weight to any voter.
+
+### Quorum Calculation
+
+Quorum is an absolute minimum participation threshold (FOR + ABSTAIN) based on total token supply at the snapshot block.
+
+Formula (from OpenZeppelin GovernorVotesQuorumFraction):
+
+```
+quorum(snapshot) = getPastTotalSupply(snapshot) * quorumNumerator(snapshot) / quorumDenominator()
+```
+
+Notes:
+
+- `snapshot` = proposal start block returned by `proposalSnapshot(proposalId)`.
+- Undelegated tokens DO count in `getPastTotalSupply`, increasing the quorum requirement.
+- They do NOT add to FOR / AGAINST / ABSTAIN tallies because they have no delegate.
+- Required participation compares: `FOR + ABSTAIN >= quorum(snapshot)`.
+
+### Vote Success Conditions (CountingSimple)
+
+1. Quorum reached: `forVotes + abstainVotes >= quorum(snapshot)`
+2. Support test: `forVotes > againstVotes`
+
+If both pass after the deadline block, the proposal moves to Succeeded.
+
+### Tally Semantics
+
+| Type    | In quorum?      | In support test?             |
+| ------- | --------------- | ---------------------------- |
+| For     | Yes             | Yes (numerator)              |
+| Against | No (for quorum) | Yes (denominator comparison) |
+| Abstain | Yes             | No (ignored in for>against)  |
+
+### Execution
+
+After Succeeded (or Queued if a timelock were integrated), the proposal can be executed with the exact original arrays `(targets, values, calldatas, descriptionHash)`.
+
+### Practical Implications
+
+- Large undelegated supply raises quorum and can block proposals; encourage self-delegation or delegate to others.
+- Changing delegation after the snapshot has no effect on that proposal.
+- Updating quorum numerator affects only future proposals (historical quorum uses stored checkpoints).
+
+### Edge Cases
+
+- If total supply shrinks (burn) after snapshot, quorum does not adjust retroactively.
+- If quorum numerator is updated mid-proposal, the snapshot's historical numerator is used.
+
+### Recommended UX Patterns
+
+- Prompt users to self-delegate on first visit.
+- Show both absolute quorum and current participation early so stagnation is visible.
+- Provide a tooltip (already implemented) explaining undelegated impact.
 
 ## TODO
 

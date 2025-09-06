@@ -206,7 +206,7 @@ export default function DelegateModal({
       title={t('delegate.title')}
       description={t('delegate.description')}
     >
-      <div className="grid gap-4 py-4">
+      <div className="grid gap-4 pb-4">
         <div className="space-y-2">
           <Select
             value={selectedDelegate}
@@ -227,7 +227,7 @@ export default function DelegateModal({
                 <SelectValue placeholder={t('delegate.selectPlaceholder')} />
               )}
             </SelectTrigger>
-            <SelectContent className="max-h-64 overflow-y-auto">
+            <SelectContent className="max-h-64 overflow-y-auto border border-input">
               <div className="space-y-1">
                 {orderedMembers.map(member => (
                   <MemberSelectItem
@@ -264,7 +264,7 @@ export default function DelegateModal({
         )}
         {/* onDelegated side-effect handled in effect below */}
         {txHash && blockExplorer && (
-          <div className="text-sm text-center text-muted-foreground">
+          <div className="text-sm text-center text-secondary">
             <a
               href={`${blockExplorer.url}/tx/${txHash}`}
               target="_blank"
@@ -314,19 +314,19 @@ function MemberSelectItem({
   return (
     <SelectItem
       value={member.id}
-      className={`flex flex-col items-start gap-0 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground ${isSelf ? 'border-primary/50' : 'border-transparent'}`}
+      className={`flex flex-col items-start gap-0 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground border-transparent`}
     >
       <div className="w-full flex items-center justify-between gap-2">
         <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>
           {primaryLabel}
         </span>
-        <span className="text-[11px] mt-0.5 font-mono text-muted-foreground tracking-tight">
+        <span className="text-sm mt-0.5 font-mono text-secondary tracking-tight">
           {secondary}
         </span>
         {member.delegate &&
           member.delegate !== ZERO_ADDRESS &&
           member.delegate !== member.id && (
-            <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+            <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-card text-secondary">
               {t('delegate.currentDelegateShort', 'Delegating to')}{' '}
               {short(member.delegate)}
             </span>
@@ -352,7 +352,7 @@ function SelectedDelegateDisplay({
   return (
     <div className="flex items-center gap-2 truncate">
       <span className="text-sm font-medium truncate">{primaryLabel}</span>
-      <span className="text-xs font-mono text-muted-foreground truncate">
+      <span className="text-xs font-mono text-secondary truncate">
         {short(member.id)}
       </span>
     </div>

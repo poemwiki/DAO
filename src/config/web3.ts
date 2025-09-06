@@ -18,7 +18,7 @@ export const web3Onboard = init({
   ],
   appMetadata: {
     name: config.app.name,
-    icon: import.meta.env.VITE_APP_LOGO || undefined,
+    icon: import.meta.env.VITE_APP_LOGO || import.meta.env.VITE_APP_FAVICON || undefined,
     description: 'DAO governance platform',
   },
 })

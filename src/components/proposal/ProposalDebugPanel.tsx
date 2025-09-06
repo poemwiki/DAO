@@ -23,7 +23,7 @@ export function ProposalDebugPanel({
   const { data: pastTotalSupply } = usePastTotalSupply(snapshotBlock)
   const { data: quorumNumerator } = useQuorumNumerator()
   return (
-    <section className="space-y-2 p-4 border rounded-md bg-muted/30 text-xs font-mono break-all">
+    <section className="space-y-2 p-4 border rounded-md bg-card text-xs font-mono break-all">
       <div className="font-semibold">Debug</div>
       <div>startBlock(raw): {proposal.startBlock}</div>
       <div>endBlock(raw): {proposal.endBlock}</div>

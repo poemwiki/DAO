@@ -1,17 +1,11 @@
 import { ActionSummary } from '@/components/ActionSummary'
 import { formatTokenAmount } from '@/utils/format'
 import { useDisplayName } from '@/hooks/useDisplayName'
+import { ParsedAction } from '@/lib/parseProposalActions'
 
 export interface ParsedActionRecipient {
   address: string
   amount: bigint
-}
-export interface ParsedAction {
-  type: string
-  functionName: string
-  args: any[]
-  recipients?: ParsedActionRecipient[]
-  rawValue?: bigint
 }
 
 interface ProposalActionsProps {
@@ -43,10 +37,10 @@ export function ProposalActions({
           return (
             <li
               key={i}
-              className="p-4 flex flex-col gap-2 border rounded-md bg-muted/30"
+              className="p-4 flex flex-col gap-2 border rounded-md bg-card"
             >
               <div className="font-medium flex flex-wrap gap-2 items-center">
-                <ActionSummary action={a as any} />
+                <ActionSummary action={a} />
                 {a.type === 'governorSetting' && a.rawValue !== undefined && (
                   <span className="text-[10px] px-1 py-0.5 rounded bg-background border font-mono opacity-80">
                     raw: {a.rawValue.toString()}
@@ -72,7 +66,7 @@ export function ProposalActions({
                 <div className="overflow-auto mt-2 space-y-2">
                   <table className="min-w-full text-xs border rounded">
                     <thead>
-                      <tr className="bg-muted/40 text-left">
+                      <tr className="bg-card text-left">
                         <th className="px-2 py-1 font-medium">Recipient</th>
                         <th className="px-2 py-1 font-medium">Address</th>
                         <th className="px-2 py-1 font-medium text-right">

@@ -2,9 +2,9 @@ import type { Address } from 'viem'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import {
-
   encodeFunctionData,
   keccak256,
+  parseUnits,
   stringToBytes,
 } from 'viem'
 import { usePublicClient, useWalletClient } from 'wagmi'
@@ -12,6 +12,7 @@ import { usePublicClient, useWalletClient } from 'wagmi'
 import { tokenABI } from '@/abis/tokenABI'
 import { config } from '@/config'
 import { PROPOSAL_TYPE } from '@/constants'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
 
 export type SimpleProposalType
   = (typeof PROPOSAL_TYPE)[keyof typeof PROPOSAL_TYPE]
@@ -54,6 +55,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
   const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
   const qc = useQueryClient()
+  const { data: tokenInfo } = useTokenInfo()
   const [status, setStatus] = useState<CreateStatus>('idle')
   const [error, setError] = useState<unknown>(null)
   const [result, setResult] = useState<CreateProposalResult | null>(null)
@@ -65,7 +67,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
     let data: `0x${string}`
     if (input.type === PROPOSAL_TYPE.MINT) {
       const amount = Number(input.amount)
-      if (isNaN(amount) || amount <= 0) {
+      if (Number.isNaN(amount) || amount <= 0) {
         throw new Error('Invalid amount')
       }
       amountWei = BigInt(Math.round(amount * 1e18))
@@ -85,7 +87,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
     }
     else if (input.type === PROPOSAL_TYPE.BUDGET) {
       const amount = Number(input.amount)
-      if (isNaN(amount) || amount <= 0) {
+      if (Number.isNaN(amount) || amount <= 0) {
         throw new Error('Invalid amount')
       }
       amountWei = BigInt(Math.round(amount * 1e18))
@@ -122,7 +124,11 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
         throw new Error('Missing setting')
       }
       const fn = gs.function
-      const val = BigInt(gs.value)
+      // Scale threshold by token decimals; other governor params are plain integers
+      const tokenDecimals = tokenInfo?.decimals ?? 18
+      const val = fn === 'setProposalThreshold'
+        ? parseUnits(gs.value || '0', tokenDecimals)
+        : BigInt(gs.value)
       const governor = config.contracts.governor as Address
       // limited supported setters mapping (OpenZeppelin GovernorSettingsUpgradeable exposes internal setters via proposals calling custom extension;
       // here we assume wrapper functions exist or governor itself exposes them; adjust as needed)
@@ -176,7 +182,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
       values: [0n],
       calldatas: [data] as `0x${string}`[],
     }
-  }, [])
+  }, [tokenInfo?.decimals])
 
   const mutation = useMutation({
     mutationFn: async (input: CreateProposalInput) => {
@@ -245,7 +251,7 @@ export function useCreateProposal(opts: UseCreateProposalOptions = {}) {
         })) as bigint
         proposalId = id.toString()
       }
-      catch (_e) {
+      catch {
         // ignore inability to pre-compute id
       }
 

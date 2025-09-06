@@ -56,12 +56,12 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
           <FaPoll />
           {t('proposal.results')}
         </span>
-        <span className="text-sm font-normal text-muted-foreground">
+        <span className="text-sm font-normal">
           {formatNumber(totalVotes)} votes
         </span>
       </h2>
       <div className="p-4 border rounded-md bg-background/50 flex flex-col gap-4">
-        <div className="h-3 w-full bg-muted rounded-full overflow-hidden flex relative">
+        <div className="h-3 w-full bg-card rounded-full overflow-hidden flex relative">
           {(['for', 'abstain', 'against'] as const).map(k => {
             const val = votes[k]
             const pct = totalVotes ? (val / totalVotes) * 100 : 0
@@ -90,7 +90,7 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
             />
           )}
         </div>
-        <div className="text-muted-foreground flex flex-col gap-2 text-xs">
+        <div className="flex flex-col gap-2 text-xs">
           <ResultRow
             label={t('proposal.vote.for')}
             value={votes.for}

@@ -36,6 +36,7 @@ export function ProposalTimeline({
   const { data: startInfo } = useEstimateBlockTimestamp(startBlockNum)
   const { data: endInfo } = useEstimateBlockTimestamp(endBlockNum)
   const { t } = useTranslation()
+  
   const normalizeTs = (val?: string | number | null): number | undefined => {
     if (val === null || val === undefined) {
       return undefined
@@ -46,6 +47,7 @@ export function ProposalTimeline({
     }
     return n < 1e12 ? n * 1000 : n
   }
+
   const fmtTs = (ms?: number, estimated?: boolean) => {
     if (!ms) {
       return '-'
@@ -53,6 +55,7 @@ export function ProposalTimeline({
     const label = formatGraphTimestampLocalMinutes(ms, t('lang') as string)
     return estimated ? `≈ ${label}` : label
   }
+
   const events = React.useMemo(() => {
     if (!proposal) {
       return [] as TimelineEvent[]
@@ -172,67 +175,88 @@ export function ProposalTimeline({
       </h2>
       <div className="relative">
         <div className="absolute left-2 top-3 bottom-3 w-px bg-border" />
-        <ul className="flex flex-col-reverse gap-6 pl-0 m-0 list-none">
-          {events.map((e, idx) => {
-            const safeKey = e.key || `evt-${idx}`
-            const isVote = safeKey.startsWith('vote-')
-            return (
-              <li key={safeKey} className="relative pl-8">
-                <span
-                  className={`absolute left-0 top-0.5 w-4 h-4 rounded-full border-1 flex items-center justify-center bg-background ${
-                    e.accent === 'executed'
-                      ? 'border-green-500 text-green-500'
-                      : e.accent === 'canceled'
-                        ? 'border-red-500 text-red-500'
-                        : isVote
-                          ? 'border-blue-400 text-blue-400'
-                          : safeKey === 'result'
-                            ? 'border-blue-500 text-blue-500'
-                            : 'border-primary text-primary'
-                  }`}
-                >
-                  <span className="w-2 h-2 rounded-full bg-current" />
-                </span>
-                <div className="text-sm font-medium tracking-wide mb-1 text-muted-foreground flex flex-wrap gap-2">
-                  {e.type === 'vote' ? (
-                    <VoteEventLabel
-                      address={e.voteAddress!}
-                      support={e.voteSupport!}
-                    />
-                  ) : (
-                    <span>{e.label}</span>
-                  )}
-                  {e.block && (
-                    <span className="font-normal text-secondary">
-                      #{e.block}
+        {(() => {
+          const now = Date.now()
+          const lastCompletedIdx = events
+            .map((e, i) => ({ i, ts: e.ts }))
+            .filter(x => typeof x.ts === 'number' && (x.ts as number) <= now)
+            .sort((a, b) => (a.ts! - b.ts!))
+            .at(-1)?.i
+          return (
+            <ul className="flex flex-col-reverse gap-6 pl-0 m-0 list-none">
+              {events.map((e, idx) => {
+                const safeKey = e.key || `evt-${idx}`
+                const isCompleted = typeof e.ts === 'number' && e.ts <= now
+                const isCurrent = isCompleted && lastCompletedIdx === idx
+
+                // Dot styles
+                const baseOuter = 'absolute left-0 top-0.5 w-4 h-4 rounded-full flex items-center justify-center'
+                const futureOuter = 'border border-muted bg-background'
+                const currentOuter = 'border-2 border-primary bg-background'
+                const completedOuter = 'bg-primary text-background'
+                const outerClass = isCompleted
+                  ? completedOuter
+                  : isCurrent
+                    ? currentOuter
+                    : futureOuter
+
+                return (
+                  <li key={safeKey} className="relative pl-8">
+                    <span className={`${baseOuter} ${outerClass}`}>
+                      {isCompleted ? (
+                        // check icon for completed
+                        <svg
+                          viewBox="0 0 16 16"
+                          width="10"
+                          height="10"
+                          aria-hidden="true"
+                          className="fill-current"
+                        >
+                          <path d="M6.173 12.414a1 1 0 0 1-1.414 0L2.293 9.95a1 1 0 1 1 1.414-1.415l1.759 1.76 6.12-6.12a1 1 0 1 1 1.415 1.414l-7.828 7.826Z" />
+                        </svg>
+                      ) : isCurrent ? (
+                        <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                      ) : (
+                        <span className="w-2.5 h-2.5 rounded-full bg-transparent" />
+                      )}
                     </span>
-                  )}
-                </div>
-                <div className="text-xs leading-snug break-words flex flex-col gap-1">
-                  <span>
-                    {e.tx ? (
-                      <a
-                        href={getExplorerTxUrl(e.tx)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:underline hover:decoration-solid"
-                      >
-                        {e.display}
-                      </a>
-                    ) : (
-                      e.display
-                    )}
-                  </span>
-                  {isVote && e.label && (
-                    <span className="text-[10px] font-mono text-muted-foreground break-all">
-                      {(e.label.match(/^(0x[a-fA-F0-9]{4,})/) || [])[1]}
-                    </span>
-                  )}
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+                    <div className="text-sm font-medium tracking-wide mb-1 flex flex-wrap gap-2">
+                      {e.type === 'vote' ? (
+                        <VoteEventLabel
+                          address={e.voteAddress!}
+                          support={e.voteSupport!}
+                        />
+                      ) : (
+                        <span>{e.label}</span>
+                      )}
+                      {e.block && (
+                        <span className="font-normal text-secondary">
+                          #{e.block}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs leading-snug break-words flex flex-col gap-1">
+                      <span>
+                        {e.tx ? (
+                          <a
+                            href={getExplorerTxUrl(e.tx)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-secondary hover:underline hover:decoration-solid"
+                          >
+                            {e.display}
+                          </a>
+                        ) : (
+                          e.display
+                        )}
+                      </span>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )
+        })()}
       </div>
     </div>
   )

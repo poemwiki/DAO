@@ -95,7 +95,7 @@ export default function Proposal() {
       <div className="flex items-center gap-2">
         <Link
           to={ROUTES.HOME}
-          className="text-sm text-muted-foreground hover:text-primary"
+          className="text-sm text-secondary hover:text-primary"
         >
           ← {t('home.backToProposals')}
         </Link>

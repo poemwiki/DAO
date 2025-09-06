@@ -3,7 +3,7 @@ import type { StatusInfo } from '@/utils/proposal'
 import { useEffect, useState } from 'react'
 import { usePublicClient } from 'wagmi'
 import { config } from '@/config'
-import { readGovernorState } from '@/utils/governor'
+import { readGovernorState, safeParseProposalId } from '@/utils/governor'
 import { NUMERIC_STATUS_MAP } from '@/utils/proposal'
 
 interface UseProposalStateOptions {
@@ -31,7 +31,8 @@ export function useProposalState({ proposalId, tx }: UseProposalStateOptions) {
       try {
         setLoading(true)
         setError(null)
-        const numeric = await readGovernorState(client, proposalId)
+        const parsed = safeParseProposalId(proposalId)
+        const numeric = await readGovernorState(client, parsed)
         if (!mounted) {
           return
         }

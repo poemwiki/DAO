@@ -40,7 +40,7 @@ export function ProposalListItem({
 
   // Estimate end timestamp using block number (more accurate than treating block as unix time)
   const endBlockNum = proposal.endBlock ? Number(proposal.endBlock) : undefined
-  const { data: endInfo } = useEstimateBlockTimestamp(endBlockNum)
+  const { data: endInfo } = useEstimateBlockTimestamp(endBlockNum, { exact: false })
 
   let timeLabel = `${t('home.votingEndedAt')}: -`
   if (endInfo?.timestamp) {
@@ -76,7 +76,7 @@ export function ProposalListItem({
                 Proposal #{proposalNumber}
               </Badge>
             </div>
-            <p className="text-muted-foreground line-clamp-3 break-words text-sm sm:text-base">
+            <p className="text-secondary line-clamp-3 break-words text-sm sm:text-base">
               {desc.replace(/^[^\]]*\]\s*/, '')}
             </p>
           </div>

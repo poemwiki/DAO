@@ -33,7 +33,7 @@ const ProposalTypeSelectComponent: React.FC<ProposalTypeSelectProps> = ({
       <SelectTrigger>
         <SelectValue placeholder={t('proposal.typePlaceholder')} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="border border-input">
         <SelectItem value={PROPOSAL_TYPE.MINT}>
           {t('proposal.types.mint')}
         </SelectItem>

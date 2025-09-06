@@ -18,7 +18,7 @@ export default function DelegateButton() {
   return (
     <>
       <Button
-        variant={isDelegated ? 'ghost' : 'default'}
+        variant={isDelegated ? 'outline' : 'default'}
         onClick={() => setOpen(true)}
       >
         {isDelegated

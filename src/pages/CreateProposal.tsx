@@ -1,25 +1,27 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useConnectWallet } from '@web3-onboard/react'
 import { useGovernorParams } from '@/hooks/useGovernorParams'
-import { tokenABI } from '@/abis/tokenABI'
 import { ROUTES, PROPOSAL_TYPE } from '@/constants'
-import { getAverageBlockTime } from '@/constants/blockTimes'
-import { useCreateProposal } from '@/hooks/useCreateProposal'
-import { usePublicClient } from 'wagmi'
-import { config } from '@/config'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ProposalTypeSelect } from '@/components/ProposalTypeSelect'
 import {
-  formatTokenAmount,
-  estimateDurationFromBlocks,
   cn,
+  short,
 } from '@/utils/format'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { useThresholdCheck } from '@/hooks/useThresholdCheck'
+import { useProposalForm, ProposalForm, makeInitialForm } from '@/hooks/useProposalForm'
+import { useProposalFieldValidation } from '@/hooks/useProposalFieldValidation'
+import { useProposalSubmission } from '@/hooks/useProposalSubmission'
+import { BatchMintFields } from '@/components/proposal/BatchMintFields'
+import { GovernorSettingFields } from '@/components/proposal/GovernorSettingFields'
+import { MintOrBudgetFields } from '@/components/proposal/MintOrBudgetFields'
+import { ExecutionPreview } from '@/components/proposal/ExecutionPreview'
 
 // NOTE: This page will be extended to include batch mint & governor setting later.
 
@@ -32,69 +34,63 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
   const navigate = useNavigate()
   const [{ wallet }] = useConnectWallet()
   const { data: gov } = useGovernorParams()
-  const [proposalType, setProposalType] = useState<
-    (typeof PROPOSAL_TYPE)[keyof typeof PROPOSAL_TYPE]
-  >(PROPOSAL_TYPE.MINT)
-  const [formData, setFormData] = useState({
-    title: '',
-    address: '',
-    amount: '',
-    description: '',
-  })
-  // batch mint rows
-  const [batchRows, setBatchRows] = useState<
-    Array<{ address: string; amount: string }>
-  >([{ address: '', amount: '' }])
-  const [validationErrors, setValidationErrors] = useState<string[]>([])
-  const { data: tokenInfo } = useTokenInfo()
-  const batchTotal = useMemo(() => {
-    if (proposalType !== PROPOSAL_TYPE.BATCH_MINT) {
-      return 0
-    }
-    return batchRows.reduce((sum, r) => {
-      const v = Number(r.amount)
-      if (v > 0) {
-        return sum + v
-      }
-      return sum
-    }, 0)
-  }, [batchRows, proposalType])
-  function addBatchRow() {
-    setBatchRows(r => [...r, { address: '', amount: '' }])
-  }
-  function updateBatchRow(
-    idx: number,
-    key: 'address' | 'amount',
-    value: string,
-  ) {
-    setBatchRows(r =>
-      r.map((row, i) => (i === idx ? { ...row, [key]: value } : row)),
-    )
-  }
-  function removeBatchRow(idx: number) {
-    setBatchRows(r => (r.length === 1 ? r : r.filter((_, i) => i !== idx)))
-  }
   const {
-    create: createProposal,
-    status: createStatus,
-    error: createError,
-    result: createResult,
-  } = useCreateProposal({
-    onSuccess: () => {
-      setTimeout(() => navigate(ROUTES.HOME), 1500)
-    },
-  })
-
+    form,
+    setForm,
+    setType,
+    addBatchRow,
+    updateBatchRow,
+    removeBatchRow,
+    batchTotal,
+    validate,
+  } = useProposalForm()
+  const { data: tokenInfo } = useTokenInfo()
   const proposerAddress = wallet?.accounts?.[0]?.address as
     | `0x${string}`
     | undefined
 
+  const formatDescription = (f: ProposalForm) => {
+    const fallbackTitleMap: Record<string, string> = {
+      [PROPOSAL_TYPE.MINT]: t('proposal.fallbackTitle.mint'),
+      [PROPOSAL_TYPE.BUDGET]: t('proposal.fallbackTitle.mintAndApprove'),
+      [PROPOSAL_TYPE.BATCH_MINT]: t('proposal.fallbackTitle.batchMint'),
+      [PROPOSAL_TYPE.GOVERNOR_SETTING]: t('proposal.fallbackTitle.governorSetting'),
+    }
+    const userTitle = f.title.trim()
+    const fallbackTitle = fallbackTitleMap[f.type] || t('proposal.fallbackTitle.default')
+    let desc = f.description
+    if (userTitle && userTitle !== fallbackTitle) {
+      desc = `# ${userTitle}  \n${desc}`
+    }
+    return desc
+  }
+
+  const submission = useProposalSubmission({
+    proposerAddress,
+    formatDescription,
+    validate: (f: ProposalForm) =>
+      validate(
+        f.type === PROPOSAL_TYPE.BUDGET && proposerAddress
+          ? { ...f, address: f.address || proposerAddress }
+          : f,
+        t,
+        proposerAddress,
+      ),
+    onSuccess: proposalId => {
+      // reset local form state immediately
+      setForm(f => makeInitialForm(f.type))
+      submission.reset()
+      setTimeout(() =>
+        navigate(ROUTES.PROPOSAL, {
+          state: { id: proposalId },
+        }), 800)
+    },
+    t,
+  })
+
   // Fetch proposer current token balance (ERC20 balance as proxy for threshold check; later may switch to getVotes snapshot >0 logic if needed)
-  const { balance, meetsThreshold, thresholdFormatted, loadingBalance } =
-    useProposalThresholdCheck({
-      proposer: proposerAddress,
-      proposalThreshold: gov?.proposalThreshold,
-    })
+  const { balance, formattedThreshold, meetsThreshold, loadingBalance } =
+    useThresholdCheck(proposerAddress)
 
   const disabledReason = useMemo(() => {
     if (!wallet) {
@@ -107,165 +103,50 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
       return t('common.loading')
     }
     if (!meetsThreshold) {
-      return t('proposalThreshold.notEnough', { needed: thresholdFormatted })
+      return t('proposalThreshold.notEnough', {
+        needed: formattedThreshold,
+      })
     }
     return null
-  }, [wallet, gov, loadingBalance, meetsThreshold, thresholdFormatted, t])
+  }, [
+    wallet,
+    gov,
+    loadingBalance,
+    meetsThreshold,
+    gov?.proposalThreshold,
+    tokenInfo,
+    t,
+  ])
 
-  // Friendly error mapping
-  let createErrorMessage: string | null = null
-  if (createError) {
-    const raw =
-      (createError as any)?.shortMessage ||
-      (createError as any)?.message ||
-      String(createError)
-    if (
-      /User rejected/i.test(raw) ||
-      /denied transaction signature/i.test(raw)
-    ) {
-      createErrorMessage = t('wallet.userRejected')
-    } else {
-      // Remove long calldata blobs (hex longer than 120 chars)
-      createErrorMessage = raw.replace(
-        /0x[0-9a-fA-F]{120,}/g,
-        (m: string) => `${m.slice(0, 20)}…`,
-      )
-      if (createErrorMessage && createErrorMessage.length > 360) {
-        createErrorMessage = `${createErrorMessage.slice(0, 360)}…`
-      }
-    }
-  }
+  const createStatus = submission.status
+  const createErrorMessage = submission.friendlyError
+  const createResult = submission.proposalId
+
+  const { fieldErrors, validateField } = useProposalFieldValidation({ form, t })
 
   function onChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
     const { name, value } = e.target
-    setFormData(p => ({ ...p, [name]: value }))
+    setForm(f => {
+      // generic field updates only for common or present keys
+      if (name in f) {
+        return { ...f, [name]: value } as ProposalForm
+      }
+      return f
+    })
   }
+
+  const onBlur = useCallback((e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target
+    validateField(name)
+  }, [validateField])
+
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (
-      disabledReason ||
-      !wallet ||
-      !gov ||
-      ['building', 'signing', 'pending'].includes(createStatus)
-    ) {
-      return
-    }
-
-    // Clear old errors
-    setValidationErrors([])
-
-    // Validation per type
-    const newErrors: string[] = []
-    if (proposalType === PROPOSAL_TYPE.BATCH_MINT) {
-      const filtered = batchRows.filter(r => r.address || r.amount)
-      if (!filtered.length) {
-        newErrors.push(t('proposal.err.noBatchRows'))
-      }
-      filtered.forEach((r, idx) => {
-        if (!/^0x[a-fA-F0-9]{40}$/.test(r.address)) {
-          newErrors.push(t('proposal.err.badAddress', { idx: idx + 1 }))
-        }
-        const num = Number(r.amount)
-        if (!(num > 0)) {
-          newErrors.push(t('proposal.err.badAmount', { idx: idx + 1 }))
-        }
-      })
-      if (filtered.length > 100) {
-        newErrors.push(t('proposal.err.tooManyRows'))
-      }
-      if (newErrors.length) {
-        setValidationErrors(newErrors)
-        return
-      }
-    } else if (proposalType === PROPOSAL_TYPE.GOVERNOR_SETTING) {
-      const fn = (formData as any).governorFunction
-      const valStr = (formData as any).governorValue
-      if (!fn) {
-        newErrors.push(t('proposal.err.missingGovFunction'))
-      }
-      if (!valStr) {
-        newErrors.push(t('proposal.err.missingGovValue'))
-      } else {
-        try {
-          const big = BigInt(valStr)
-          if (big < 0n) {
-            newErrors.push(t('proposal.err.badGovValue'))
-          }
-        } catch {
-          newErrors.push(t('proposal.err.badGovValue'))
-        }
-      }
-      if (newErrors.length) {
-        setValidationErrors(newErrors)
-        return
-      }
-    } else {
-      // single mint/budget validation
-      if (
-        !/^0x[a-fA-F0-9]{40}$/.test(
-          proposalType === PROPOSAL_TYPE.BUDGET
-            ? proposerAddress || ''
-            : formData.address,
-        )
-      ) {
-        newErrors.push(t('proposal.err.badSingleAddress'))
-      }
-      const num = Number(formData.amount)
-      if (!(num > 0)) {
-        newErrors.push(t('proposal.err.badSingleAmount'))
-      }
-      if (newErrors.length) {
-        setValidationErrors(newErrors)
-        return
-      }
-    }
-    const addr =
-      proposalType === PROPOSAL_TYPE.BUDGET
-        ? proposerAddress || ''
-        : formData.address
-    // Build markdown description with optional custom H1 title.
-    // If user-specified title equals the fallback implicit title derived from type, we omit the H1 to keep description clean.
-    const fallbackTitleMap: Record<string, string> = {
-      [PROPOSAL_TYPE.MINT]: t('proposal.fallbackTitle.mint'),
-      [PROPOSAL_TYPE.BUDGET]: t('proposal.fallbackTitle.mintAndApprove'),
-    }
-    const userTitle = formData.title.trim()
-    const fallbackTitle = fallbackTitleMap[proposalType]
-    let finalDescription = formData.description
-    if (userTitle && userTitle !== fallbackTitle) {
-      // Prepend markdown H1 (# Title) and a blank line.
-      finalDescription = `# ${userTitle}  \n${finalDescription}`
-    }
-    if (proposalType === PROPOSAL_TYPE.BATCH_MINT) {
-      await createProposal({
-        type: proposalType,
-        address: '0x0000000000000000000000000000000000000000', // ignored by backend for batch
-        amount: '0',
-        batch: batchRows.filter(r => r.address && r.amount),
-        description: finalDescription,
-      })
-    } else if (proposalType === PROPOSAL_TYPE.GOVERNOR_SETTING) {
-      await createProposal({
-        type: proposalType,
-        address: '0x0000000000000000000000000000000000000000',
-        amount: '0',
-        governorSetting: {
-          function: (formData as any).governorFunction,
-          value: (formData as any).governorValue,
-        },
-        description: finalDescription,
-      })
-    } else {
-      await createProposal({
-        type: proposalType,
-        address: addr,
-        amount: formData.amount,
-        description: finalDescription,
-      })
-    }
+    if (disabledReason || !wallet || !gov || ['building', 'signing', 'pending'].includes(createStatus)) return
+    await submission.submit(form)
   }
 
   if (!wallet) {
@@ -288,7 +169,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
           <h2 className="text-2xl font-semibold tracking-tight">
             {t('proposal.create')}
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-secondary">
             {t('proposal.createDescription')}
           </p>
         </div>
@@ -298,13 +179,13 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
       </div>
 
       {disabledReason ? (
-        <div className="p-6 border rounded-md bg-muted/30 space-y-2">
+        <div className="p-6 border rounded-md bg-card space-y-2">
           <p className="text-sm">{disabledReason}</p>
-          {balance !== null && thresholdFormatted && (
-            <p className="text-xs text-muted-foreground">
+          {balance !== null && formattedThreshold && (
+            <p className="text-xs text-secondary">
               {t('proposalThreshold.currentVsNeeded', {
                 current: balance,
-                needed: thresholdFormatted,
+                needed: formattedThreshold,
               })}
             </p>
           )}
@@ -316,210 +197,90 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
               <Label>{t('proposal.title')}</Label>
               <Input
                 name="title"
-                value={formData.title}
+                value={form.title}
                 onChange={onChange}
+                onBlur={onBlur}
                 placeholder={t('proposal.enterTitle')}
+                className="placeholder:text-muted-foreground"
               />
             </div>
             <div className="flex flex-col gap-2">
               <Label>{t('proposal.type')}</Label>
               <ProposalTypeSelect
-                value={proposalType}
-                onChange={setProposalType}
+                value={form.type}
+                onChange={next => {
+                  if (next === PROPOSAL_TYPE.BUDGET) {
+                    // prefill address if empty
+                    setForm(f => {
+                      if (f.type === PROPOSAL_TYPE.BUDGET) return f
+                      // create a fresh budget form preserving title/description via makeInitialForm
+                      const base = makeInitialForm(PROPOSAL_TYPE.BUDGET, f)
+                      // When switching TO BUDGET we only care about prior single-address types (MINT)
+                      const prevAddress = f.type === PROPOSAL_TYPE.MINT ? f.address : ''
+                      return {
+                        ...base,
+                        address: prevAddress || proposerAddress || '',
+                      }
+                    })
+                  } else {
+                    setType(next)
+                  }
+                }}
               />
+              <p className="text-xs text-secondary">
+                {t(`proposal.typeHelp.${form.type}` as const)}
+              </p>
             </div>
-            {proposalType === PROPOSAL_TYPE.BATCH_MINT ? (
-              <div className="space-y-3">
-                <Label>{t('proposal.batchMintRows')}</Label>
-                <div className="space-y-2">
-                  {batchRows.map((row, i) => (
-                    <div key={i} className="flex gap-2 items-start">
-                      <Input
-                        value={row.address}
-                        onChange={e =>
-                          updateBatchRow(i, 'address', e.target.value)
-                        }
-                        placeholder={t('proposal.enterAddress')}
-                        className="flex-1"
-                      />
-                      <Input
-                        type="number"
-                        value={row.amount}
-                        onChange={e =>
-                          updateBatchRow(i, 'amount', e.target.value)
-                        }
-                        placeholder={t('proposal.enterAmount')}
-                        className="w-40"
-                        min="0"
-                        step="0.000000000000000001"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => removeBatchRow(i)}
-                        disabled={batchRows.length === 1}
-                        className="px-2"
-                      >
-                        {t('common.remove')}
-                      </Button>
-                    </div>
-                  ))}
-                  <div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={addBatchRow}
-                      size="sm"
-                    >
-                      {t('proposal.addRow')}
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t('proposal.batchMintHint')}
-                </p>
-                <p className="text-xs">
-                  {t('proposal.batchTotal', {
-                    total: batchTotal,
-                    symbol: tokenInfo?.symbol || '',
-                  })}
-                </p>
-              </div>
-            ) : proposalType === PROPOSAL_TYPE.GOVERNOR_SETTING ? (
-              <div className="space-y-4">
-                <div className="flex flex-col gap-2">
-                  <Label>{t('proposal.governorFunction')}</Label>
-                  <select
-                    className="border rounded px-2 py-2 bg-background"
-                    name="governorFunction"
-                    value={
-                      (formData as any).governorFunction || 'setVotingDelay'
-                    }
-                    onChange={e =>
-                      setFormData(p => ({
-                        ...p,
-                        governorFunction: e.target.value as any,
-                      }))
-                    }
-                  >
-                    <option value="setVotingDelay">
-                      {t('proposal.govFn.setVotingDelay')}
-                    </option>
-                    <option value="setVotingPeriod">
-                      {t('proposal.govFn.setVotingPeriod')}
-                    </option>
-                    <option value="setProposalThreshold">
-                      {t('proposal.govFn.setProposalThreshold')}
-                    </option>
-                    <option value="updateQuorumNumerator">
-                      {t('proposal.govFn.updateQuorumNumerator')}
-                    </option>
-                  </select>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>{t('proposal.newValue')}</Label>
-                  <Input
-                    name="governorValue"
-                    type="number"
-                    value={(formData as any).governorValue || ''}
-                    onChange={e =>
-                      setFormData(p => ({
-                        ...p,
-                        governorValue: e.target.value,
-                      }))
-                    }
-                    min="0"
-                    step="1"
-                    required
-                    placeholder={t('proposal.enterNewValue')}
-                  />
-                  <p className="hidden text-xs text-muted-foreground">
-                    {t('proposal.governorSettingHint')}
-                  </p>
-                  {(() => {
-                    const fn = (formData as any).governorFunction
-                    const raw = (formData as any).governorValue
-                    if (!raw) {
-                      return null
-                    }
-                    try {
-                      const blocks = BigInt(raw)
-                      if (blocks <= 0n) {
-                        return null
-                      }
-                      if (fn === 'setVotingPeriod' || fn === 'setVotingDelay') {
-                        const chainIdHex = config.network.chainId
-                        const chainId = chainIdHex.startsWith('0x')
-                          ? parseInt(chainIdHex, 16)
-                          : Number(chainIdHex)
-                        const avgSecPerBlock = getAverageBlockTime(chainId)
-                        const human = estimateDurationFromBlocks(
-                          Number(blocks),
-                          avgSecPerBlock,
-                        )
-                        return (
-                          <p className="text-xs text-muted-foreground">
-                            {t('proposal.estimatedDuration', { human })}
-                          </p>
-                        )
-                      }
-                    } catch {}
-                    return null
-                  })()}
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex flex-col gap-2">
-                  <Label>
-                    {proposalType === PROPOSAL_TYPE.BUDGET
-                      ? t('proposal.requestAddress')
-                      : t('proposal.recipientAddress')}
-                  </Label>
-                  <Input
-                    name="address"
-                    value={
-                      proposalType === PROPOSAL_TYPE.BUDGET
-                        ? proposerAddress || ''
-                        : formData.address
-                    }
-                    onChange={onChange}
-                    disabled={proposalType === PROPOSAL_TYPE.BUDGET}
-                    placeholder={t('proposal.enterAddress')}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>{t('proposal.amount')}</Label>
-                  <Input
-                    name="amount"
-                    type="number"
-                    value={formData.amount}
-                    onChange={onChange}
-                    min="0"
-                    step="0.000000000000000001"
-                    required
-                    placeholder={t('proposal.enterAmount')}
-                  />
-                </div>
-              </>
-            )}
+            <BatchMintFields
+              form={form}
+              batchTotal={batchTotal}
+              symbol={tokenInfo?.symbol}
+              addRow={addBatchRow}
+              updateRow={updateBatchRow}
+              removeRow={removeBatchRow}
+              onBlur={onBlur}
+              fieldErrors={fieldErrors}
+            />
+            <GovernorSettingFields
+              form={form}
+              onChange={onChange}
+              setGovernorFunction={fn =>
+                setForm(f =>
+                  f.type === PROPOSAL_TYPE.GOVERNOR_SETTING
+                    ? { ...f, governorFunction: fn }
+                    : f,
+                )
+              }
+              onBlur={onBlur}
+              fieldErrors={fieldErrors}
+            />
+            <MintOrBudgetFields
+              form={form}
+              proposerAddress={proposerAddress}
+              onChange={onChange}
+              onBlur={onBlur}
+              fieldErrors={fieldErrors}
+            />
             <div className="flex flex-col gap-2">
               <Label>{t('proposal.description')}</Label>
-              <Textarea
+      <Textarea
                 name="description"
-                value={formData.description}
+    value={form.description}
                 onChange={onChange}
+                onBlur={onBlur}
                 required
-                placeholder={t('proposal.enterDescription')}
+        placeholder={t('proposal.enterDescription')}
+        className="placeholder:text-muted-foreground"
               />
             </div>
+            {/* Execution preview */}
+            <ExecutionPreview form={form} t={t} proposerAddress={proposerAddress} />
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex flex-col items-center justify-start">
-              {validationErrors.length > 0 && (
+            <div className="flex-1 flex flex-col items-start justify-start">
+        {submission.errors.length > 0 && (
                 <ul className="mb-2 list-disc pl-5 space-y-1 text-xs text-destructive">
-                  {validationErrors.map((er, i) => (
+          {submission.errors.map((er, i) => (
                     <li key={i}>{er}</li>
                   ))}
                 </ul>
@@ -533,10 +294,10 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                 {createErrorMessage}
               </p>
 
-              {createResult?.proposalId && (
+      {createResult && (
                 <p className="text-xs text-right break-words">
                   {t('proposal.status.proposalId', {
-                    id: createResult.proposalId,
+        id: short(createResult),
                   })}
                 </p>
               )}
@@ -567,61 +328,3 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
     </div>
   )
 })
-
-function useProposalThresholdCheck({
-  proposer,
-  proposalThreshold,
-}: {
-  proposer?: `0x${string}`
-  proposalThreshold?: bigint
-}) {
-  const publicClient = usePublicClient()
-  const { data: tokenInfo } = useTokenInfo()
-  const [balance, setBalance] = React.useState<string | null>(null)
-  const [loading, setLoading] = React.useState(false)
-
-  React.useEffect(() => {
-    let cancelled = false
-    async function load() {
-      if (!publicClient || !proposer || proposalThreshold === undefined) {
-        return
-      }
-      setLoading(true)
-      try {
-        const bal = (await publicClient.readContract({
-          address: config.contracts.token as `0x${string}`,
-          abi: tokenABI,
-          functionName: 'balanceOf',
-          args: [proposer],
-        })) as bigint
-        if (!cancelled) {
-          setBalance((Number(bal) / 1e18).toString())
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      }
-    }
-    load()
-    return () => {
-      cancelled = true
-    }
-  }, [publicClient, proposer, proposalThreshold])
-
-  const thresholdFormatted =
-    proposalThreshold !== undefined
-      ? formatTokenAmount(BigInt(proposalThreshold), tokenInfo?.decimals || 18)
-      : null
-
-  const meetsThreshold =
-    balance !== null && thresholdFormatted !== null
-      ? Number(balance) >= Number(thresholdFormatted)
-      : false
-  return {
-    balance,
-    meetsThreshold,
-    thresholdFormatted,
-    loadingBalance: loading,
-  }
-}

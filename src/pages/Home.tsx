@@ -103,7 +103,7 @@ export default function Home() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="text-lg text-red-500">Error loading proposals</div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted">
             {error instanceof Error ? error.message : 'Unknown error'}
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="p-8 w-full border rounded-lg text-center bg-card text-muted-foreground">
+          <div className="p-8 w-full border rounded-lg text-center bg-card text-muted">
             {t('home.noProposals')}
           </div>
         )}
@@ -192,7 +192,7 @@ export default function Home() {
               {t('governanceParams.votingDelay')}
               <Popover>
                 <PopoverTrigger asChild>
-                  <span className="ml-1 lowercase text-muted-foreground cursor-pointer select-none">
+                  <span className="ml-1 lowercase text-secondary cursor-pointer select-none">
                     ⓘ
                   </span>
                 </PopoverTrigger>
@@ -220,7 +220,7 @@ export default function Home() {
               {t('governanceParams.votingPeriod')}
               <Popover>
                 <PopoverTrigger asChild>
-                  <span className="ml-1 lowercase text-muted-foreground cursor-pointer select-none">
+                  <span className="ml-1 lowercase text-secondary cursor-pointer select-none">
                     ⓘ
                   </span>
                 </PopoverTrigger>
@@ -250,7 +250,7 @@ export default function Home() {
               {t('governanceParams.proposalThreshold')}
               <Popover>
                 <PopoverTrigger asChild>
-                  <span className="ml-1 lowercase text-muted-foreground cursor-pointer select-none">
+                  <span className="ml-1 lowercase text-secondary cursor-pointer select-none">
                     ⓘ
                   </span>
                 </PopoverTrigger>
@@ -272,7 +272,7 @@ export default function Home() {
               {t('governanceParams.quorumPercent')}
               <Popover>
                 <PopoverTrigger asChild>
-                  <span className="ml-1 lowercase text-muted-foreground cursor-pointer select-none">
+                  <span className="ml-1 lowercase text-secondary cursor-pointer select-none">
                     ⓘ
                   </span>
                 </PopoverTrigger>

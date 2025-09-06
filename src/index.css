@@ -13,8 +13,8 @@
   --color-primary-foreground        : oklch(1 0 0);
   --color-secondary                 : oklch(0.19 0.01 248.51 / 0.6);
   --color-secondary-foreground      : oklch(1 0 0);
-  --color-muted                     : oklch(0.9222 0.0013 286.3737);
-  --color-muted-foreground          : oklch(0.1884 0.0128 248.5103);
+  --color-muted                     : oklch(0.1884 0.0128 248.5103);
+  --color-muted-foreground          : oklch(0.9222 0.0013 286.3737);
   --color-accent                    : oklch(0.9392 0.0200 145);
   --color-accent-foreground         : oklch(0.6723 0.1606 145);
   --color-destructive               : oklch(0.6188 0.2376 25.7658);
@@ -62,10 +62,10 @@
   --color-popover-foreground        : oklch(0.9328 0.0025 228.7857);
   --color-primary                   : oklch(0.6692 0.1607 145);
   --color-primary-foreground        : oklch(1 0 0);
-  --color-secondary                 : oklch(0.9622 0.0035 219.5331);
-  --color-secondary-foreground      : oklch(0.1884 0.0128 248.5103);
+  --color-secondary                 : oklch(1 0 0 / 0.5);
+  --color-secondary-foreground      : oklch(0.9622 0.0035 219.5331);
   --color-muted                     : oklch(0.2090 0 0);
-  --color-muted-foreground          : oklch(0.5637 0.0078 247.9662);
+  --color-muted-foreground          : oklch(41.112% 0.00641 248.154);
   --color-accent                    : color-mix(in oklab, var(--color-primary) 22%, transparent);
   --color-accent-foreground         : oklch(0.6692 0.1607 145);
   --color-destructive               : oklch(0.6188 0.2376 25.7658);

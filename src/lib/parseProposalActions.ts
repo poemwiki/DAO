@@ -17,7 +17,7 @@ export interface ParsedAction {
   summaryParams?: Record<string, unknown> // parameters for i18n interpolation
   rawValue?: bigint // for governorSetting new value
   paramKey?: string // internal key (e.g., votingDelay)
-  recipients?: { address: string; amount: bigint }[] // for batchMint detail
+  recipients?: { address: string, amount: bigint }[] // for batchMint detail
 }
 
 const FN_TYPE: Record<string, ParsedAction['type']> = {
@@ -74,7 +74,8 @@ export function parseProposalActions(
           },
         })
         continue
-      } else if (type === 'mintAndApprove') {
+      }
+      else if (type === 'mintAndApprove') {
         const [spender, amount] = decoded.args as [string, bigint]
         const name = lookupAddressBookName(spender)
         const who = spender ? `${name}(${short(spender)})` : spender
@@ -94,7 +95,8 @@ export function parseProposalActions(
           },
         })
         continue
-      } else if (type === 'batchMint') {
+      }
+      else if (type === 'batchMint') {
         const [toArray, amountArray] = decoded.args as [string[], bigint[]]
         const total = amountArray.reduce((a, b) => a + b, 0n)
         const symbol = tokenSymbol || 'TOKEN'
@@ -121,7 +123,8 @@ export function parseProposalActions(
           })),
         })
         continue
-      } else if (type === 'governorSetting') {
+      }
+      else if (type === 'governorSetting') {
         const [val] = decoded.args as [bigint]
         const labelMap: Record<string, string> = {
           setVotingDelay: 'actions.setVotingDelay',
@@ -145,7 +148,7 @@ export function parseProposalActions(
           summary,
           summaryKey: labelMap[fn] || 'actions.unknown',
           summaryParams: {
-            value: val.toString(),
+            value: fn === 'setProposalThreshold' ? formatTokenAmount(val, tokenDecimals ?? 18) : val.toString(),
           },
           rawValue: val,
           paramKey: paramKeyMap[fn],
@@ -161,7 +164,8 @@ export function parseProposalActions(
         summary,
         summaryKey: type === 'unknown' ? 'actions.unknown' : undefined,
       })
-    } catch (_e) {
+    }
+    catch {
       actions.push({
         target: targets[i],
         signature: signatures?.[i] || 'unknown',

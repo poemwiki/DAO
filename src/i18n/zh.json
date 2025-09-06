@@ -22,23 +22,23 @@
     "mint": "发放 {{amount}} {{symbol}} 给 {{who}}",
     "mintAndApprove": "申请 {{amount}} {{symbol}} 预算给 {{who}}",
     "parseError": "无法解析的调用",
-    "setProposalThreshold": "提案门槛 => {{value}}",
-    "setVotingDelay": "投票延迟(区块) => {{value}}",
-    "setVotingPeriod": "投票时长(区块) => {{value}}",
+    "setProposalThreshold": "设置提案门槛为 {{value}}",
+    "setVotingDelay": "设置投票延迟为 {{value}} 个区块",
+    "setVotingPeriod": "设置投票时长为 {{value}} 个区块",
     "unknown": "未知操作",
-    "updateQuorumNumerator": "法定票数比例分子 => {{value}}"
+    "updateQuorumNumerator": "设置法定票数比例为 {{value}}%"
   },
   "common": {
     "backToHome": "返回首页",
     "cancel": "取消",
     "close": "关闭",
     "loading": "加载中...",
+    "remove": "删除",
     "submit": "提交",
-    "submitting": "提交中...",
-    "remove": "Remove"
+    "submitting": "提交中..."
   },
   "delegate": {
-    "changeButton": "更改代理人",
+    "changeButton": "更改我的代理人",
     "confirmed": "已确认 ✓",
     "confirming": "确认中...",
     "description": "请选择一个地址作为您的投票代理人。代理人将代表您的积分进行投票。",
@@ -64,20 +64,21 @@
     "backToProposals": "返回提案列表",
     "closedProposals": "已结束",
     "created": "创建时间",
-    "votingEnds": "投票结束",
-    "votingEndsIn": "剩余时间",
-    "votingEndedAt": "结束于",
     "governanceProposals": "提案",
     "noProposals": "暂无提案",
     "totalProposals": "提案总数",
     "totalVotes": "总投票次数",
-    "updated": "更新时间"
+    "updated": "更新时间",
+    "votingEndedAt": "结束于",
+    "votingEnds": "投票结束",
+    "votingEndsIn": "剩余时间"
   },
   "proposal": {
-    "amount": "数量",
+    "actions": "执行操作",
     "addRow": "添加一行",
-    "batchMintRows": "批量发放行",
+    "amount": "数量",
     "batchMintHint": "输入多个接收地址和数量；空行会被忽略。",
+    "batchMintRows": "批量发放行",
     "batchTotal": "合计: {{total}} {{symbol}}",
     "connectWalletFirst": "请先连接钱包",
     "create": "创建提案",
@@ -89,28 +90,35 @@
     "enterDescription": "输入提案描述",
     "enterNewValue": "输入新数值",
     "enterTitle": "输入提案标题",
-    "governorFunction": "治理函数",
-    "newValue": "新数值",
-    "governorSettingHint": "这些值是原始单位（区块或代币整数），提交前请确认。",
-    "govFn": {
-      "setVotingDelay": "设置投票延迟(区块)",
-      "setVotingPeriod": "设置投票时长(区块)",
-      "setProposalThreshold": "设置提案门槛",
-      "updateQuorumNumerator": "更新法定票数比例"
-    },
-    "estimatedDuration": "≈ {{human}}",
     "err": {
-      "noBatchRows": "请至少添加一行批量发放记录。",
       "badAddress": "第 {{idx}} 行地址无效。",
       "badAmount": "第 {{idx}} 行数量无效。",
-      "tooManyRows": "行数过多 (最多 100)。",
-      "missingGovFunction": "请选择一个治理函数。",
-      "missingGovValue": "请输入新数值。",
       "badGovValue": "新数值无效。",
       "badSingleAddress": "接收地址无效。",
-      "badSingleAmount": "数量无效。"
+      "badSingleAmount": "数量无效。",
+      "missingGovFunction": "请选择一个治理函数。",
+      "missingGovValue": "请输入新数值。",
+      "badQuorumPercentRange": "法定票数分子必须在 {{range}} 范围内。",
+      "noBatchRows": "请至少添加一行批量发放记录。",
+      "tooManyRows": "行数过多 (最多 100)。"
     },
-    "quorum": "法定票数",
+    "estimatedDuration": "≈ {{human}}",
+    "events": {
+      "canceled": "取消",
+      "created": "创建提案",
+      "end": "结束投票",
+      "executed": "执行",
+      "start": "开始投票"
+    },
+    "execute": {
+      "button": "执行提案",
+      "description": "该提案已准备好执行。点击按钮执行提案中的所有操作。",
+      "error": "执行失败",
+      "pending": "执行中…",
+      "signing": "请在钱包中签名…",
+      "success": "执行成功!"
+    },
+    "executionPreview": "执行预览",
     "fallbackTitle": {
       "batchMint": "批量发放积分",
       "default": "治理提案",
@@ -118,9 +126,27 @@
       "mint": "发放积分",
       "mintAndApprove": "申请预算"
     },
+    "govFn": {
+      "setProposalThreshold": "设置提案门槛",
+      "setVotingDelay": "设置投票延迟(区块)",
+      "setVotingPeriod": "设置投票时长(区块)",
+      "updateQuorumNumerator": "更新法定票数比例"
+    },
+    "govFnHelp": {
+      "setProposalThreshold": "调整创建提案所需的最少投票权。",
+      "setVotingDelay": "调整从提案创建到投票开始之间的区块数。",
+      "setVotingPeriod": "调整允许投票的区块数量（时长）。",
+      "updateQuorumNumerator": "调整法定票数比例。"
+    },
+    "governorFunction": "治理参数",
+    "governorSettingHint": "这些值是原始单位（区块或代币整数），提交前请确认。",
+    "newValue": "新数值",
     "proposer": "提案人",
+    "quorum": "法定票数",
+    "quorumHelp": "法定票数 = 提案快照区块(投票开始区块)时的总可投票供应量 * 法定人数百分比。未委托的代币仍计入总供应(提高阈值)但本身没有投票权。该值是必须达到的绝对参与票数(赞成+弃权)。",
     "recipientAddress": "接收地址",
-    "requestAddress": "请求地址（你的地址）",
+    "requestAddress": "申请地址",
+    "results": "结果",
     "status": {
       "building": "构建交易中...",
       "error": "创建提案失败。",
@@ -130,48 +156,36 @@
       "success": "提案创建成功! 即将跳转..."
     },
     "submit": "创建提案",
+    "timeline": "时间线",
     "title": "标题",
     "type": "提案类型",
+    "typeHelp": {
+      "batchMint": "一次性向多个地址发放积分。",
+      "budget": "提案通过后, 申请地址将获得治理合约内申请数量 {{token}} 的支配权。",
+      "governorSetting": "调整和提案、投票等相关的治理参数。",
+      "mint": "向单个地址直接发放积分。"
+    },
     "typePlaceholder": "选择类型",
     "types": {
-      "budget": "申请预算",
-      "mint": "发放积分",
       "batchMint": "批量发放",
-      "governorSetting": "治理参数调整"
+      "budget": "申请预算",
+      "governorSetting": "治理参数调整",
+      "mint": "发放积分"
     },
     "vote": {
-      "sectionTitle": "投票",
-      "for": "赞成",
-      "against": "反对",
       "abstain": "弃权",
-      "signing": "签名中…",
-      "pending": "确认中…",
-      "success": "投票已提交!",
-      "syncing": "正在同步最新投票数据…",
+      "against": "反对",
       "alreadyVoted": "你已投过票。",
       "cannotVote": "当前不可投票。",
+      "for": "赞成",
       "needVotingPower": "需要投票权才可以投票。",
+      "pending": "确认中…",
+      "sectionTitle": "投票",
+      "signing": "签名中…",
+      "success": "投票已提交!",
+      "syncing": "正在同步最新投票数据…",
       "tx": "交易: {{hash}}"
-    },
-    "execute": {
-      "button": "执行提案",
-      "pending": "执行中…",
-      "signing": "请在钱包中签名…",
-      "success": "执行成功!",
-      "error": "执行失败",
-      "description": "该提案已准备好执行。点击按钮执行提案中的所有操作。"
-    },
-    "results": "结果",
-    "timeline": "时间线",
-    "actions": "执行操作",
-    "events": {
-      "created": "创建提案",
-      "start": "开始投票",
-      "end": "结束投票",
-      "executed": "执行",
-      "canceled": "取消"
-    },
-    "quorumHelp": "法定票数 = 提案快照区块(投票开始区块)时的总可投票供应量 * 法定人数百分比。未委托的代币仍计入总供应(提高阈值)但本身没有投票权。该值是必须达到的绝对参与票数(赞成+弃权)。"
+    }
   },
   "proposalStatus": {
     "active": "进行中",
@@ -217,7 +231,7 @@
     "noData": "暂无数据",
     "notSet": "未设置",
     "title": "积分持有人",
-    "totalHolders": "个持有人",
+    "totalHolders": "个",
     "votes": "投票权"
   },
   "wallet": {
