@@ -32,10 +32,16 @@
     "backToHome": "返回首页",
     "cancel": "取消",
     "close": "关闭",
-    "loading": "加载中...",
+    "loading": "加载中",
     "remove": "删除",
     "submit": "提交",
-    "submitting": "提交中..."
+    "submitting": "提交中...",
+    "loadingPage": "页面加载中...",
+    "notFound": {
+      "title": "页面不存在",
+      "description": "您访问的页面不存在或已被移动。",
+      "back": "返回首页"
+    }
   },
   "delegate": {
     "changeButton": "更改我的代理人",
@@ -94,11 +100,11 @@
       "badAddress": "第 {{idx}} 行地址无效。",
       "badAmount": "第 {{idx}} 行数量无效。",
       "badGovValue": "新数值无效。",
+      "badQuorumPercentRange": "法定票数分子必须在 {{range}} 范围内。",
       "badSingleAddress": "接收地址无效。",
       "badSingleAmount": "数量无效。",
       "missingGovFunction": "请选择一个治理函数。",
       "missingGovValue": "请输入新数值。",
-      "badQuorumPercentRange": "法定票数分子必须在 {{range}} 范围内。",
       "noBatchRows": "请至少添加一行批量发放记录。",
       "tooManyRows": "行数过多 (最多 100)。"
     },
@@ -140,6 +146,17 @@
     },
     "governorFunction": "治理参数",
     "governorSettingHint": "这些值是原始单位（区块或代币整数），提交前请确认。",
+    "indexing": {
+      "finalFail": "索引超时，请稍后再试或查看区块浏览器。",
+      "lastTried": "上次尝试 {{ts}}",
+      "manualRefresh": "刷新",
+      "notFound": "链上未找到该提案。",
+      "onChainFound": "链上已存在提案，等待索引…",
+      "probingChain": "子图尚未索引，正在链上探测…",
+      "refresh": "立即刷新",
+      "retryIn": "{{seconds}} 秒后重试…",
+      "stale": "仍在索引中，数据即将出现。"
+    },
     "newValue": "新数值",
     "proposer": "提案人",
     "quorum": "法定票数",
@@ -185,17 +202,6 @@
       "success": "投票已提交!",
       "syncing": "正在同步最新投票数据…",
       "tx": "交易: {{hash}}"
-    },
-    "indexing": {
-      "probingChain": "子图尚未索引，正在链上探测…",
-      "onChainFound": "链上已存在提案，等待索引…",
-      "retryIn": "{{seconds}} 秒后重试…",
-      "stale": "仍在索引中，数据即将出现。",
-      "refresh": "立即刷新",
-      "manualRefresh": "刷新",
-      "notFound": "链上未找到该提案。",
-      "finalFail": "索引超时，请稍后再试或查看区块浏览器。",
-      "lastTried": "上次尝试 {{ts}}"
     }
   },
   "proposalStatus": {

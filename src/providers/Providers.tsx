@@ -9,6 +9,8 @@ import { TokenInfoProvider } from '@/context/TokenInfoContext'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { routeObjects } from '@/routes/config'
 import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
+import Loading from '@/components/Loading'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 
@@ -29,6 +31,7 @@ interface ProvidersProps {
 const router = createBrowserRouter(routeObjects)
 
 export function Providers({ children }: ProvidersProps) {
+  const { t } = useTranslation('common')
   return (
     <QueryClientProvider client={queryClient}>
       <Web3OnboardProvider web3Onboard={web3Onboard}>
@@ -38,7 +41,7 @@ export function Providers({ children }: ProvidersProps) {
               delayDuration={150}
               skipDelayDuration={300}
             >
-              <Suspense fallback={null}>
+              <Suspense fallback={<Loading text={t('loading')} /> }>
                 <RouterProvider router={router} />
               </Suspense>
               {children /* slot for global overlays if needed */}

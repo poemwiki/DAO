@@ -32,10 +32,16 @@
     "backToHome": "Back to Home",
     "cancel": "Cancel",
     "close": "Close",
-    "loading": "Loading...",
+    "loading": "Loading",
     "remove": "Remove",
     "submit": "Submit",
-    "submitting": "Submitting..."
+    "submitting": "Submitting...",
+    "loadingPage": "Loading page...",
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you are looking for does not exist or was moved.",
+      "back": "Back to Home"
+    }
   },
   "delegate": {
     "changeButton": "Change My Delegate",

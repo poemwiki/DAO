@@ -26,7 +26,7 @@ import { useGovernorParams } from '@/hooks/useGovernorParams'
 import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
 import { useConnectWallet } from '@web3-onboard/react'
-import Loading from '@/components/Loading'
+import { StatsSkeleton, ProposalListSkeleton } from '@/components/ui/Skeleton'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -89,9 +89,8 @@ export default function Home() {
     0,
   )
 
-  if (isLoading) {
-    return <Loading text={t('common.loading')} />
-  }
+  // react-query v5: prefer derived flag rather than deprecated isInitialLoading
+  const showSkeleton = isLoading && !data
 
   if (error) {
     return (
@@ -110,36 +109,30 @@ export default function Home() {
     <div className="space-y-8">
       {/* DAO Overview */}
       <section className="space-y-4">
-        <h1 className="text-4xl font-bold">{config.app.name}</h1>
+        <h1 className="text-4xl font-bold">
+          {config.app.name}
+        </h1>
         <p className="text-xl">
           {config.app.description}
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">{proposals.length}</div>
-            <div className="text-sm">
-              {t('home.totalProposals')}
+        {showSkeleton ? (
+          <StatsSkeleton labels={[t('home.totalProposals'), t('home.activeProposals'), t('home.totalVotes')]} />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="p-6 border rounded-lg bg-card">
+              <div className="text-2xl font-bold">{proposals.length}</div>
+              <div className="text-sm">{t('home.totalProposals')}</div>
+            </div>
+            <div className="p-6 border rounded-lg bg-card">
+              <div className={cn('text-2xl font-bold', { ' text-primary': activeCount > 0 })}>{activeCount}</div>
+              <div className="text-sm">{t('home.activeProposals')}</div>
+            </div>
+            <div className="hidden md:block p-6 border rounded-lg bg-card">
+              <div className="text-2xl font-bold">{totalVotes}</div>
+              <div className="text-sm">{t('home.totalVotes')}</div>
             </div>
           </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <div
-              className={cn('text-2xl font-bold', {
-                ' text-primary': activeCount > 0,
-              })}
-            >
-              {activeCount}
-            </div>
-            <div className="text-sm">
-              {t('home.activeProposals')}
-            </div>
-          </div>
-          <div className="hidden md:block p-6 border rounded-lg bg-card">
-            <div className="text-2xl font-bold">{totalVotes}</div>
-            <div className="text-sm">
-              {t('home.totalVotes')}
-            </div>
-          </div>
-        </div>
+        )}
       </section>
 
       {/* Proposals List */}
@@ -161,7 +154,9 @@ export default function Home() {
             <FaPlus /> {t('proposal.create')}
           </Button>
         </div>
-        {proposals.length > 0 ? (
+        {showSkeleton ? (
+          <ProposalListSkeleton />
+        ) : proposals.length > 0 ? (
           <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
             {proposals.map((proposal: Proposal, index: number) => (
               <ProposalListItem

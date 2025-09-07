@@ -19,7 +19,7 @@ import { ProposalActions } from '@/components/proposal/ProposalActions'
 import { ProposalResults } from '@/components/proposal/ProposalResults'
 import { ProposalTimeline } from '@/components/proposal/ProposalTimeline'
 import { ProposalVotePanel } from '@/components/proposal/ProposalVotePanel'
-import Loading from '@/components/Loading'
+import { ProposalPageSkeleton } from '@/components/ui/Skeleton'
 import { Button } from '@/components/ui/button'
 
 export default function Proposal() {
@@ -108,13 +108,10 @@ export default function Proposal() {
     ? getExplorerTxUrl(proposal.proposeTx)
     : undefined
 
-  // Initial load -> generic loader
-  if (isLoading && attempt === 0 && !proposal) {
-    return <Loading text={t('common.loading')} />
-  }
+  const showSkeleton = isLoading && !proposal && attempt === 0
 
   // Subgraph returned null; decide between indexing state vs 404
-  if (!proposal) {
+  if (!proposal && !showSkeleton) {
     // If chain probe finished and still no state -> 404 immediately
     if (!probeLoading && !existsOnChain) {
       return (
@@ -168,6 +165,8 @@ export default function Proposal() {
       </div>
     )
   }
+
+  if (showSkeleton) return <ProposalPageSkeleton />
 
   return (
     <div className="space-y-8">
