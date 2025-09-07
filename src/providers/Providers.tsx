@@ -6,7 +6,9 @@ import { WagmiProvider } from 'wagmi'
 import { wagmiConfig } from '@/config/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TokenInfoProvider } from '@/context/TokenInfoContext'
-import { BrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { routeObjects } from '@/routes/config'
+import { Suspense } from 'react'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 
@@ -20,28 +22,32 @@ const queryClient = new QueryClient({
 })
 
 interface ProvidersProps {
-  children: ReactNode
+  children?: ReactNode
 }
+
+// Data router built from centralized lazy route objects
+const router = createBrowserRouter(routeObjects)
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <Web3OnboardProvider web3Onboard={web3Onboard}>
-          <WagmiProvider config={wagmiConfig}>
-            <TokenInfoProvider>
-              <RadixTooltip.Provider
-                delayDuration={150}
-                skipDelayDuration={300}
-              >
-                {children}
-              </RadixTooltip.Provider>
-            </TokenInfoProvider>
-          </WagmiProvider>
-        </Web3OnboardProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <Web3OnboardProvider web3Onboard={web3Onboard}>
+        <WagmiProvider config={wagmiConfig}>
+          <TokenInfoProvider>
+            <RadixTooltip.Provider
+              delayDuration={150}
+              skipDelayDuration={300}
+            >
+              <Suspense fallback={null}>
+                <RouterProvider router={router} />
+              </Suspense>
+              {children /* slot for global overlays if needed */}
+            </RadixTooltip.Provider>
+          </TokenInfoProvider>
+        </WagmiProvider>
+      </Web3OnboardProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   )
 }
 
