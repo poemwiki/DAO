@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { formatUnits } from 'viem'
 import { useMemberBalanceHistory } from '@/hooks/useMemberBalanceHistory'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { formatCompactNumber } from '@/utils/format'
 
 interface MemberBalanceChartProps {
   address: string
@@ -17,7 +18,8 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
     if (!balanceHistory.length || !tokenInfo)
       return null
 
-    const points = balanceHistory.map((point, index) => {
+    // Map raw history points
+    let points = balanceHistory.map((point, index) => {
       const balance = formatUnits(point.cumulativeBalance, tokenInfo.decimals)
       return {
         x: index,
@@ -26,6 +28,13 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
         balance: point.balance,
       }
     })
+
+    // Remove the first point if it's a zero balance (visual noise: 0.00 at start)
+    if (points.length && points[0].y === 0) {
+      points = points.slice(1)
+      if (!points.length)
+        return null
+    }
 
     const maxY = Math.max(...points.map(p => p.y))
     const minY = Math.min(...points.map(p => p.y))
@@ -73,6 +82,19 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
   const chartWidth = 600
   const chartHeight = 200
   const padding = 40
+  const yTickCount = 5
+  const yTicks = Array.from({ length: yTickCount + 1 }).map((_, i) => minY + (yRange * i) / yTickCount)
+
+  // For X axis choose up to 5 evenly spaced indices including first & last
+  const maxXTicks = 5
+  let xTickIndices: number[] = []
+  if (points.length <= maxXTicks) {
+    xTickIndices = points.map((_, i) => i)
+  } else {
+    xTickIndices = Array.from({ length: maxXTicks }).map((_, i) => Math.round((i / (maxXTicks - 1)) * (points.length - 1)))
+    // Deduplicate in rare rounding collisions
+    xTickIndices = [...new Set(xTickIndices)]
+  }
 
   // Create SVG path
   const pathData = points
@@ -121,6 +143,14 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
                 opacity="0.1"
               />
             </pattern>
+            <linearGradient id="balanceLine" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.5" />
+            </linearGradient>
+            <linearGradient id="balanceFill" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
+            </linearGradient>
           </defs>
           <rect
             width={chartWidth}
@@ -128,12 +158,22 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
             fill="url(#grid)"
           />
 
-          {/* Chart line */}
+          {/* Area under line for emphasis */}
+          {points.length > 1 && (
+            <path
+              d={`${pathData} L ${(points.length - 1) / (points.length - 1) * (chartWidth - 2 * padding) + padding} ${chartHeight - padding} L ${padding} ${chartHeight - padding} Z`}
+              fill="url(#balanceFill)"
+            />
+          )}
+
+          {/* Chart line (polyline emphasized) */}
           <path
             d={pathData}
             fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth="2"
+            stroke="url(#balanceLine)"
+            strokeWidth="3"
+            strokeLinejoin="round"
+            strokeLinecap="round"
             className="drop-shadow-sm"
           />
 
@@ -147,9 +187,11 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
                 key={index}
                 cx={x}
                 cy={y}
-                r="3"
-                fill="hsl(var(--primary))"
-                className="hover:r-4 transition-all cursor-pointer"
+                r="4"
+                fill="var(--color-primary)"
+                stroke="var(--color-background)" /* outline for better contrast */
+                strokeWidth={2}
+                className="hover:r-5 transition-all cursor-pointer drop-shadow"
               >
                 <title>
                   {new Date(point.timestamp).toLocaleDateString()}
@@ -163,45 +205,79 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
             )
           })}
 
-          {/* Y-axis labels */}
-          <text
-            x={padding - 10}
-            y={padding}
-            textAnchor="end"
-            className="text-xs fill-secondary"
-          >
-            {maxY.toFixed(2)}
-          </text>
-          <text
-            x={padding - 10}
-            y={chartHeight - padding + 5}
-            textAnchor="end"
-            className="text-xs fill-secondary"
-          >
-            {minY.toFixed(2)}
-          </text>
+          {/* Axes */}
+          {/* Y axis line */}
+          <line
+            x1={padding}
+            y1={padding - 5}
+            x2={padding}
+            y2={chartHeight - padding + 5}
+            stroke="currentColor"
+            className="opacity-30"
+            strokeWidth={1}
+          />
+          {/* X axis line */}
+          <line
+            x1={padding - 5}
+            y1={chartHeight - padding}
+            x2={chartWidth - padding + 5}
+            y2={chartHeight - padding}
+            stroke="currentColor"
+            className="opacity-30"
+            strokeWidth={1}
+          />
 
-          {/* X-axis labels */}
-          {points.length > 1 && (
-            <>
-              <text
-                x={padding}
-                y={chartHeight + 20}
-                textAnchor="start"
-                className="text-xs fill-secondary"
-              >
-                {new Date(points[0].timestamp).toLocaleDateString()}
-              </text>
-              <text
-                x={chartWidth - padding}
-                y={chartHeight + 20}
-                textAnchor="end"
-                className="text-xs fill-secondary"
-              >
-                {new Date(points[points.length - 1].timestamp).toLocaleDateString()}
-              </text>
-            </>
-          )}
+          {/* Y ticks & labels */}
+    {yTicks.map((val, i) => {
+            const y = chartHeight - padding - ((val - minY) / yRange) * (chartHeight - 2 * padding)
+            return (
+              <g key={i}>
+                <line
+                  x1={padding - 4}
+                  x2={padding}
+                  y1={y}
+                  y2={y}
+                  stroke="currentColor"
+                  className="opacity-40"
+                  strokeWidth={1}
+                />
+                <text
+                  x={padding - 8}
+                  y={y + 3}
+                  textAnchor="end"
+                  className="text-[10px] fill-secondary"
+                >
+      {formatCompactNumber(val, { decimals: 2 })}
+                </text>
+              </g>
+            )
+          })}
+
+          {/* X ticks & labels */}
+          {xTickIndices.map(idx => {
+            const x = (idx / (points.length - 1)) * (chartWidth - 2 * padding) + padding
+            return (
+              <g key={idx}>
+                <line
+                  x1={x}
+                  x2={x}
+                  y1={chartHeight - padding}
+                  y2={chartHeight - padding + 4}
+                  stroke="currentColor"
+                  className="opacity-40"
+                  strokeWidth={1}
+                />
+                <text
+                  x={x}
+                  y={chartHeight - padding + 14}
+                  textAnchor="middle"
+                  className="text-[10px] fill-secondary"
+                >
+                  {new Date(points[idx].timestamp).toLocaleDateString()}
+                </text>
+              </g>
+            )
+          })}
         </svg>
       </div>
     </div>

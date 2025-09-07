@@ -307,3 +307,43 @@ export function estimateDurationFromBlocks(
   }
   return parts.length ? parts.join(' ') : `${Math.round(totalSeconds)}s`
 }
+
+// WHY: Compact number formatting for axis labels & summaries (e.g., 1.2K 3.4M)
+// Keep UI concise without pulling extra libs. Chooses decimals based on magnitude.
+export function formatCompactNumber(
+  value: number,
+  opts: { decimals?: number } = {},
+): string {
+  const { decimals = 2 } = opts
+  if (!Number.isFinite(value))
+    return '0'
+  const abs = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
+  interface UnitDef { v: number, s: string }
+  const units: UnitDef[] = [
+    { v: 1e12, s: 'T' },
+    { v: 1e9, s: 'B' },
+    { v: 1e6, s: 'M' },
+    { v: 1e3, s: 'K' },
+  ]
+  for (const u of units) {
+    if (abs >= u.v) {
+      const num = abs / u.v
+      const formatted = num.toFixed(num < 10 ? decimals : num < 100 ? Math.min(1, decimals) : 0)
+      return `${sign}${trimCompactTrailingZeros(formatted)}${u.s}`
+    }
+  }
+  const base = abs.toFixed(abs < 10 ? decimals : abs < 100 ? 1 : 0)
+  return `${sign}${trimCompactTrailingZeros(base)}`
+}
+
+function trimCompactTrailingZeros(str: string): string {
+  if (!str.includes('.'))
+    return str
+  return str
+    .replace(/(\.\d*[1-9])0+$/, '$1')
+    .replace(/\.0+$/, '')
+    .replace(/\.$/, '')
+}
+
+// --- END OF FILE ---
