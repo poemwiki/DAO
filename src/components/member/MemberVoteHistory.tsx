@@ -9,6 +9,7 @@ import { useMemberVotesPages } from '@/hooks/useMemberVotesPages'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
 import { TokenInfoResult } from '@/queries/tokenInfo'
 import { getExplorerTxUrl } from '@/config'
+import { short } from '@/utils/format'
 
 interface MemberVoteHistoryProps {
   address: string
@@ -69,7 +70,7 @@ function VoteRow({ vote, tokenInfo }: VoteRowProps) {
           className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-mono"
         >
           <ExternalLink size={12} />
-          {vote.tx.slice(0, 8)}...
+          {short(vote.tx)}
         </a>
       </td>
     </tr>

@@ -11,6 +11,7 @@ import { ROUTES } from '@/constants'
 import { getProposalTitle } from '@/utils/proposal'
 import { TokenInfoResult } from '@/queries/tokenInfo'
 import { getExplorerTxUrl } from '@/config'
+import { short } from '@/utils/format'
 
 interface MemberTransferHistoryProps {
   address: string
@@ -84,7 +85,7 @@ function TransferRow({
           className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-mono"
         >
           <ExternalLink size={12} />
-          {transfer.tx.slice(0, 8)}...
+          {short(transfer.tx)}
         </a>
       </td>
     </tr>
