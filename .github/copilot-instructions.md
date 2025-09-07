@@ -1,6 +1,6 @@
 # Copilot Project Instructions
 
-Purpose: Enable AI agents to work productively across the mono-repo (frontend dApp, subgraph, smart contracts, legacy server). Keep responses concise and follow these conventions.
+Purpose: Enable AI agents to work productively across the mono-repo (frontend dApp, subgraph, smart contracts). Keep responses concise and follow these conventions.
 
 ## Common Development Commands
 
@@ -24,7 +24,6 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 
 - **`../subgraph-Governor-PWR/`** - The Graph subgraph for blockchain data indexing
 - **`../dao-poemwiki-contracts/`** - Hardhat smart contracts (Governor + Reputation token)
-- **`statics/js/` and `views/index.ejs`** - Legacy code (reference only, don't modify unless explicitly requested)
 
 ### Technology Stack
 
@@ -72,13 +71,6 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 - Local state with React hooks for component-specific data
 - React Query for server/blockchain state
 - Custom hooks in `src/hooks/` for stateful logic
-
-### Legacy Integration
-
-- `statics/js/` contains old Web3.js-based JavaScript implementation with Chinese UI
-- `views/index.ejs` is the legacy server-rendered template
-- These are reference implementations for features not yet migrated to the React app
-- Contains governance proposal creation, voting, and parameter management functionality
 
 ### Important Conventions
 
@@ -198,7 +190,7 @@ These refinements capture patterns established during recent governance UI and l
 ### i18n Conventions
 - No raw user-facing strings; search existing keys before adding.
 - Namespace grouping: `proposal.vote.*`, `proposal.results`, `proposal.timeline`, `proposal.actions`, `proposal.events.created` etc.
-- Keep Chinese & English keys in sync; add Chinese first if sourced from legacy code, then mirror in English.
+- Keep Chinese & English keys in sync; add Chinese first, then mirror in English.
 - Use concise declarative keys (avoid tense or punctuation in keys themselves).
 
 ### Debug Mode

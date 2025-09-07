@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { validateBatchRows } from './validateBatch'
+import { describe, expect, it } from 'vitest'
+import { validateBatchRows } from '../validateBatch'
 
 describe('validateBatchRows', () => {
   it('returns NO_ROWS when empty', () => {

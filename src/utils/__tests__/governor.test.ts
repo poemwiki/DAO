@@ -1,7 +1,7 @@
 import type { PublicClient } from 'viem'
 import { describe, expect, it } from 'vitest'
 import { config } from '@/config'
-import { GovernorConfigError, parseProposalId, readGovernorState } from './governor'
+import { GovernorConfigError, parseProposalId, readGovernorState } from '../governor'
 
 // Minimal mock PublicClient implementing readContract we need.
 function makeMockClient(returnValue: number): PublicClient {

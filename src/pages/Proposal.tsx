@@ -11,7 +11,7 @@ import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import { getExplorerTxUrl } from '@/config'
 import { ROUTES } from '@/constants'
 import { useDisplayName } from '@/hooks/useDisplayName'
-import { parseProposalActions } from '@/lib/parseProposalActions'
+import { parseProposalActions } from '@/utils/parseProposalActions'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
 // (Popover moved into extracted components)
 import { ProposalDebugPanel } from '@/components/proposal/ProposalDebugPanel'

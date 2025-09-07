@@ -20,7 +20,6 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 
 - **`/Users/apple/dev/wiki/subgraph-Governor-PWR/`** - The Graph subgraph for blockchain data indexing
 - **`/Users/apple/dev/wiki/dao-poemwiki-contracts/`** - Hardhat smart contracts (Governor + Reputation token)
-- **`statics/js/` and `views/index.ejs`** - Legacy server code (reference only, don't modify unless explicitly requested)
 
 ### Technology Stack
 
@@ -68,13 +67,6 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 - Local state with React hooks for component-specific data
 - React Query for server/blockchain state
 - Custom hooks in `src/hooks/` for stateful logic
-
-### Legacy Integration
-
-- `statics/js/` contains old Web3.js-based JavaScript implementation with Chinese UI
-- `views/index.ejs` is the legacy server-rendered template
-- These are reference implementations for features not yet migrated to the React app
-- Contains governance proposal creation, voting, and parameter management functionality
 
 ### Important Conventions
 

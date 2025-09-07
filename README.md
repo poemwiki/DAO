@@ -22,6 +22,36 @@ Govo is a modern, decentralized governance platform that enables DAOs to manage 
 - **Routing**: React Router v6
 - **Development Tools**: ESLint + Prettier
 
+## Related Projects
+
+This frontend application is part of a complete DAO governance ecosystem consisting of three main components:
+
+### 🏗️ Smart Contracts
+**Repository**: [https://github.com/poemwiki/DAO-contracts](https://github.com/poemwiki/DAO-contracts)
+
+Contains the core governance smart contracts built on OpenZeppelin's Governor framework:
+- **GovernorUpgradeable**: Main governance contract with voting and execution logic
+- **ERC20Votes Token**: Reputation token with delegation and snapshot capabilities  
+- **Deployment Scripts**: Hardhat-based deployment and configuration tools
+
+The contracts implement a complete governance system with proposal creation, voting periods, quorum requirements, and execution mechanisms.
+
+### 📊 Subgraph (Data Indexing)
+**Repository**: [https://github.com/star8ks/poemwiki-subgraph](https://github.com/star8ks/poemwiki-subgraph)
+
+The Graph Protocol subgraph that indexes blockchain events and provides GraphQL API access:
+- **Event Indexing**: Tracks all governance events (proposals, votes, executions, transfers)
+- **Entity Relationships**: Structured data models for proposals, members, votes, and token transfers
+- **Real-time Updates**: Automatic synchronization with blockchain state
+- **GraphQL API**: Efficient querying interface for the frontend application
+
+### 🎨 Frontend (This Repository)
+The React-based web interface that provides:
+- User-friendly proposal creation and voting interface
+- Real-time governance data visualization  
+- Wallet integration and transaction management
+- Responsive design for desktop and mobile devices
+
 ## Project Structure
 
 ```
@@ -35,7 +65,6 @@ src/
 ├── layouts/          # Layout components
 ├── pages/            # Page components
 ├── routes/           # Route configurations
-├── store/            # State management
 ├── types/            # TypeScript type definitions
 └── utils/            # Utility functions
 ```

@@ -1,6 +1,6 @@
-import type { ParsedAction } from '@/lib/parseProposalActions'
 import type { Proposal } from '@/types'
 import type { GovernorStateCode } from '@/utils/governor'
+import type { ParsedAction } from '@/utils/parseProposalActions'
 
 // Extended state mapping similar to legacy governor.js
 export type DerivedStatus
@@ -92,6 +92,16 @@ export const NUMERIC_STATUS_MAP: Record<GovernorStateCode, StatusInfo> = {
   },
 }
 
+const NUMERIC_STATUS_MAP_BY_KEY: Record<string, StatusInfo> = Object.values(
+  NUMERIC_STATUS_MAP,
+).reduce(
+  (acc, v) => {
+    acc[v.status] = v
+    return acc
+  },
+  {} as Record<string, StatusInfo>,
+)
+
 // Heuristic derivation using available fields; if p.status exists and matches, prefer it.
 export function deriveProposalStatus(p: Proposal): DerivedStatus {
   if (p.status && p.status in NUMERIC_STATUS_MAP_BY_KEY) {
@@ -123,16 +133,6 @@ export function deriveProposalStatus(p: Proposal): DerivedStatus {
   }
   return 'closed'
 }
-
-const NUMERIC_STATUS_MAP_BY_KEY: Record<string, StatusInfo> = Object.values(
-  NUMERIC_STATUS_MAP,
-).reduce(
-  (acc, v) => {
-    acc[v.status] = v
-    return acc
-  },
-  {} as Record<string, StatusInfo>,
-)
 
 export function getStatusInfo(p: Proposal): StatusInfo {
   const derived = deriveProposalStatus(p)

@@ -1,7 +1,7 @@
 import { ActionSummary } from '@/components/ActionSummary'
 import { formatTokenAmount } from '@/utils/format'
 import { useDisplayName } from '@/hooks/useDisplayName'
-import { ParsedAction } from '@/lib/parseProposalActions'
+import { ParsedAction } from '@/utils/parseProposalActions'
 
 export interface ParsedActionRecipient {
   address: string
