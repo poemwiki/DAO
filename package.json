@@ -1,8 +1,21 @@
 {
-  "name": "govzero",
-  "version": "1.0.0",
+  "name": "govo",
   "type": "module",
+  "version": "1.0.0",
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://github.com/poemwiki/govo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poemwiki/govo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/poemwiki/govo/issues"
+  },
   "main": "index.js",
+  "engines": {
+    "node": ">=22.11.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -12,16 +25,6 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fatfingererr/govzero.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/fatfingererr/govzero/issues"
-  },
-  "homepage": "https://github.com/fatfingererr/govzero#readme",
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
@@ -83,8 +86,5 @@
     "overrides": {
       "typescript": "5.6.3"
     }
-  },
-  "engines": {
-    "node": ">=22.11.0"
   }
 }
