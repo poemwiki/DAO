@@ -78,7 +78,7 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
     )
   }
 
-  const { points, maxY, minY, yRange } = chartData
+  const { points, minY, yRange } = chartData
   const chartWidth = 600
   const chartHeight = 200
   const padding = 40
