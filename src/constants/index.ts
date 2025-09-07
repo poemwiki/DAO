@@ -15,6 +15,7 @@ export const ROUTES = {
   HOME: '/',
   PROPOSAL: '/proposal/:id',
   CREATE_PROPOSAL: '/proposals/create',
+  MEMBER: '/member/:address',
 } as const
 
 export const CHAIN_IDS = {
@@ -24,3 +25,12 @@ export const CHAIN_IDS = {
 
 export const ZERO_ADDRESS
   = '0x0000000000000000000000000000000000000000' as const
+
+// GraphQL pagination constants
+export const GRAPHQL_PAGE_SIZES = {
+  DEFAULT: 50,
+  LARGE: 100,
+  MAX_TRANSFERS: 1000,
+  MAX_VOTES: 1000,
+  TOKEN_HOLDERS: 100,
+} as const

@@ -132,19 +132,19 @@ export function ProposalVotePanel({
                 : t('proposal.execute.button', 'Execute Proposal')}
             </Button>
             {execStatus === 'signing' && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {t('proposal.execute.signing', 'Please sign in wallet…')}
               </p>
             )}
             {execStatus === 'pending' && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {t('proposal.execute.pending', 'Executing…')}
               </p>
             )}
             {/* Success state removed because panel unmounts when justExecuted */}
             {execStatus === 'error' && execError
               ? (
-                  <p className="text-[11px] text-destructive break-words">
+                  <p className="text-xs text-destructive break-words">
                     {t('proposal.execute.error', 'Execution failed')}
                     :
                     {' '}
@@ -228,7 +228,7 @@ export function ProposalVotePanel({
                   </a>
                 </p>
                 {!hasVoted && (
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     {t('proposal.vote.syncing')}
                   </p>
                 )}

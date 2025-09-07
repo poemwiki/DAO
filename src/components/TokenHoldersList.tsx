@@ -2,10 +2,12 @@ import type { TokenHoldersResponseData } from '@/graphql'
 import type { Member } from '@/types'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ZERO_ADDRESS } from '@/constants'
+import { Link } from 'react-router-dom'
+import { ROUTES, ZERO_ADDRESS } from '@/constants'
 import { getTokenHolders } from '@/graphql'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { formatAddress, formatTokenAmount } from '@/utils/format'
+import { Avatar } from './ui/Avatar'
 import DelegateButton from './DelegateButton'
 
 export default function TokenHoldersList() {
@@ -132,11 +134,31 @@ function MemberRow({
 
   return (
     <tr className="font-mono text-xs bg-background border-b hover:bg-card">
-      <td className="px-6 py-4">{displayName}</td>
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
+          <Avatar address={member.id} size={24} />
+          <Link
+            to={ROUTES.MEMBER.replace(':address', member.id)}
+            className="text-primary hover:underline"
+          >
+            {displayName}
+          </Link>
+        </div>
+      </td>
       <td className="px-6 py-4">
         {member.delegate === ZERO_ADDRESS
           ? formatDelegateAddress(member.delegate)
-          : delegateDisplayName}
+          : (
+              <div className="flex items-center gap-3">
+                <Avatar address={member.delegate} size={20} />
+                <Link
+                  to={ROUTES.MEMBER.replace(':address', member.delegate)}
+                  className="text-primary hover:underline"
+                >
+                  {delegateDisplayName}
+                </Link>
+              </div>
+            )}
       </td>
       <td className="px-6 py-4 text-right">
         <span>{formatTokenAmount(bal, DECIMALS)}</span>
@@ -152,7 +174,14 @@ function MemberRow({
           %
         </span>
       </td>
-      <td className="px-6 py-4">{member.id}</td>
+      <td className="px-6 py-4">
+        <Link
+          to={ROUTES.MEMBER.replace(':address', member.id)}
+          className="hover:text-primary font-mono text-xs"
+        >
+          {member.id}
+        </Link>
+      </td>
     </tr>
   )
 }

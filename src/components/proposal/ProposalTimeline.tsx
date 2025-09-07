@@ -1,8 +1,11 @@
 import type { Proposal } from '@/types'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { IoMdTime } from 'react-icons/io'
 import { getExplorerTxUrl } from '@/config'
+import { ROUTES } from '@/constants'
+import { Avatar } from '@/components/ui/Avatar'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
 import { formatGraphTimestampLocalMinutes, short } from '@/utils/format'
@@ -251,7 +254,6 @@ export function ProposalTimeline({
                         ? (
                             <VoteEventLabel
                               address={e.voteAddress!}
-                              support={e.voteSupport!}
                             />
                           )
                         : (
@@ -295,22 +297,22 @@ export function ProposalTimeline({
 
 function VoteEventLabel({
   address,
-  support,
 }: {
   address: string
-  support: number
 }) {
   const name = useDisplayName({ address })
   const { t } = useTranslation()
-  const s
-    = support === 1
-      ? t('proposal.vote.for')
-      : support === 0
-        ? t('proposal.vote.against')
-        : t('proposal.vote.abstain')
+  
   return (
-    <span>
-      {`${name || short(address)} ${t('proposal.vote.sectionTitle')} (${s})`}
+    <span className="flex items-center gap-2">
+      <Avatar address={address} size={16} />
+      <Link
+        to={ROUTES.MEMBER.replace(':address', address)}
+        className="text-primary hover:underline"
+      >
+        {name || short(address)}
+      </Link>
+      <span>{` ${t('proposal.vote.sectionTitle')}`}</span>
     </span>
   )
 }

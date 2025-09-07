@@ -1,8 +1,7 @@
-import type { Abi } from 'viem'
 import { decodeFunctionData } from 'viem'
-import { governorABI } from '@/abis/governorABI'
-import { tokenABI } from '@/abis/tokenABI'
+import { combinedABI } from '@/abis'
 import { lookupAddressBookName } from '@/hooks/useDisplayName'
+import { ACTION_TYPE_MAP } from '@/utils/actionTypes'
 import { formatTokenAmount, short } from '@/utils/format'
 
 // Known function signatures mapping to categories
@@ -19,18 +18,6 @@ export interface ParsedAction {
   paramKey?: string // internal key (e.g., votingDelay)
   recipients?: { address: string, amount: bigint }[] // for batchMint detail
 }
-
-const FN_TYPE: Record<string, ParsedAction['type']> = {
-  setVotingDelay: 'governorSetting',
-  setVotingPeriod: 'governorSetting',
-  setProposalThreshold: 'governorSetting',
-  updateQuorumNumerator: 'governorSetting',
-  mint: 'mint',
-  batchMint: 'batchMint',
-  mintAndApprove: 'mintAndApprove',
-}
-
-const combinedABI = [...governorABI, ...tokenABI] as Abi
 
 export function parseProposalActions(
   targets: readonly string[] = [],
@@ -51,7 +38,7 @@ export function parseProposalActions(
         data: data as `0x${string}`,
       })
       const fn = decoded.functionName
-      const type = FN_TYPE[fn] || 'unknown'
+      const type = ACTION_TYPE_MAP[fn] || 'unknown'
       const symbol = tokenSymbol || 'TOKEN'
       let summary = fn
       if (type === 'mint') {

@@ -32,8 +32,13 @@
     "backToHome": "返回首页",
     "cancel": "取消",
     "close": "关闭",
+    "error": "发生错误",
     "loading": "加载中",
     "remove": "删除",
+    "showDetails": "显示详情",
+    "showLess": "收起",
+    "showMore": "显示更多",
+    "moreCount": "还有{{count}}个",
     "submit": "提交",
     "submitting": "提交中...",
     "loadingPage": "页面加载中...",
@@ -174,7 +179,6 @@
     },
     "submit": "创建提案",
     "timeline": "时间线",
-    "title": "标题",
     "type": "提案类型",
     "typeHelp": {
       "batchMint": "一次性向多个地址发放积分。",
@@ -194,6 +198,7 @@
       "against": "反对",
       "alreadyVoted": "你已投过票。",
       "cannotVote": "当前不可投票。",
+      "details": "投票详情",
       "for": "赞成",
       "needVotingPower": "需要投票权才可以投票。",
       "pending": "确认中…",
@@ -201,7 +206,8 @@
       "signing": "签名中…",
       "success": "投票已提交!",
       "syncing": "正在同步最新投票数据…",
-      "tx": "交易: {{hash}}"
+      "tx": "交易: {{hash}}",
+      "unknown": "未知"
     }
   },
   "proposalStatus": {
@@ -249,7 +255,7 @@
     "notSet": "未设置",
     "title": "积分持有人",
     "totalHolders": "个",
-    "votes": "投票权"
+    "votes": "投票权重"
   },
   "wallet": {
     "txBuilding": "准备交易中...",
@@ -257,5 +263,63 @@
     "txSigning": "请在钱包中确认...",
     "unknownError": "发生未知错误",
     "userRejected": "你在钱包中拒绝了本次交易。"
+  },
+  "member": {
+    "title": "成员档案",
+    "invalidAddress": "提供的成员地址无效。",
+    "delegateBalance": "委托余额",
+    "votes": {
+      "title": "投票历史",
+      "description": "该成员投出的所有票",
+      "total": "总投票次数",
+      "totalWeight": "总投票权重",
+      "uniqueProposals": "参与提案数",
+      "voter": "投票人",
+      "votingPower": "投票权重",
+      "createdProposals": "创建提案数",
+      "support": {
+        "for": "赞成",
+        "against": "反对",
+        "abstain": "弃权"
+      },
+      "noVotes": "尚未投票"
+    },
+    "transfers": {
+      "title": "转账历史",
+      "description": "涉及该成员的所有代币转账",
+      "direction": "方向",
+      "directionType": {
+        "received": "收到",
+        "sent": "发送"
+      },
+      "amount": "数量",
+      "error": "加载转账历史失败",
+      "from": "发送方",
+      "to": "接收方",
+      "timestamp": "时间",
+      "transaction": "交易",
+      "relatedProposal": "相关提案",
+      "noTransfers": "未找到转账记录"
+    },
+    "balance": {
+      "chart": {
+        "title": "余额变化趋势",
+        "description": "基于代币转账的历史余额变化",
+        "currentBalance": "当前余额",
+        "maxBalance": "历史最高",
+        "minBalance": "历史最低",
+        "error": "无法加载余额图表"
+      }
+    },
+    "transfersExtra": {
+      "counterparty": "交易对方",
+      "total": "转账次数"
+    },
+    "votesExtra": {
+      "proposal": "提案",
+      "support": "投票",
+      "weight": "投票权重",
+      "error": "无法加载投票历史"
+    }
   }
 }

@@ -10,6 +10,7 @@ import { ProposalResults } from '@/components/proposal/ProposalResults'
 import { ProposalTimeline } from '@/components/proposal/ProposalTimeline'
 import { ProposalVotePanel } from '@/components/proposal/ProposalVotePanel'
 import ProposalStatusBadge from '@/components/ProposalStatusBadge'
+import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/button'
 import { ProposalPageSkeleton } from '@/components/ui/Skeleton'
 import { getExplorerTxUrl } from '@/config'
@@ -20,7 +21,7 @@ import { useProposalState } from '@/hooks/useProposalState'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
 import { formatRelativeTime, short } from '@/utils/format'
 import { parseProposalActions } from '@/utils/parseProposalActions'
-import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
+import { getDisplayDescription, getProposalTitle } from '@/utils/proposal'
 
 export default function Proposal() {
   const { id } = useParams()
@@ -83,23 +84,21 @@ export default function Proposal() {
 
   // Parse proposal actions for display & derive code / events
   const parsedActions = React.useMemo(
-    () =>
-      proposal
-        ? parseProposalActions(
-            proposal.targets || [],
-            proposal.calldatas || [],
-            proposal.signatures || [],
-            tokenInfo?.decimals,
-            tokenInfo?.symbol,
-          )
-        : [],
+    () => (proposal
+      ? parseProposalActions(
+          proposal.targets || [],
+          proposal.calldatas || [],
+          proposal.signatures || [],
+          tokenInfo?.decimals,
+          tokenInfo?.symbol,
+        )
+      : []),
     [proposal, tokenInfo?.decimals, tokenInfo?.symbol],
   )
-  // Build title code (includes bracket code + action context)
-  const displayTitle = buildProposalTitle(
-    proposal?.description,
-    parsedActions,
-    t,
+  // Unified title helper (internally can skip parsing if H1/bracket non-numeric)
+  const displayTitle = React.useMemo(
+    () => proposal ? getProposalTitle(proposal) : '',
+    [proposal],
   )
   const displayDescription = getDisplayDescription(proposal?.description)
 
@@ -211,34 +210,41 @@ export default function Proposal() {
                 {t('proposal.proposer')}
               </h2>
               {proposal?.proposer?.id && (
-                <p className="text-secondary flex items-center gap-1">
-                  <span className="font-medium" title={proposal.proposer.id}>
-                    {proposerName || short(proposal.proposer.id)}
-                  </span>
-                  {t('proposal.createdAt')}
-                  <span>
-                    {txUrl
-                      ? (
-                          <a
-                            href={txUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline"
-                          >
-                            {formatRelativeTime(
+                <div className="text-secondary flex items-center gap-3">
+                  <Avatar address={proposal.proposer.id} size={32} />
+                  <div className="flex items-center gap-1">
+                    <Link
+                      to={ROUTES.MEMBER.replace(':address', proposal.proposer.id)}
+                      className="font-medium text-primary hover:underline"
+                      title={proposal.proposer.id}
+                    >
+                      {proposerName || short(proposal.proposer.id)}
+                    </Link>
+                    {t('proposal.createdAt')}
+                    <span>
+                      {txUrl
+                        ? (
+                            <a
+                              href={txUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                            >
+                              {formatRelativeTime(
+                                proposal.createdAt,
+                                t('lang') as string,
+                              )}
+                            </a>
+                          )
+                        : (
+                            formatRelativeTime(
                               proposal.createdAt,
                               t('lang') as string,
-                            )}
-                          </a>
-                        )
-                      : (
-                          formatRelativeTime(
-                            proposal.createdAt,
-                            t('lang') as string,
-                          )
-                        )}
-                  </span>
-                </p>
+                            )
+                          )}
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
             <div className="space-y-4">

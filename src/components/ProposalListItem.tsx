@@ -6,10 +6,8 @@ import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import Badge from '@/components/ui/Badge'
 import { ROUTES } from '@/constants'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
-import { useTokenInfo } from '@/hooks/useTokenInfo'
 import { formatGraphTimestamp, formatRelativeTime } from '@/utils/format'
-import { parseProposalActions } from '@/utils/parseProposalActions'
-import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
+import { getDisplayDescription, getProposalTitle } from '@/utils/proposal'
 
 interface Props {
   proposal: Proposal
@@ -26,15 +24,7 @@ export function ProposalListItem({
   proposalNumber,
 }: Props) {
   const { t } = useTranslation()
-  const { data: tokenInfo } = useTokenInfo()
-  const parsedActions = parseProposalActions(
-    proposal.targets || [],
-    proposal.calldatas || [],
-    proposal.signatures || [],
-    tokenInfo?.decimals,
-    tokenInfo?.symbol,
-  )
-  const displayTitle = buildProposalTitle(proposal.description, parsedActions, t)
+  const displayTitle = getProposalTitle(proposal)
   const displayDescription = getDisplayDescription(proposal.description)
 
   // Estimate end timestamp using block number (more accurate than treating block as unix time)
@@ -77,7 +67,7 @@ export function ProposalListItem({
                 {proposalNumber}
               </Badge>
             </div>
-            <p className="text-secondary line-clamp-1 break-words text-sm sm:text-base">
+            <p className="text-secondary line-clamp-1 break-words text-xs sm:text-sm">
               {displayDescription}
             </p>
           </div>

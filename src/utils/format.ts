@@ -249,7 +249,6 @@ export function timestampToDate(timestamp: string): string {
   return d ? d.toLocaleString() : ''
 }
 
-// trimDescription from libs/utils.ts
 export function trimDescription(description: string): string {
   if (!description) {
     return ''

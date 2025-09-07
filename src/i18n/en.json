@@ -32,16 +32,21 @@
     "backToHome": "Back to Home",
     "cancel": "Cancel",
     "close": "Close",
+    "error": "Error occurred",
     "loading": "Loading",
-    "remove": "Remove",
-    "submit": "Submit",
-    "submitting": "Submitting...",
     "loadingPage": "Loading page...",
+    "moreCount": "{{count}} more",
     "notFound": {
-      "title": "Page Not Found",
+      "back": "Back to Home",
       "description": "The page you are looking for does not exist or was moved.",
-      "back": "Back to Home"
-    }
+      "title": "Page Not Found"
+    },
+    "remove": "Remove",
+    "showDetails": "Show Details",
+    "showLess": "Show Less",
+    "showMore": "Show More",
+    "submit": "Submit",
+    "submitting": "Submitting..."
   },
   "delegate": {
     "changeButton": "Change My Delegate",
@@ -78,6 +83,64 @@
     "votingEndedAt": "Ended",
     "votingEnds": "Voting Ends",
     "votingEndsIn": "Ends In"
+  },
+  "member": {
+    "balance": {
+      "chart": {
+        "currentBalance": "Current Balance",
+        "description": "Historical balance changes based on token transfers",
+        "error": "Failed to load balance chart",
+        "maxBalance": "Peak Balance",
+        "minBalance": "Lowest Balance",
+        "title": "Balance Over Time"
+      }
+    },
+    "delegateBalance": "Delegate Balance",
+    "invalidAddress": "Invalid member address provided.",
+    "title": "Member Profile",
+    "transfers": {
+      "amount": "Amount",
+      "description": "All token transfers involving this member",
+      "direction": "Direction",
+      "directionType": {
+        "received": "Received",
+        "sent": "Sent"
+      },
+      "error": "Failed to load transfer history",
+      "from": "From",
+      "noTransfers": "No transfers found",
+      "relatedProposal": "Related Proposal",
+      "timestamp": "Time",
+      "title": "Transfer History",
+      "to": "To",
+      "transaction": "Transaction"
+    },
+    "transfersExtra": {
+      "counterparty": "Counterparty",
+      "total": "Total Transfers"
+    },
+    "votes": {
+      "createdProposals": "Created Proposals",
+      "description": "All votes cast by this member",
+      "noVotes": "No votes cast yet",
+      "support": {
+        "abstain": "Abstain",
+        "against": "Against",
+        "for": "For"
+      },
+      "title": "Vote History",
+      "total": "Total Votes",
+      "totalWeight": "Total Voting Weight",
+      "uniqueProposals": "Unique Proposals",
+      "voter": "Voter",
+      "votingPower": "Voting Power"
+    },
+    "votesExtra": {
+      "proposal": "Proposal",
+      "error": "Failed to load vote history",
+      "support": "Vote",
+      "weight": "Voting Power"
+    }
   },
   "proposal": {
     "actions": "Actions",
@@ -194,14 +257,16 @@
       "against": "Against",
       "alreadyVoted": "You have already voted.",
       "cannotVote": "Voting not active.",
+      "details": "Vote Details",
       "for": "For",
       "needVotingPower": "You need voting power to vote.",
       "pending": "Pending…",
-      "sectionTitle": "Cast Your Vote",
+      "sectionTitle": "Voted",
       "signing": "Signing…",
       "success": "Vote submitted!",
       "syncing": "Syncing updated vote data…",
-      "tx": "Tx: {{hash}}"
+      "tx": "Tx: {{hash}}",
+      "unknown": "Unknown"
     }
   },
   "proposalStatus": {

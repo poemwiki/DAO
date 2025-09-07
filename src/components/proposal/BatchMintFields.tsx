@@ -35,7 +35,7 @@ export const BatchMintFields: React.FC<Props> = ({
   return (
     <div className="space-y-3">
       <Label>{t('proposal.batchMintRows')}</Label>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-secondary">
         {t('proposal.batchMintHint')}
       </p>
       <div className="space-y-2">

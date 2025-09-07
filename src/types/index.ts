@@ -1,3 +1,10 @@
+export type RequiredNotNull<T> = {
+  [P in keyof T]: NonNullable<T[P]>
+}
+
+export type Ensure<T, K extends keyof T> = T & RequiredNotNull<Pick<T, K>>
+export type RequiredPick<T, K extends keyof T> = Required<Pick<T, K>>
+
 export interface ProposalActivity {
   id: string
   activity: 'CREATE' | 'CANCEL' | 'EXECUTE'
@@ -14,13 +21,7 @@ export interface VoteCastEntity {
   reason: string
   createdAt: string
   tx: string
-  proposal?: {
-    id: string
-    proposalId: string
-    description: string
-    canceled: boolean
-    executed: boolean
-  }
+  proposal?: MemberCreatedProposal
 }
 
 export interface Proposal {
@@ -64,9 +65,14 @@ export interface Proposal {
    */
   targets?: string[]
   values?: string[]
-  calldatas?: string[]
-  signatures?: string[]
+  calldatas: string[]
+  signatures: string[]
 }
+
+// Narrow shape returned by MEMBER_PROPOSALS_QUERY (creation list per member)
+export type MemberCreatedProposal = Pick<Proposal,
+  'id' | 'proposalId' | 'description' | 'canceled' | 'executed' | 'createdAt' | 'updatedAt' | 'calldatas' | 'signatures'
+> & { proposer?: { id: string } }
 
 export interface BlockEstimateInfo {
   timestamp?: number | string

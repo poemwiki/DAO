@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/Popover'
+import { VotesList } from '@/components/VotesList'
 import { useGovernorQuorum } from '@/hooks/useGovernorQuorum'
 import { usePastTotalSupply } from '@/hooks/usePastTotalSupply'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
@@ -125,6 +126,8 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
           )}
         </div>
       </div>
+      
+      <VotesList proposal={proposal} />
     </div>
   )
 }

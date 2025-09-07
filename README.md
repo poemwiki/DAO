@@ -1,6 +1,5 @@
 # Govo
 
-
 <p align="left">
   <img src="./public/govo.svg" alt="Govo Logo" width="120" height="120" />
 </p>
@@ -42,7 +41,7 @@ This frontend application is part of a complete DAO governance ecosystem consist
 
 Contains the core governance smart contracts built on OpenZeppelin's Governor framework:
 - **GovernorUpgradeable**: Main governance contract with voting and execution logic
-- **ERC20Votes Token**: Reputation token with delegation and snapshot capabilities  
+- **ERC20Votes Token**: Reputation token with delegation and snapshot capabilities
 - **Deployment Scripts**: Hardhat-based deployment and configuration tools
 
 The contracts implement a complete governance system with proposal creation, voting periods, quorum requirements, and execution mechanisms.
@@ -59,7 +58,7 @@ The Graph Protocol subgraph that indexes blockchain events and provides GraphQL 
 ### 🎨 Frontend (This Repository)
 The React-based web interface that provides:
 - User-friendly proposal creation and voting interface
-- Real-time governance data visualization  
+- Real-time governance data visualization
 - Wallet integration and transaction management
 - Responsive design for desktop and mobile devices
 

@@ -1,6 +1,10 @@
-import type { Proposal } from '@/types'
+import type { Proposal, RequiredPick } from '@/types'
 import type { GovernorStateCode } from '@/utils/governor'
 import type { ParsedAction } from '@/utils/parseProposalActions'
+import { decodeFunctionData } from 'viem'
+import { combinedABI } from '@/abis'
+import i18n from '@/i18n'
+import { ACTION_TYPE_MAP } from '@/utils/actionTypes'
 
 // Extended state mapping similar to legacy governor.js
 export type DerivedStatus
@@ -175,27 +179,22 @@ export function getDisplayStatusInfo(
 // Determine a fallback proposal title when the bracket code is purely numeric.
 // Priority order when multiple action types exist:
 // batchMint > mintAndApprove > mint > governorSetting > unknown
-export function deriveFallbackProposalTitle(actions: ParsedAction[]): {
+export type ProposalActionType = ParsedAction['type'] | 'unknown'
+
+export function deriveFallbackProposalTitle(actionTypes: ProposalActionType[]): {
   key: string
-  type: ParsedAction['type'] | 'unknown'
+  type: ProposalActionType
 } {
-  let type: ParsedAction['type'] | 'unknown' = 'unknown'
-  const hasType = (t: ParsedAction['type']) => actions.some(a => a.type === t)
-  if (hasType('batchMint')) {
+  let type: ProposalActionType = 'unknown'
+  const has = (t: ProposalActionType) => actionTypes.includes(t)
+  if (has('batchMint'))
     type = 'batchMint'
-  }
-  else if (hasType('mintAndApprove')) {
+  else if (has('mintAndApprove'))
     type = 'mintAndApprove'
-  }
-  else if (hasType('mint')) {
+  else if (has('mint'))
     type = 'mint'
-  }
-  else if (hasType('governorSetting')) {
+  else if (has('governorSetting'))
     type = 'governorSetting'
-  }
-  else {
-    type = 'unknown'
-  }
   const map: Record<string, string> = {
     batchMint: 'proposal.fallbackTitle.batchMint',
     mint: 'proposal.fallbackTitle.mint',
@@ -206,37 +205,74 @@ export function deriveFallbackProposalTitle(actions: ParsedAction[]): {
   return { key: map[type] || map.unknown, type }
 }
 
+export function extractProposalActionTypes(
+  proposal: Required<Pick<Proposal, 'calldatas' | 'signatures'>>,
+): ProposalActionType[] {
+  const calldatas = proposal.calldatas || []
+  const sigs = proposal.signatures || []
+  if ((!calldatas || calldatas.length === 0) && (!sigs || sigs.length === 0))
+    return []
+  const types: ProposalActionType[] = []
+  for (let i = 0; i < Math.max(calldatas.length, sigs.length); i++) {
+    const data = calldatas[i]
+    let fn: string | undefined
+    if (data && data !== '0x') {
+      try {
+        const decoded = decodeFunctionData({ abi: combinedABI, data: data as `0x${string}` })
+        fn = decoded.functionName
+      }
+      catch {
+        fn = undefined
+      }
+    }
+    if (!fn && sigs[i]) {
+      // signature format e.g. transfer(address,uint256) -> extract name before '('
+      const raw = sigs[i]
+      fn = raw.split('(')[0]
+    }
+    if (!fn) {
+      types.push('unknown')
+      continue
+    }
+    types.push(ACTION_TYPE_MAP[fn] || 'unknown')
+  }
+  return types
+}
+
 export function getDisplayDescription(description?: string): string {
   return description?.replace(/^\s*#\s+([^\r\n]+)\s*/, '').replace(/^\s*\[.*?\]\s*/, '') || ''
 }
 
-// Given original bracket code and parsed actions, produce the display title.
-// If bracket code is numeric-only (e.g. "[123]") we return a localized fallback.
-export function buildProposalTitle(
-  description: string | undefined,
-  actions: ParsedAction[],
-  t: (_key: string) => string,
+/**
+ * This keeps a single canonical algorithm for
+ * deriving the user-visible title.
+ */
+export function getProposalTitle(
+  proposal: RequiredPick<Proposal, 'calldatas' | 'signatures' | 'description'>,
 ): string {
-  // New: Prefer Markdown H1 (# Title) at top of description if present.
-  // Safer regex: avoid greedy (.*) after \s+ to prevent excessive backtracking
-  const h1Match = description?.match(/^\s*#\s+([^\r\n]+)/)
-  if (h1Match) {
-    return h1Match[1]
+  if (!proposal) {
+    throw new Error('Proposal is required')
   }
 
+  const description = proposal.description
+  const h1Match = description?.match(/^\s*#\s+([^\r\n]+)/)
+  if (h1Match)
+    return h1Match[1]
   const bracketCode = extractBracketCode(description)
-  // Caller must pass bracketCode extracted earlier; to support markdown we allow passing raw description instead in future.
-  // For backwards compatibility we keep existing bracket logic when no markdown H1 is provided.
   if (bracketCode) {
-    // Safely strip leading [ and trailing ]
+    const inner = bracketCode.replace(/^\[/, '').replace(/\]$/, '').trim()
+    if (!/^\d+$/.test(inner))
+      return bracketCode
+  }
+  const actionTypes = extractProposalActionTypes(proposal)
+  if (bracketCode) {
     const inner = bracketCode.replace(/^\[/, '').replace(/\]$/, '').trim()
     if (/^\d+$/.test(inner)) {
-      const fb = deriveFallbackProposalTitle(actions)
-      return t(fb.key)
+      const fb = deriveFallbackProposalTitle(actionTypes)
+      return i18n.t(fb.key)
     }
     return bracketCode
   }
-  // No bracket code: try fallback as generic
-  const fb = deriveFallbackProposalTitle(actions)
-  return t(fb.key)
+  const fb = deriveFallbackProposalTitle(actionTypes)
+  return i18n.t(fb.key)
 }

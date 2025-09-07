@@ -92,11 +92,8 @@ export const GovernorSettingFields: React.FC<Props> = ({
         {fieldErrors?.governorValue && (
           <p className="text-xs text-destructive">{fieldErrors.governorValue}</p>
         )}
-        <p className="hidden text-xs text-muted-foreground">
-          {t('proposal.governorSettingHint')}
-        </p>
         {duration && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-secondary">
             {t('proposal.estimatedDuration', { human: duration })}
           </p>
         )}
