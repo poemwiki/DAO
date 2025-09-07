@@ -10,6 +10,7 @@ import { getProposals } from '@/graphql'
 import { ROUTES } from '@/constants'
 import { getProposalTitle } from '@/utils/proposal'
 import { TokenInfoResult } from '@/queries/tokenInfo'
+import { getExplorerTxUrl } from '@/config'
 
 interface MemberTransferHistoryProps {
   address: string
@@ -77,7 +78,7 @@ function TransferRow({
       </td>
       <td className="px-6 py-4">
         <a
-          href={`https://etherscan.io/tx/${transfer.tx}`}
+          href={getExplorerTxUrl(transfer.tx)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-mono"

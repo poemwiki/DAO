@@ -8,6 +8,7 @@ import { getProposalTitle } from '@/utils/proposal'
 import { useMemberVotesPages } from '@/hooks/useMemberVotesPages'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
 import { TokenInfoResult } from '@/queries/tokenInfo'
+import { getExplorerTxUrl } from '@/config'
 
 interface MemberVoteHistoryProps {
   address: string
@@ -62,7 +63,7 @@ function VoteRow({ vote, tokenInfo }: VoteRowProps) {
       </td>
       <td className="px-6 py-4">
         <a
-          href={`https://etherscan.io/tx/${vote.tx}`}
+          href={getExplorerTxUrl(vote.tx)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-mono"
