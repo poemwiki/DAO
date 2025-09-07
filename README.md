@@ -1,5 +1,9 @@
 # Govo
 
+<p align="left">
+  <img src="./public/govo.svg" alt="Govo Logo" width="120" height="120" />
+</p>
+
 Govo is a modern, decentralized governance platform that enables DAOs to manage their proposals and voting processes efficiently. Built with React and integrated with The Graph protocol, it provides a seamless interface for interacting with on-chain governance.
 
 ## Features
@@ -11,6 +15,12 @@ Govo is a modern, decentralized governance platform that enables DAOs to manage 
 - 🔗 **Multi-chain Support**: Compatible with multiple EVM networks
 - 💼 **Wallet Integration**: Seamless connection with Web3 wallets
 - 📱 **Responsive Design**: Optimized for both desktop and mobile devices
+
+## Current Adopters
+
+Organizations / DAOs currently using Govo in production or active evaluation:
+
+- **PoemWiki DAO** – https://dao.poemwiki.org/
 
 ## Tech Stack
 
@@ -73,8 +83,8 @@ src/
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- pnpm (v7 or higher)
+- Node.js (>= 22.11.0) – matches `engines.node` in package.json
+- pnpm (latest v9 recommended) – project uses a modern lockfile
 - A Web3 wallet (e.g., MetaMask)
 
 ### Installation
