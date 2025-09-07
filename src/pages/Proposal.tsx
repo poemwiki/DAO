@@ -110,27 +110,31 @@ export default function Proposal() {
 
   const showSkeleton = isLoading && !proposal && attempt === 0
 
-  // Subgraph returned null; decide between indexing state vs 404
-  if (!proposal && !showSkeleton) {
-    // If chain probe finished and still no state -> 404 immediately
-    if (!probeLoading && !existsOnChain) {
-      return (
-        <div className="w-full min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4 px-6">
-          <h1 className="text-4xl font-bold tracking-tight">404</h1>
-          <p className="text-sm text-secondary max-w-md">{t('proposal.indexing.notFound')}</p>
-          <Button
-            onClick={() => {
-              setManualTick(tk => tk + 1)
-              refetch()
-            }}
-          >
-            {t('proposal.indexing.manualRefresh')}
-          </Button>
-        </div>
-      )
-    }
+  // 1) 404: chain probing finished and proposal does NOT exist on-chain
+  if (!showSkeleton && !proposal && !probeLoading && !existsOnChain) {
+    return (
+      <div className="w-full min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4 px-6">
+        <h1 className="text-4xl font-bold tracking-tight">404</h1>
+        <p className="text-sm text-secondary max-w-md">{t('proposal.indexing.notFound')}</p>
+        <Button
+          onClick={() => {
+            setManualTick(tk => tk + 1)
+            refetch()
+          }}
+        >
+          {t('proposal.indexing.manualRefresh')}
+        </Button>
+      </div>
+    )
+  }
 
-    // Proposal exists on chain (or probing) but subgraph hasn't indexed yet
+  // 2) Skeleton: initial primary load (first attempt)
+  if (showSkeleton) {
+    return <ProposalPageSkeleton />
+  }
+
+  // 3) Indexing: on-chain exists (or probing) but subgraph data absent / still probing
+  if (!proposal) {
     const autoRetryRemaining = attempt < MAX_RETRIES
     return (
       <div className="w-full min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4 px-6 text-sm">
@@ -166,7 +170,7 @@ export default function Proposal() {
     )
   }
 
-  if (showSkeleton) return <ProposalPageSkeleton />
+  // 4) Main: proposal guaranteed to be present below this point
 
   return (
     <div className="space-y-8">
