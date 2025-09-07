@@ -36,13 +36,11 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
         return null
     }
 
-    const maxY = Math.max(...points.map(p => p.y))
     const minY = Math.min(...points.map(p => p.y))
-    const yRange = maxY - minY || 1
+    const yRange = Math.max(...points.map(p => p.y)) - minY || 1
 
     return {
       points,
-      maxY,
       minY,
       yRange,
     }
@@ -80,8 +78,8 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
 
   const { points, minY, yRange } = chartData
   const chartWidth = 600
-  const chartHeight = 200
-  const padding = 40
+  const chartHeight = 240
+  const padding = 6
   const yTickCount = 5
   const yTicks = Array.from({ length: yTickCount + 1 }).map((_, i) => minY + (yRange * i) / yTickCount)
 

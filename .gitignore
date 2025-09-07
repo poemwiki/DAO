@@ -118,3 +118,4 @@ dist
 public/addressBook.json
 .env.production
 .env.prod
+govo.code-workspace

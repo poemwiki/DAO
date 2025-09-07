@@ -23,7 +23,7 @@ export default function Member() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="mx-auto py-4">
       <div className="space-y-10">
         <MemberHeader address={address} />
 
