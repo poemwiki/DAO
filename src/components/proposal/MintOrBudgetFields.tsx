@@ -1,9 +1,9 @@
+import type { ProposalForm } from '@/hooks/useProposalForm'
 import React from 'react'
-import { PROPOSAL_TYPE } from '@/constants'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { ProposalForm } from '@/hooks/useProposalForm'
 import { useTranslation } from 'react-i18next'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { PROPOSAL_TYPE } from '@/constants'
 
 interface Props {
   form: ProposalForm
@@ -41,7 +41,7 @@ export const MintOrBudgetFields: React.FC<Props> = ({
           }
           onChange={onChange}
           onBlur={onBlur}
-          className={(fieldErrors?.address ? 'border-destructive focus-visible:ring-destructive ' : '') + 'placeholder:text-muted-foreground'}
+          className={`${fieldErrors?.address ? 'border-destructive focus-visible:ring-destructive ' : ''}placeholder:text-muted-foreground`}
           placeholder={t('proposal.enterAddress')}
           required
         />
@@ -54,10 +54,10 @@ export const MintOrBudgetFields: React.FC<Props> = ({
         <Input
           name="amount"
           type="number"
-            value={form.amount}
+          value={form.amount}
           onChange={onChange}
           onBlur={onBlur}
-          className={(fieldErrors?.amount ? 'border-destructive focus-visible:ring-destructive ' : '') + 'placeholder:text-muted-foreground'}
+          className={`${fieldErrors?.amount ? 'border-destructive focus-visible:ring-destructive ' : ''}placeholder:text-muted-foreground`}
           min="0"
           step="0.000000000000000001"
           required

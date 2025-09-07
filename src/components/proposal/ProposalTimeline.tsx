@@ -1,11 +1,11 @@
+import type { Proposal } from '@/types'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { IoMdTime } from 'react-icons/io'
 import { getExplorerTxUrl } from '@/config'
 import { useDisplayName } from '@/hooks/useDisplayName'
-import { short, formatGraphTimestampLocalMinutes } from '@/utils/format'
-import React from 'react'
-import type { Proposal } from '@/types'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
-import { IoMdTime } from 'react-icons/io'
+import { formatGraphTimestampLocalMinutes, short } from '@/utils/format'
 
 export interface TimelineEvent {
   key: string
@@ -36,7 +36,7 @@ export function ProposalTimeline({
   const { data: startInfo } = useEstimateBlockTimestamp(startBlockNum)
   const { data: endInfo } = useEstimateBlockTimestamp(endBlockNum)
   const { t } = useTranslation()
-  
+
   const normalizeTs = (val?: string | number | null): number | undefined => {
     if (val === null || val === undefined) {
       return undefined
@@ -65,7 +65,8 @@ export function ProposalTimeline({
   // Visual top -> bottom (descending lifecycle):
   //   executed|canceled (terminal) > end/result (future or finished) > votes (newest->oldest) > start > created
   const events = React.useMemo(() => {
-    if (!proposal) return [] as TimelineEvent[]
+    if (!proposal)
+      return [] as TimelineEvent[]
     const list: TimelineEvent[] = []
 
     const createdMs = normalizeTs(proposal.createdAt)
@@ -146,31 +147,37 @@ export function ProposalTimeline({
 
     // Votes sorted newest -> oldest to sit immediately under end/result cluster
     const voteEvents: TimelineEvent[] = (proposal.voteCasts || [])
-      .map(v => {
+      .map((v) => {
         const voteMs = normalizeTs(v.createdAt)
         return {
           key: `vote-${v.id}`,
           type: 'vote',
-            voteAddress: v.voter?.id,
-            voteSupport: v.support,
-            ts: voteMs,
-            display: voteMs
-              ? formatGraphTimestampLocalMinutes(voteMs, t('lang') as string)
-              : '-',
-            tx: v.tx || undefined,
-            label: v.voter?.id,
+          voteAddress: v.voter?.id,
+          voteSupport: v.support,
+          ts: voteMs,
+          display: voteMs
+            ? formatGraphTimestampLocalMinutes(voteMs, t('lang') as string)
+            : '-',
+          tx: v.tx || undefined,
+          label: v.voter?.id,
         } as TimelineEvent
       })
       .sort((a, b) => (b.ts || 0) - (a.ts || 0))
 
     // Assemble in fixed visual order (top -> bottom)
-    if (executedEvent) list.push(executedEvent)
-    if (canceledEvent) list.push(canceledEvent)
-    if (endEvent) list.push(endEvent)
-    if (resultEvent) list.push(resultEvent)
+    if (executedEvent)
+      list.push(executedEvent)
+    if (canceledEvent)
+      list.push(canceledEvent)
+    if (endEvent)
+      list.push(endEvent)
+    if (resultEvent)
+      list.push(resultEvent)
     list.push(...voteEvents)
-    if (startEvent) list.push(startEvent)
-    if (createdEvent) list.push(createdEvent)
+    if (startEvent)
+      list.push(startEvent)
+    if (createdEvent)
+      list.push(createdEvent)
 
     return list
   }, [
@@ -197,7 +204,8 @@ export function ProposalTimeline({
           const lastCompletedIdx = events
             .map((e, i) => ({ i, ts: e.ts }))
             .filter(x => typeof x.ts === 'number' && (x.ts as number) <= now)
-            .at(-1)?.i
+            .at(-1)
+            ?.i
           return (
             <ul className="flex flex-col gap-6 pl-0 m-0 list-none">
               {events.map((e, idx) => {
@@ -230,41 +238,48 @@ export function ProposalTimeline({
                         >
                           <path d="M6.173 12.414a1 1 0 0 1-1.414 0L2.293 9.95a1 1 0 1 1 1.414-1.415l1.759 1.76 6.12-6.12a1 1 0 1 1 1.415 1.414l-7.828 7.826Z" />
                         </svg>
-                      ) : isCurrent ? (
-                        <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-                      ) : (
-                        <span className="w-2.5 h-2.5 rounded-full bg-transparent" />
-                      )}
+                      ) : isCurrent
+                        ? (
+                            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                          )
+                        : (
+                            <span className="w-2.5 h-2.5 rounded-full bg-transparent" />
+                          )}
                     </span>
                     <div className="text-sm font-medium tracking-wide mb-1 flex flex-wrap gap-2">
-                      {e.type === 'vote' ? (
-                        <VoteEventLabel
-                          address={e.voteAddress!}
-                          support={e.voteSupport!}
-                        />
-                      ) : (
-                        <span>{e.label}</span>
-                      )}
+                      {e.type === 'vote'
+                        ? (
+                            <VoteEventLabel
+                              address={e.voteAddress!}
+                              support={e.voteSupport!}
+                            />
+                          )
+                        : (
+                            <span>{e.label}</span>
+                          )}
                       {e.block && (
                         <span className="font-normal text-secondary">
-                          #{e.block}
+                          #
+                          {e.block}
                         </span>
                       )}
                     </div>
                     <div className="text-xs leading-snug break-words flex flex-col gap-1">
                       <span>
-                        {e.tx ? (
-                          <a
-                            href={getExplorerTxUrl(e.tx)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-secondary hover:underline hover:decoration-solid"
-                          >
-                            {e.display}
-                          </a>
-                        ) : (
-                          e.display
-                        )}
+                        {e.tx
+                          ? (
+                              <a
+                                href={getExplorerTxUrl(e.tx)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-secondary hover:underline hover:decoration-solid"
+                              >
+                                {e.display}
+                              </a>
+                            )
+                          : (
+                              e.display
+                            )}
                       </span>
                     </div>
                   </li>
@@ -287,8 +302,8 @@ function VoteEventLabel({
 }) {
   const name = useDisplayName({ address })
   const { t } = useTranslation()
-  const s =
-    support === 1
+  const s
+    = support === 1
       ? t('proposal.vote.for')
       : support === 0
         ? t('proposal.vote.against')

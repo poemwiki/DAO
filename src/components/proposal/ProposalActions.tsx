@@ -1,7 +1,7 @@
+import type { ParsedAction } from '@/utils/parseProposalActions'
 import { ActionSummary } from '@/components/ActionSummary'
-import { formatTokenAmount } from '@/utils/format'
 import { useDisplayName } from '@/hooks/useDisplayName'
-import { ParsedAction } from '@/utils/parseProposalActions'
+import { formatTokenAmount } from '@/utils/format'
 
 export interface ParsedActionRecipient {
   address: string
@@ -29,8 +29,8 @@ export function ProposalActions({
       <h3 className="text-lg font-semibold">{title}</h3>
       <ul className="space-y-2 text-sm">
         {actions.map((a, i) => {
-          const isBatch =
-            a.type === 'batchMint' && a.recipients && a.recipients.length > 0
+          const isBatch
+            = a.type === 'batchMint' && a.recipients && a.recipients.length > 0
           const fullBatchCall = isBatch
             ? `${a.functionName}([${a.recipients!.map(r => `"${r.address}"`).join(', ')}], [${a.recipients!.map(r => r.amount.toString()).join(', ')}])`
             : ''
@@ -43,13 +43,16 @@ export function ProposalActions({
                 <ActionSummary action={a} />
                 {a.type === 'governorSetting' && a.rawValue !== undefined && (
                   <span className="text-[10px] px-1 py-0.5 rounded bg-background border font-mono opacity-80">
-                    raw: {a.rawValue.toString()}
+                    raw:
+                    {' '}
+                    {a.rawValue.toString()}
                   </span>
                 )}
               </div>
               {!isBatch && (
                 <div className="text-xs font-mono text-secondary break-all mb-1">
-                  {a.functionName}(
+                  {a.functionName}
+                  (
                   {a.args
                     .map(x =>
                       typeof x === 'bigint'
@@ -118,7 +121,9 @@ function BatchRecipientRow({
       </td>
       <td className="px-2 py-1 font-mono break-all max-w-[160px]">{address}</td>
       <td className="px-2 py-1 text-right">
-        {formatTokenAmount(amount, decimals)} {symbol || ''}
+        {formatTokenAmount(amount, decimals)}
+        {' '}
+        {symbol || ''}
       </td>
     </tr>
   )

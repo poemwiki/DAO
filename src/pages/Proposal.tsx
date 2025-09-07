@@ -1,34 +1,34 @@
-import React from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
 import type { ProposalResponseData } from '@/graphql'
-import { getProposal } from '@/graphql'
+import { useQuery } from '@tanstack/react-query'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { short, formatRelativeTime } from '@/utils/format'
-import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
-import { useProposalState } from '@/hooks/useProposalState'
-import ProposalStatusBadge from '@/components/ProposalStatusBadge'
-import { getExplorerTxUrl } from '@/config'
-import { ROUTES } from '@/constants'
-import { useDisplayName } from '@/hooks/useDisplayName'
-import { parseProposalActions } from '@/utils/parseProposalActions'
-import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { Link, useParams } from 'react-router-dom'
+import { ProposalActions } from '@/components/proposal/ProposalActions'
 // (Popover moved into extracted components)
 import { ProposalDebugPanel } from '@/components/proposal/ProposalDebugPanel'
-import { ProposalActions } from '@/components/proposal/ProposalActions'
 import { ProposalResults } from '@/components/proposal/ProposalResults'
 import { ProposalTimeline } from '@/components/proposal/ProposalTimeline'
 import { ProposalVotePanel } from '@/components/proposal/ProposalVotePanel'
-import { ProposalPageSkeleton } from '@/components/ui/Skeleton'
+import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import { Button } from '@/components/ui/button'
+import { ProposalPageSkeleton } from '@/components/ui/Skeleton'
+import { getExplorerTxUrl } from '@/config'
+import { ROUTES } from '@/constants'
+import { getProposal } from '@/graphql'
+import { useDisplayName } from '@/hooks/useDisplayName'
+import { useProposalState } from '@/hooks/useProposalState'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { formatRelativeTime, short } from '@/utils/format'
+import { parseProposalActions } from '@/utils/parseProposalActions'
+import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
 
 export default function Proposal() {
   const { id } = useParams()
   const { t } = useTranslation()
   // Debug flag (?debug=1) to help inspect raw proposal fields when diagnosing discrepancies
-  const debug =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('debug') === '1'
+  const debug
+    = typeof window !== 'undefined'
+      && new URLSearchParams(window.location.search).get('debug') === '1'
   // Progressive loading: first attempt subgraph; if missing, perform limited retries
   const MAX_RETRIES = 3
   const retryDelays = [3000, 5000, 8000] // ms sequence
@@ -47,9 +47,11 @@ export default function Proposal() {
 
   // Trigger timed retries only while no subgraph data
   React.useEffect(() => {
-    if (isLoading || proposal || attempt >= MAX_RETRIES) return
+    if (isLoading || proposal || attempt >= MAX_RETRIES)
+      return
     const delay = retryDelays[attempt] ?? 0
-    if (!delay) return
+    if (!delay)
+      return
     const handle = setTimeout(() => {
       setAttempt(a => a + 1)
       refetch()
@@ -142,7 +144,7 @@ export default function Proposal() {
         {existsOnChain && (
           <p className="text-secondary">
             {t('proposal.indexing.onChainFound')}
-            {!autoRetryRemaining && ' ' + t('proposal.indexing.finalFail')}
+            {!autoRetryRemaining && ` ${t('proposal.indexing.finalFail')}`}
           </p>
         )}
         <div className="flex gap-3 items-center">
@@ -161,7 +163,10 @@ export default function Proposal() {
           )}
         </div>
         {existsOnChain && (
-          <p className="text-xs text-secondary">State code: {probeStateCode}</p>
+          <p className="text-xs text-secondary">
+            State code:
+            {probeStateCode}
+          </p>
         )}
         {probeError && (
           <p className="text-xs text-destructive">{probeError.message}</p>
@@ -179,7 +184,9 @@ export default function Proposal() {
           to={ROUTES.HOME}
           className="text-sm text-secondary hover:text-primary"
         >
-          ← {t('home.backToProposals')}
+          ←
+          {' '}
+          {t('home.backToProposals')}
         </Link>
       </div>
       <header className="flex flex-col gap-4 border-b pb-6">
@@ -210,24 +217,26 @@ export default function Proposal() {
                   </span>
                   {t('proposal.createdAt')}
                   <span>
-                    {txUrl ? (
-                      <a
-                        href={txUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:underline"
-                      >
-                        {formatRelativeTime(
-                          proposal.createdAt,
-                          t('lang') as string,
+                    {txUrl
+                      ? (
+                          <a
+                            href={txUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            {formatRelativeTime(
+                              proposal.createdAt,
+                              t('lang') as string,
+                            )}
+                          </a>
+                        )
+                      : (
+                          formatRelativeTime(
+                            proposal.createdAt,
+                            t('lang') as string,
+                          )
                         )}
-                      </a>
-                    ) : (
-                      formatRelativeTime(
-                        proposal.createdAt,
-                        t('lang') as string,
-                      )
-                    )}
                   </span>
                 </p>
               )}

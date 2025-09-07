@@ -1,32 +1,31 @@
-import { useQuery } from '@tanstack/react-query'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import type { ProposalsResponseData } from '@/graphql'
-import { getProposals } from '@/graphql'
-import { cn } from '@/utils/format'
-import { useTokenInfo } from '@/hooks/useTokenInfo'
+import type { Proposal } from '@/types'
+import { useQuery } from '@tanstack/react-query'
+import { useConnectWallet } from '@web3-onboard/react'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FaPlus } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
+import DelegateModal from '@/components/DelegateModal'
 // status badge handled inside ProposalListItem
 import ProposalListItem from '@/components/ProposalListItem'
-import { useProposalStates } from '@/hooks/useProposalStates'
-import { ROUTES } from '@/constants'
-import { config } from '@/config'
 import TokenHoldersList from '@/components/TokenHoldersList'
-import type { Proposal } from '@/types'
 import { Button } from '@/components/ui/button'
-import { FaPlus } from 'react-icons/fa'
-import { useState } from 'react'
-import { formatTokenAmount, estimateDurationFromBlocks } from '@/utils/format'
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from '@/components/ui/Popover'
+import { ProposalListSkeleton, StatsSkeleton } from '@/components/ui/Skeleton'
+import { config } from '@/config'
+import { ROUTES } from '@/constants'
 import { getAverageBlockTime } from '@/constants/blockTimes'
+import { getProposals } from '@/graphql'
 import { useGovernorParams } from '@/hooks/useGovernorParams'
-import DelegateModal from '@/components/DelegateModal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
-import { useConnectWallet } from '@web3-onboard/react'
-import { StatsSkeleton, ProposalListSkeleton } from '@/components/ui/Skeleton'
+import { useProposalStates } from '@/hooks/useProposalStates'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { cn, estimateDurationFromBlocks, formatTokenAmount } from '@/utils/format'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -54,8 +53,8 @@ export default function Home() {
     proposals.forEach((proposal: Proposal) => {
       const statusData = statuses[proposal.id]
       // Get the most accurate status: from blockchain > from proposal object > derived
-      const actualStatus =
-        statusData?.info?.status || proposal.status || 'closed' // fallback for unknown status
+      const actualStatus
+        = statusData?.info?.status || proposal.status || 'closed' // fallback for unknown status
 
       // Active statuses: pending, active, queued
       if (['pending', 'active', 'queued'].includes(actualStatus)) {
@@ -115,24 +114,26 @@ export default function Home() {
         <p className="text-xl">
           {config.app.description}
         </p>
-        {showSkeleton ? (
-          <StatsSkeleton labels={[t('home.totalProposals'), t('home.activeProposals'), t('home.totalVotes')]} />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="p-6 border rounded-lg bg-card">
-              <div className="text-2xl font-bold">{proposals.length}</div>
-              <div className="text-sm">{t('home.totalProposals')}</div>
-            </div>
-            <div className="p-6 border rounded-lg bg-card">
-              <div className={cn('text-2xl font-bold', { ' text-primary': activeCount > 0 })}>{activeCount}</div>
-              <div className="text-sm">{t('home.activeProposals')}</div>
-            </div>
-            <div className="hidden md:block p-6 border rounded-lg bg-card">
-              <div className="text-2xl font-bold">{totalVotes}</div>
-              <div className="text-sm">{t('home.totalVotes')}</div>
-            </div>
-          </div>
-        )}
+        {showSkeleton
+          ? (
+              <StatsSkeleton labels={[t('home.totalProposals'), t('home.activeProposals'), t('home.totalVotes')]} />
+            )
+          : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="p-6 border rounded-lg bg-card">
+                  <div className="text-2xl font-bold">{proposals.length}</div>
+                  <div className="text-sm">{t('home.totalProposals')}</div>
+                </div>
+                <div className="p-6 border rounded-lg bg-card">
+                  <div className={cn('text-2xl font-bold', { ' text-primary': activeCount > 0 })}>{activeCount}</div>
+                  <div className="text-sm">{t('home.activeProposals')}</div>
+                </div>
+                <div className="hidden md:block p-6 border rounded-lg bg-card">
+                  <div className="text-2xl font-bold">{totalVotes}</div>
+                  <div className="text-sm">{t('home.totalVotes')}</div>
+                </div>
+              </div>
+            )}
       </section>
 
       {/* Proposals List */}
@@ -151,27 +152,33 @@ export default function Home() {
               navigate(ROUTES.CREATE_PROPOSAL)
             }}
           >
-            <FaPlus /> {t('proposal.create')}
+            <FaPlus />
+            {' '}
+            {t('proposal.create')}
           </Button>
         </div>
-        {showSkeleton ? (
-          <ProposalListSkeleton />
-        ) : proposals.length > 0 ? (
-          <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
-            {proposals.map((proposal: Proposal, index: number) => (
-              <ProposalListItem
-                key={proposal.id}
-                proposal={proposal}
-                numericCode={statuses[proposal.id]?.code ?? null}
-                proposalNumber={proposals.length - index}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="p-8 w-full border rounded-lg text-center bg-card text-muted">
-            {t('home.noProposals')}
-          </div>
-        )}
+        {showSkeleton
+          ? (
+              <ProposalListSkeleton />
+            )
+          : proposals.length > 0
+            ? (
+                <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
+                  {proposals.map((proposal: Proposal, index: number) => (
+                    <ProposalListItem
+                      key={proposal.id}
+                      proposal={proposal}
+                      numericCode={statuses[proposal.id]?.code ?? null}
+                      proposalNumber={proposals.length - index}
+                    />
+                  ))}
+                </div>
+              )
+            : (
+                <div className="p-8 w-full border rounded-lg text-center bg-card text-muted">
+                  {t('home.noProposals')}
+                </div>
+              )}
       </section>
 
       {govParams && (
@@ -192,13 +199,15 @@ export default function Home() {
               </Popover>
             </div>
             <div className="text-lg font-semibold">
-              {govParams.votingDelay.toString()} blocks
+              {govParams.votingDelay.toString()}
+              {' '}
+              blocks
               <span className="ml-2 text-xs font-normal text-secondary">
                 {estimateDurationFromBlocks(
                   Number(govParams.votingDelay),
                   getAverageBlockTime(
-                    parseInt(config.network.chainId, 16) ||
-                      Number(config.network.chainId),
+                    Number.parseInt(config.network.chainId, 16)
+                    || Number(config.network.chainId),
                   ),
                 )}
               </span>
@@ -221,13 +230,15 @@ export default function Home() {
             </div>
             <div className="text-lg font-semibold space-y-1">
               <div>
-                {govParams.votingPeriod.toString()} blocks
+                {govParams.votingPeriod.toString()}
+                {' '}
+                blocks
                 <span className="ml-2 text-xs font-normal text-secondary">
                   {estimateDurationFromBlocks(
                     Number(govParams.votingPeriod),
                     getAverageBlockTime(
-                      parseInt(config.network.chainId, 16) ||
-                        Number(config.network.chainId),
+                      Number.parseInt(config.network.chainId, 16)
+                      || Number(config.network.chainId),
                     ),
                   )}
                 </span>
@@ -275,9 +286,9 @@ export default function Home() {
             </div>
             <div className="text-lg font-semibold">
               {(
-                (Number(govParams.quorumNum) /
-                  Math.max(1, Number(govParams.quorumDen))) *
-                100
+                (Number(govParams.quorumNum)
+                  / Math.max(1, Number(govParams.quorumDen)))
+                * 100
               ).toFixed(2)}
               %
             </div>

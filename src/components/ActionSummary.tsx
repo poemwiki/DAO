@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next'
 import type { ParsedAction } from '@/lib/parseProposalActions'
+import { useTranslation } from 'react-i18next'
 
 interface ActionSummaryProps {
   action: ParsedAction

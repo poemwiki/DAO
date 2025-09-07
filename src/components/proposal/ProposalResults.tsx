@@ -1,15 +1,15 @@
+import type { Proposal } from '@/types'
+import { useTranslation } from 'react-i18next'
+import { FaPoll } from 'react-icons/fa'
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from '@/components/ui/Popover'
-import { formatNumber, cn, toScaledNumber } from '@/utils/format'
-import { useTranslation } from 'react-i18next'
-import { useTokenInfo } from '@/hooks/useTokenInfo'
 import { useGovernorQuorum } from '@/hooks/useGovernorQuorum'
 import { usePastTotalSupply } from '@/hooks/usePastTotalSupply'
-import type { Proposal } from '@/types'
-import { FaPoll } from 'react-icons/fa'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
+import { cn, formatNumber, toScaledNumber } from '@/utils/format'
 
 export interface ProposalResultsProps {
   proposal: Proposal
@@ -26,16 +26,18 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
   const decimals = tokenInfo?.decimals ?? 18
   const big = (s: string | number) =>
     typeof s === 'number' ? BigInt(s) : BigInt(s || '0')
-  let forBN = 0n,
-    againstBN = 0n,
-    abstainBN = 0n
-  ;(proposal?.voteCasts || []).forEach(v => {
+  let forBN = 0n
+  let againstBN = 0n
+  let abstainBN = 0n
+  ;(proposal?.voteCasts || []).forEach((v) => {
     const w = big(v.weight)
     if (v.support === 0) {
       againstBN += w
-    } else if (v.support === 1) {
+    }
+    else if (v.support === 1) {
       forBN += w
-    } else if (v.support === 2) {
+    }
+    else if (v.support === 2) {
       abstainBN += w
     }
   })
@@ -57,16 +59,18 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
           {t('proposal.results')}
         </span>
         <span className="text-sm font-normal">
-          {formatNumber(totalVotes)} votes
+          {formatNumber(totalVotes)}
+          {' '}
+          votes
         </span>
       </h2>
       <div className="p-4 border rounded-md bg-background/50 flex flex-col gap-4">
         <div className="h-3 w-full bg-card rounded-full overflow-hidden flex relative">
-          {(['for', 'abstain', 'against'] as const).map(k => {
+          {(['for', 'abstain', 'against'] as const).map((k) => {
             const val = votes[k]
             const pct = totalVotes ? (val / totalVotes) * 100 : 0
-            const color =
-              k === 'for'
+            const color
+              = k === 'for'
                 ? 'bg-green-500'
                 : k === 'against'
                   ? 'bg-red-500'
@@ -140,8 +144,8 @@ function ResultRow({
   isQuorum?: boolean
   help?: string
 }) {
-  const pct =
-    total && value !== undefined && total > 0 ? (value / total) * 100 : 0
+  const pct
+    = total && value !== undefined && total > 0 ? (value / total) * 100 : 0
   return (
     <div className="flex justify-between items-center">
       <span className={`flex items-center gap-1 ${color || ''}`}>

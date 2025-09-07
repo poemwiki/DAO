@@ -1,16 +1,17 @@
-import { useState, useEffect, useMemo } from 'react'
+import type { TokenHoldersResponseData } from '@/graphql'
+import type { Member } from '@/types'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   useAccount,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-  useConfig,
   useChainId,
+  useConfig,
+  useWaitForTransactionReceipt,
+  useWriteContract,
 } from 'wagmi'
-import { useQuery } from '@tanstack/react-query'
-import { getTokenHolders, type TokenHoldersResponseData } from '@/graphql'
-import { config } from '@/config'
 import { tokenABI } from '@/abis'
+import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/ui/modal'
 import {
   Select,
@@ -19,11 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
-import type { Member } from '@/types'
+import { config } from '@/config'
+import { ZERO_ADDRESS } from '@/constants'
+import { getTokenHolders } from '@/graphql'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { short } from '@/utils/format'
-import { ZERO_ADDRESS } from '@/constants'
 
 interface DelegateModalProps {
   open: boolean
@@ -49,8 +50,8 @@ export default function DelegateModal({
   const [txError, setTxError] = useState<string | null>(null)
 
   // Query token holders
-  const { data: tokenHoldersData, isLoading: isLoadingHolders } =
-    useQuery<TokenHoldersResponseData>({
+  const { data: tokenHoldersData, isLoading: isLoadingHolders }
+    = useQuery<TokenHoldersResponseData>({
       queryKey: ['tokenHolders'],
       queryFn: getTokenHolders,
     })
@@ -66,7 +67,7 @@ export default function DelegateModal({
       return
     }
     if (selfMember.delegate && selfMember.delegate !== ZERO_ADDRESS) {
-      setSelectedDelegate(prev => (prev ? prev : selfMember.delegate))
+      setSelectedDelegate(prev => (prev || selfMember.delegate))
     }
   }, [selfMember])
 
@@ -92,9 +93,11 @@ export default function DelegateModal({
   useEffect(() => {
     if (isConfirmed) {
       setTxStatus('success')
-    } else if (isConfirming && txStatus !== 'success') {
+    }
+    else if (isConfirming && txStatus !== 'success') {
       setTxStatus('pending')
-    } else if (isTxError && txStatus === 'pending') {
+    }
+    else if (isTxError && txStatus === 'pending') {
       setTxStatus('error')
     }
   }, [isConfirming, isConfirmed, isTxError])
@@ -112,8 +115,8 @@ export default function DelegateModal({
 
     // If already delegated to this target, short-circuit to success UI
     if (
-      selfMember?.delegate &&
-      selfMember.delegate.toLowerCase() === selectedDelegate.toLowerCase()
+      selfMember?.delegate
+      && selfMember.delegate.toLowerCase() === selectedDelegate.toLowerCase()
     ) {
       setTxStatus('success')
       return
@@ -138,7 +141,8 @@ export default function DelegateModal({
       })
       setTxHash(hash)
       setTxStatus('pending')
-    } catch (error: any) {
+    }
+    catch (error: any) {
       console.error('Delegation error:', error)
       setTxError(error?.shortMessage || error?.message || 'Unknown error')
       setTxStatus('error')
@@ -218,14 +222,16 @@ export default function DelegateModal({
               disabled={isWritePending || isConfirming || isLoadingHolders}
               className="max-h-12"
             >
-              {selectedMember ? (
-                <SelectedDelegateDisplay
-                  member={selectedMember}
-                  selfAddress={address}
-                />
-              ) : (
-                <SelectValue placeholder={t('delegate.selectPlaceholder')} />
-              )}
+              {selectedMember
+                ? (
+                    <SelectedDelegateDisplay
+                      member={selectedMember}
+                      selfAddress={address}
+                    />
+                  )
+                : (
+                    <SelectValue placeholder={t('delegate.selectPlaceholder')} />
+                  )}
             </SelectTrigger>
             <SelectContent className="max-h-64 overflow-y-auto border border-input">
               <div className="space-y-1">
@@ -314,7 +320,7 @@ function MemberSelectItem({
   return (
     <SelectItem
       value={member.id}
-      className={`flex flex-col items-start gap-0 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground border-transparent`}
+      className="flex flex-col items-start gap-0 leading-tight border rounded-md cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground border-transparent"
     >
       <div className="w-full flex items-center justify-between gap-2">
         <span className={`text-sm font-medium ${isSelf ? 'text-primary' : ''}`}>
@@ -323,14 +329,15 @@ function MemberSelectItem({
         <span className="text-xs mt-0.5 font-mono text-secondary tracking-tight">
           {secondary}
         </span>
-        {member.delegate &&
-          member.delegate !== ZERO_ADDRESS &&
-          member.delegate !== member.id && (
-            <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-card text-secondary">
-              {t('delegate.currentDelegateShort', 'Delegating to')}{' '}
-              {short(member.delegate)}
-            </span>
-          )}
+        {member.delegate
+          && member.delegate !== ZERO_ADDRESS
+          && member.delegate !== member.id && (
+          <span className="mt-1 inline-block text-[10px] px-1.5 py-0.5 rounded bg-card text-secondary">
+            {t('delegate.currentDelegateShort', 'Delegating to')}
+            {' '}
+            {short(member.delegate)}
+          </span>
+        )}
       </div>
     </SelectItem>
   )

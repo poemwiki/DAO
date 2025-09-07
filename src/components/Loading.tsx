@@ -1,5 +1,5 @@
-import styles from './Loading.module.css'
 import { useTranslation } from 'react-i18next'
+import styles from './Loading.module.css'
 
 export function Loading({ text }: { text?: string }) {
   const { t } = useTranslation('common')

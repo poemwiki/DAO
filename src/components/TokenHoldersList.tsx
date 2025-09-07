@@ -1,10 +1,11 @@
-import { useTranslation } from 'react-i18next'
-import { formatAddress, formatTokenAmount } from '@/utils/format'
-import { useDisplayName } from '@/hooks/useDisplayName'
-import { useQuery } from '@tanstack/react-query'
-import { getTokenHolders, type TokenHoldersResponseData } from '@/graphql'
+import type { TokenHoldersResponseData } from '@/graphql'
 import type { Member } from '@/types'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { ZERO_ADDRESS } from '@/constants'
+import { getTokenHolders } from '@/graphql'
+import { useDisplayName } from '@/hooks/useDisplayName'
+import { formatAddress, formatTokenAmount } from '@/utils/format'
 import DelegateButton from './DelegateButton'
 
 export default function TokenHoldersList() {
@@ -46,7 +47,9 @@ export default function TokenHoldersList() {
         <h2 className="text-2xl font-bold mb-4">
           {t('tokenHolders.title')}
           <span className="ml-2 text-sm text-secondary">
-            {members.length} {t('tokenHolders.totalHolders')}
+            {members.length}
+            {' '}
+            {t('tokenHolders.totalHolders')}
           </span>
         </h2>
         <DelegateButton />
@@ -73,28 +76,32 @@ export default function TokenHoldersList() {
             </tr>
           </thead>
           <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-4 text-center">
-                  {t('common.loading')}
-                </td>
-              </tr>
-            ) : members.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-4 text-center">
-                  {t('tokenHolders.noData')}
-                </td>
-              </tr>
-            ) : (
-              members.map(member => (
-                <MemberRow
-                  key={member.id}
-                  member={member}
-                  formatDelegateAddress={formatDelegateAddress}
-                  totalBalance={totalBalance}
-                />
-              ))
-            )}
+            {isLoading
+              ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center">
+                      {t('common.loading')}
+                    </td>
+                  </tr>
+                )
+              : members.length === 0
+                ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-4 text-center">
+                        {t('tokenHolders.noData')}
+                      </td>
+                    </tr>
+                  )
+                : (
+                    members.map(member => (
+                      <MemberRow
+                        key={member.id}
+                        member={member}
+                        formatDelegateAddress={formatDelegateAddress}
+                        totalBalance={totalBalance}
+                      />
+                    ))
+                  )}
           </tbody>
         </table>
       </div>
@@ -134,13 +141,15 @@ function MemberRow({
       <td className="px-6 py-4 text-right">
         <span>{formatTokenAmount(bal, DECIMALS)}</span>
         <span className="inline-block w-12 text-right text-xs text-secondary ml-2">
-          {pct.toFixed(2)}%
+          {pct.toFixed(2)}
+          %
         </span>
       </td>
       <td className="px-6 py-4 text-right">
         <span>{formatTokenAmount(votes, DECIMALS)}</span>
         <span className="inline-block w-12 text-right text-xs text-secondary ml-2">
-          {votesPct.toFixed(2)}%
+          {votesPct.toFixed(2)}
+          %
         </span>
       </td>
       <td className="px-6 py-4">{member.id}</td>

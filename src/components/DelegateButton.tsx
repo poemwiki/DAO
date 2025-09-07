@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useAccount } from 'wagmi'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import DelegateModal from '@/components/DelegateModal'
-import { useIsDelegated } from '@/hooks/useIsDelegated'
 import { MdOutlineChair } from 'react-icons/md'
+import { useAccount } from 'wagmi'
+import DelegateModal from '@/components/DelegateModal'
+import { Button } from '@/components/ui/button'
+import { useIsDelegated } from '@/hooks/useIsDelegated'
 
 export default function DelegateButton() {
   const { address } = useAccount()

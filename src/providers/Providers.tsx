@@ -1,18 +1,17 @@
 import type { ReactNode } from 'react'
 import * as RadixTooltip from '@radix-ui/react-tooltip'
-import { Web3OnboardProvider } from '@web3-onboard/react'
-import { web3Onboard } from '@/config/web3'
-import { WagmiProvider } from 'wagmi'
-import { wagmiConfig } from '@/config/wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { TokenInfoProvider } from '@/context/TokenInfoContext'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { routeObjects } from '@/routes/config'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { Web3OnboardProvider } from '@web3-onboard/react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { WagmiProvider } from 'wagmi'
 import Loading from '@/components/Loading'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-
+import { wagmiConfig } from '@/config/wagmi'
+import { web3Onboard } from '@/config/web3'
+import { TokenInfoProvider } from '@/context/TokenInfoContext'
+import { routeObjects } from '@/routes/config'
 
 // Central place to register all app-wide providers.
 // Add future providers here (Theme, i18n already side-effect imported in main).
@@ -41,7 +40,7 @@ export function Providers({ children }: ProvidersProps) {
               delayDuration={150}
               skipDelayDuration={300}
             >
-              <Suspense fallback={<Loading text={t('loading')} /> }>
+              <Suspense fallback={<Loading text={t('loading')} />}>
                 <RouterProvider router={router} />
               </Suspense>
               {children /* slot for global overlays if needed */}

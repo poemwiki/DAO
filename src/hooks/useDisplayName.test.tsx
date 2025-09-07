@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { useDisplayName, __resetAddressBookCache } from './useDisplayName'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { __resetAddressBookCache, useDisplayName } from './useDisplayName'
 
 // Mock wagmi useEnsName
 vi.mock('wagmi', () => ({
@@ -10,7 +10,7 @@ vi.mock('wagmi', () => ({
 // Provide a mock fetch
 const originalFetch = globalThis.fetch
 // reset module between tests to clear cache
-vi.mock('./useDisplayName', async orig => {
+vi.mock('./useDisplayName', async (orig) => {
   const actual = await orig()
   return actual
 })

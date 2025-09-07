@@ -1,6 +1,6 @@
 import { useReadContract } from 'wagmi'
-import { config } from '@/config'
 import { tokenABI } from '@/abis'
+import { config } from '@/config'
 
 export function useDelegate(address?: string) {
   const {

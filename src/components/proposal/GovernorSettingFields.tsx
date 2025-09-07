@@ -1,13 +1,13 @@
+import type { GovernorFunction, ProposalForm } from '@/hooks/useProposalForm'
 import React from 'react'
-import { PROPOSAL_TYPE } from '@/constants'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { useTranslation } from 'react-i18next'
-import { ProposalForm, GovernorFunction } from '@/hooks/useProposalForm'
-import { estimateDurationFromBlocks } from '@/utils/format'
-import { getAverageBlockTime } from '@/constants/blockTimes'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { config } from '@/config'
+import { PROPOSAL_TYPE } from '@/constants'
+import { getAverageBlockTime } from '@/constants/blockTimes'
+import { estimateDurationFromBlocks } from '@/utils/format'
 
 interface Props {
   form: ProposalForm
@@ -25,7 +25,8 @@ export const GovernorSettingFields: React.FC<Props> = ({
   fieldErrors,
 }) => {
   const { t } = useTranslation()
-  if (form.type !== PROPOSAL_TYPE.GOVERNOR_SETTING) return null
+  if (form.type !== PROPOSAL_TYPE.GOVERNOR_SETTING)
+    return null
   const fn = form.governorFunction
   const raw = form.governorValue
   let duration: string | null = null
@@ -40,7 +41,8 @@ export const GovernorSettingFields: React.FC<Props> = ({
         const avgSecPerBlock = getAverageBlockTime(chainId)
         duration = estimateDurationFromBlocks(Number(blocks), avgSecPerBlock)
       }
-    } catch {
+    }
+    catch {
       // ignore
     }
   }
@@ -51,7 +53,8 @@ export const GovernorSettingFields: React.FC<Props> = ({
         <Select
           value={form.governorFunction}
           onValueChange={(v: GovernorFunction) => {
-            if (v !== form.governorFunction) setGovernorFunction(v)
+            if (v !== form.governorFunction)
+              setGovernorFunction(v)
           }}
         >
           <SelectTrigger>
@@ -81,7 +84,7 @@ export const GovernorSettingFields: React.FC<Props> = ({
             max={fn === 'updateQuorumNumerator' ? '100' : undefined}
             step={fn === 'updateQuorumNumerator' ? '1' : '1'}
             required
-            className={(fieldErrors?.governorValue ? 'border-destructive focus-visible:ring-destructive ' : '') + 'placeholder:text-muted-foreground'}
+            className={`${fieldErrors?.governorValue ? 'border-destructive focus-visible:ring-destructive ' : ''}placeholder:text-muted-foreground`}
             placeholder={t('proposal.enterNewValue')}
           />
           {fn === 'updateQuorumNumerator' && <span className="text-sm font-medium">%</span>}

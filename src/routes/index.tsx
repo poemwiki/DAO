@@ -1,15 +1,15 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { ROUTES } from '@/constants'
 
 // Layouts
 import AppLayout from '@/layouts/app'
 
+import CreateProposal from '@/pages/CreateProposal'
 // Pages
 import Home from '@/pages/Home'
-import Proposal from '@/pages/Proposal'
-import CreateProposal from '@/pages/CreateProposal'
 import NotFound from '@/pages/NotFound'
+import Proposal from '@/pages/Proposal'
 
 export const AppRoutes: React.FC = () => {
   return (

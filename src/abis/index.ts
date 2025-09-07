@@ -1,2 +1,2 @@
-export * from './tokenABI'
 export * from './governorABI'
+export * from './tokenABI'

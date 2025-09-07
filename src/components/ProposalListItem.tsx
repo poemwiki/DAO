@@ -1,15 +1,15 @@
-import { Link } from 'react-router-dom'
+import type { Proposal } from '@/types'
+import type { GovernorStateCode } from '@/utils/governor'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import ProposalStatusBadge from '@/components/ProposalStatusBadge'
 import Badge from '@/components/ui/Badge'
 import { ROUTES } from '@/constants'
-import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
-import { parseProposalActions } from '@/utils/parseProposalActions'
-import { formatRelativeTime, formatGraphTimestamp } from '@/utils/format'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
-import type { Proposal } from '@/types'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
-import { GovernorStateCode } from '@/utils/governor'
+import { formatGraphTimestamp, formatRelativeTime } from '@/utils/format'
+import { parseProposalActions } from '@/utils/parseProposalActions'
+import { buildProposalTitle, getDisplayDescription } from '@/utils/proposal'
 
 interface Props {
   proposal: Proposal
@@ -49,7 +49,8 @@ export function ProposalListItem({
         endInfo.timestamp,
         t('lang') as string,
       )}`
-    } else {
+    }
+    else {
       // finalized or other states -> date only (no time of day)
       timeLabel = `${t('home.votingEndedAt')} ${formatGraphTimestamp(
         endInfo.timestamp,
@@ -72,7 +73,8 @@ export function ProposalListItem({
                 {displayTitle}
               </h3>
               <Badge color="slate" outline={true}>
-                Proposal #{proposalNumber}
+                Proposal #
+                {proposalNumber}
               </Badge>
             </div>
             <p className="text-secondary line-clamp-1 break-words text-sm sm:text-base">

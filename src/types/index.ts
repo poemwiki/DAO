@@ -14,6 +14,13 @@ export interface VoteCastEntity {
   reason: string
   createdAt: string
   tx: string
+  proposal?: {
+    id: string
+    proposalId: string
+    description: string
+    canceled: boolean
+    executed: boolean
+  }
 }
 
 export interface Proposal {
@@ -76,4 +83,13 @@ export interface Member {
   delegateBalance: string
   /** last updated timestamp (subgraph) */
   updatedAt?: string
+}
+
+export interface Transfer {
+  id: string
+  from: { id: string }
+  to: { id: string }
+  value: string
+  createdAt: string
+  tx: string
 }

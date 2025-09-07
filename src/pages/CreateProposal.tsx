@@ -1,27 +1,28 @@
-import React, { useMemo, useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import type { ProposalForm } from '@/hooks/useProposalForm'
 import { useConnectWallet } from '@web3-onboard/react'
-import { useGovernorParams } from '@/hooks/useGovernorParams'
-import { ROUTES, PROPOSAL_TYPE } from '@/constants'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import React, { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { BatchMintFields } from '@/components/proposal/BatchMintFields'
+import { ExecutionPreview } from '@/components/proposal/ExecutionPreview'
+import { GovernorSettingFields } from '@/components/proposal/GovernorSettingFields'
+import { MintOrBudgetFields } from '@/components/proposal/MintOrBudgetFields'
 import { ProposalTypeSelect } from '@/components/ProposalTypeSelect'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { PROPOSAL_TYPE, ROUTES } from '@/constants'
+import { useGovernorParams } from '@/hooks/useGovernorParams'
+import { useProposalFieldValidation } from '@/hooks/useProposalFieldValidation'
+import { makeInitialForm, useProposalForm } from '@/hooks/useProposalForm'
+import { useProposalSubmission } from '@/hooks/useProposalSubmission'
+import { useThresholdCheck } from '@/hooks/useThresholdCheck'
+import { useTokenInfo } from '@/hooks/useTokenInfo'
 import {
   cn,
   short,
 } from '@/utils/format'
-import { useTokenInfo } from '@/hooks/useTokenInfo'
-import { useThresholdCheck } from '@/hooks/useThresholdCheck'
-import { useProposalForm, ProposalForm, makeInitialForm } from '@/hooks/useProposalForm'
-import { useProposalFieldValidation } from '@/hooks/useProposalFieldValidation'
-import { useProposalSubmission } from '@/hooks/useProposalSubmission'
-import { BatchMintFields } from '@/components/proposal/BatchMintFields'
-import { GovernorSettingFields } from '@/components/proposal/GovernorSettingFields'
-import { MintOrBudgetFields } from '@/components/proposal/MintOrBudgetFields'
-import { ExecutionPreview } from '@/components/proposal/ExecutionPreview'
 
 // NOTE: This page will be extended to include batch mint & governor setting later.
 
@@ -29,7 +30,7 @@ export default function CreateProposal() {
   return <CreateProposalOuter />
 }
 
-const CreateProposalOuter = React.memo(function CreateProposalOuter() {
+const CreateProposalOuter = React.memo(() => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [{ wallet }] = useConnectWallet()
@@ -77,7 +78,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
         t,
         proposerAddress,
       ),
-    onSuccess: proposalId => {
+    onSuccess: (proposalId) => {
       // reset local form state immediately
       setForm(f => makeInitialForm(f.type))
       submission.reset()
@@ -94,8 +95,8 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
   })
 
   // Fetch proposer current token balance (ERC20 balance as proxy for threshold check; later may switch to getVotes snapshot >0 logic if needed)
-  const { balance, formattedThreshold, meetsThreshold, loadingBalance } =
-    useThresholdCheck(proposerAddress)
+  const { balance, formattedThreshold, meetsThreshold, loadingBalance }
+    = useThresholdCheck(proposerAddress)
 
   const disabledReason = useMemo(() => {
     if (!wallet) {
@@ -131,7 +132,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
     const { name, value } = e.target
-    setForm(f => {
+    setForm((f) => {
       // generic field updates only for common or present keys
       if (name in f) {
         return { ...f, [name]: value } as ProposalForm
@@ -145,17 +146,17 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
     validateField(name)
   }, [validateField])
 
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-  submission.reset()
+    submission.reset()
     if (
-      disabledReason ||
-      !wallet ||
-      !gov ||
-      ['building', 'signing', 'pending'].includes(createStatus)
-    )
+      disabledReason
+      || !wallet
+      || !gov
+      || ['building', 'signing', 'pending'].includes(createStatus)
+    ) {
       return
+    }
     await submission.submit(form)
   }
 
@@ -218,11 +219,12 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
               <Label>{t('proposal.type')}</Label>
               <ProposalTypeSelect
                 value={form.type}
-                onChange={next => {
+                onChange={(next) => {
                   if (next === PROPOSAL_TYPE.BUDGET) {
                     // prefill address if empty
-                    setForm(f => {
-                      if (f.type === PROPOSAL_TYPE.BUDGET) return f
+                    setForm((f) => {
+                      if (f.type === PROPOSAL_TYPE.BUDGET)
+                        return f
                       // create a fresh budget form preserving title/description via makeInitialForm
                       const base = makeInitialForm(PROPOSAL_TYPE.BUDGET, f)
                       // When switching TO BUDGET we only care about prior single-address types (MINT)
@@ -232,7 +234,8 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                         address: prevAddress || proposerAddress || '',
                       }
                     })
-                  } else {
+                  }
+                  else {
                     setType(next)
                   }
                 }}
@@ -259,8 +262,7 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                   f.type === PROPOSAL_TYPE.GOVERNOR_SETTING
                     ? { ...f, governorFunction: fn }
                     : f,
-                )
-              }
+                )}
               onBlur={onBlur}
               fieldErrors={fieldErrors}
             />
@@ -289,9 +291,9 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex-1 flex flex-col items-start justify-start">
-        {submission.errors.length > 0 && (
+              {submission.errors.length > 0 && (
                 <ul className="mb-2 list-disc pl-5 space-y-1 text-xs text-destructive">
-          {submission.errors.map((er, i) => (
+                  {submission.errors.map((er, i) => (
                     <li key={i}>{er}</li>
                   ))}
                 </ul>
@@ -326,8 +328,8 @@ const CreateProposalOuter = React.memo(function CreateProposalOuter() {
                 {createStatus === 'signing' && t('wallet.txSigning')}
                 {createStatus === 'pending' && t('wallet.txPending')}
                 {createStatus === 'success' && t('proposal.status.success')}
-                {['idle', 'error'].includes(createStatus) &&
-                  t('proposal.submit')}
+                {['idle', 'error'].includes(createStatus)
+                  && t('proposal.submit')}
                 {['building', 'signing', 'pending'].includes(createStatus) && (
                   <span className="ml-2 h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
                 )}

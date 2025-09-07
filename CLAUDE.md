@@ -37,13 +37,13 @@ Distinction: `hooks/` may include contract mutations / side-effects; `queries/` 
 
 ## Common Development Commands
 
-- `pnpm run dev` - Start development server (Vite)
 - `pnpm run build` - Build for production (TypeScript compilation + Vite build)
-- `pnpm run preview` - Preview production build
 - `pnpm run lint` - Run ESLint with auto-fix
 - `pnpm run format` - Format code with Prettier
 - `pnpm run test` - Run tests with Vitest (single run)
 - `pnpm run test:watch` - Run tests in watch mode
+
+Never run `pnpm run dev` or `pnpm run preview` because the dev is already running in a separate terminal.
 
 ## Project Architecture
 

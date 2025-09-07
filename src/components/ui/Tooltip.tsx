@@ -1,7 +1,10 @@
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
-import { cn } from '@/utils/format'
 import type { ComponentPropsWithoutRef, ElementRef } from 'react'
+// Backwards compatible simple wrapper for previous usage pattern: <Tooltip content=...><child/></Tooltip>
+import type { ReactNode } from 'react'
+import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { forwardRef } from 'react'
+
+import { cn } from '@/utils/format'
 
 const TooltipProvider = TooltipPrimitive.Provider
 
@@ -32,10 +35,8 @@ const TooltipContent = forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
 
-// Backwards compatible simple wrapper for previous usage pattern: <Tooltip content=...><child/></Tooltip>
-import type { ReactNode } from 'react'
 interface LegacyWrapperProps {
   content: ReactNode
   children: ReactNode

@@ -1,10 +1,10 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { getDisplayStatusInfo } from '@/utils/proposal'
 import type { Proposal } from '@/types'
 import type { GovernorStateCode } from '@/utils/governor'
-import Badge from '@/components/ui/Badge'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { FiRadio } from 'react-icons/fi'
+import Badge from '@/components/ui/Badge'
+import { getDisplayStatusInfo } from '@/utils/proposal'
 
 interface ProposalStatusBadgeProps {
   proposal: Proposal

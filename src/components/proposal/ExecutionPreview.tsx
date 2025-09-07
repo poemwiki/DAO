@@ -1,6 +1,6 @@
+import type { ProposalForm } from '@/hooks/useProposalForm'
 import React from 'react'
 import { PROPOSAL_TYPE } from '@/constants'
-import type { ProposalForm } from '@/hooks/useProposalForm'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
 
 export interface ExecutionPreviewProps {
@@ -26,7 +26,8 @@ export const ExecutionPreview: React.FC<ExecutionPreviewProps> = ({ form, t, pro
       const validRows = form.batch.filter(r => r.address || r.amount)
       if (validRows.length === 0) {
         lines.push('token.batchMint([<address1>, <address2>], [<amt1> * 1e18, <amt2> * 1e18])')
-      } else {
+      }
+      else {
         const addrList = validRows.map(r => r.address || '<address>').join(', ')
         const amtList = validRows.map(r => `${r.amount || '0'} * 1e18`).join(', ')
         lines.push(`token.batchMint([${addrList}], [${amtList}])`)
@@ -36,7 +37,8 @@ export const ExecutionPreview: React.FC<ExecutionPreviewProps> = ({ form, t, pro
       if (form.governorFunction === 'setProposalThreshold') {
         const v = form.governorValue || '0'
         lines.push(`${form.governorFunction}(${v} * 1e${decimals})`)
-      } else {
+      }
+      else {
         lines.push(`${form.governorFunction}(${form.governorValue || '0'})`)
       }
       break

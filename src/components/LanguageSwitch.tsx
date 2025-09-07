@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { IoLanguageSharp } from 'react-icons/io5'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { cn } from '@/utils/format'
-import { useHoverPopover } from '@/hooks/use-hover-popover'
+import { AnimatePresence, motion } from 'framer-motion'
 import { t } from 'i18next'
-import { Button } from './ui/button'
+import { useTranslation } from 'react-i18next'
+import { IoLanguageSharp } from 'react-icons/io5'
 import { dropdownAnimation } from '@/animations/dropdown'
+import { useHoverPopover } from '@/hooks/use-hover-popover'
+import { cn } from '@/utils/format'
+import { Button } from './ui/button'
 
 export default function LanguageSwitch() {
   const { i18n } = useTranslation()
@@ -25,7 +25,8 @@ export default function LanguageSwitch() {
       if (!isMobile) {
         setOpen(false)
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error changing language:', error)
     }
   }

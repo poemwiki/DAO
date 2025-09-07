@@ -1,16 +1,16 @@
-import { short } from '@/utils/format'
-import { useTranslation } from 'react-i18next'
-import { getExplorerTxUrl } from '@/config'
+import type { Proposal } from '@/types'
+import type { GovernorStateCode } from '@/utils/governor'
+import { useQueryClient } from '@tanstack/react-query'
+import { useConnectWallet } from '@web3-onboard/react'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { MdAdsClick, MdCheck, MdCheckBoxOutlineBlank, MdClear, MdOutlineRocketLaunch } from 'react-icons/md'
+import { getExplorerTxUrl } from '@/config'
 import { useCastVote } from '@/hooks/useCastVote'
 import { useExecuteProposal } from '@/hooks/useExecuteProposal'
 import { useIsDelegated } from '@/hooks/useIsDelegated'
-import type { Proposal } from '@/types'
-import { useQueryClient } from '@tanstack/react-query'
-import { useConnectWallet } from '@web3-onboard/react'
-import { MdAdsClick, MdCheck, MdCheckBoxOutlineBlank, MdClear, MdOutlineRocketLaunch } from 'react-icons/md'
+import { short } from '@/utils/format'
 import { Button } from '../ui/button'
-import { GovernorStateCode } from '@/utils/governor'
 
 // WHY: This panel previously accepted many derived props (canExecute, executing, hasVoted, etc.)
 // which tightly coupled the page to voting logic. We internalize the hooks + derivations here,
@@ -40,7 +40,6 @@ export function ProposalVotePanel({
   const canVote = stateCode === 1 // Active
   const canExecute = !proposal?.executed && (stateCode === 4 || stateCode === 5)
   const isExecuted = !!proposal?.executed
-
 
   const {
     cast,
@@ -87,21 +86,21 @@ export function ProposalVotePanel({
     },
   })
 
-  const executing =
-    execStatus === 'building' ||
-    execStatus === 'signing' ||
-    execStatus === 'pending'
+  const executing
+    = execStatus === 'building'
+      || execStatus === 'signing'
+      || execStatus === 'pending'
   const justExecuted = execStatus === 'success'
   // Hide panel once voting period is over (stateCode !== 1) or executed
   if (isExecuted || justExecuted || stateCode !== 1) {
     return null
   }
-  const voteDisabled =
-    !canVote
-    || hasVoted
-    || castStatus === 'pending'
-    || castStatus === 'signing'
-    || !hasVotingPower
+  const voteDisabled
+    = !canVote
+      || hasVoted
+      || castStatus === 'pending'
+      || castStatus === 'signing'
+      || !hasVotingPower
 
   return (
     <div className="space-y-3">
@@ -125,8 +124,7 @@ export function ProposalVotePanel({
                   (proposal.values || []).map(v => BigInt(v)),
                   (proposal.calldatas || []) as `0x${string}`[],
                   proposal.description,
-                )
-              }
+                )}
             >
               <MdOutlineRocketLaunch />
               {executing
@@ -144,16 +142,20 @@ export function ProposalVotePanel({
               </p>
             )}
             {/* Success state removed because panel unmounts when justExecuted */}
-            {execStatus === 'error' && execError ? (
-              <p className="text-[11px] text-destructive break-words">
-                {t('proposal.execute.error', 'Execution failed')}:{' '}
-                {String(
-                  (execError as any)?.shortMessage ||
-                    (execError as any)?.message ||
-                    (execError as any),
-                )}
-              </p>
-            ) : null}
+            {execStatus === 'error' && execError
+              ? (
+                  <p className="text-[11px] text-destructive break-words">
+                    {t('proposal.execute.error', 'Execution failed')}
+                    :
+                    {' '}
+                    {String(
+                      (execError as any)?.shortMessage
+                      || (execError as any)?.message
+                      || (execError as any),
+                    )}
+                  </p>
+                )
+              : null}
           </div>
         ) : (
           <>
@@ -214,7 +216,8 @@ export function ProposalVotePanel({
             {castStatus === 'success' && castResult?.txHash && (
               <div className="text-xs break-all space-y-1">
                 <p>
-                  {t('proposal.vote.success')}{' '}
+                  {t('proposal.vote.success')}
+                  {' '}
                   <a
                     href={getExplorerTxUrl(castResult.txHash)}
                     target="_blank"
@@ -231,20 +234,22 @@ export function ProposalVotePanel({
                 )}
               </div>
             )}
-            {castError ? (
-              <p className="text-xs text-destructive break-words">
-                {((): string => {
-                  const raw: string =
-                    (castError as any)?.shortMessage ||
-                    (castError as any)?.message ||
-                    String(castError)
-                  return raw.replace(
-                    /0x[0-9a-fA-F]{120,}/g,
-                    (m: string) => `${m.slice(0, 20)}…`,
-                  )
-                })()}
-              </p>
-            ) : null}
+            {castError
+              ? (
+                  <p className="text-xs text-destructive break-words">
+                    {((): string => {
+                      const raw: string
+                        = (castError as any)?.shortMessage
+                          || (castError as any)?.message
+                          || String(castError)
+                      return raw.replace(
+                        /0x[0-9a-fA-F]{120,}/g,
+                        (m: string) => `${m.slice(0, 20)}…`,
+                      )
+                    })()}
+                  </p>
+                )
+              : null}
           </>
         )}
       </div>

@@ -1,15 +1,15 @@
+import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
-  MdOutlineLightMode,
-  MdOutlineDarkMode,
   MdOutlineComputer,
+  MdOutlineDarkMode,
+  MdOutlineLightMode,
 } from 'react-icons/md'
-import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { cn } from '@/utils/format'
-import { useHoverPopover } from '@/hooks/use-hover-popover'
 import { dropdownAnimation } from '@/animations/dropdown'
+import { useHoverPopover } from '@/hooks/use-hover-popover'
+import { cn } from '@/utils/format'
 import { Button } from './ui/button'
 
 // Theme type
@@ -21,7 +21,8 @@ function getStoredTheme(): Theme {
     if (stored === 'light' || stored === 'dark' || stored === 'system') {
       return stored
     }
-  } catch {}
+  }
+  catch {}
   return 'system'
 }
 

@@ -1,7 +1,7 @@
+import type { Account } from '@web3-onboard/core/dist/types'
+import { useConnectWallet, useSetChain } from '@web3-onboard/react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useConnectWallet, useSetChain } from '@web3-onboard/react'
-import type { Account } from '@web3-onboard/core/dist/types'
 import { SlWallet } from 'react-icons/sl'
 import { Button } from '@/components/ui/button'
 import {

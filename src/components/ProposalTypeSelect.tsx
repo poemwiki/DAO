@@ -1,13 +1,13 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PROPOSAL_TYPE } from '@/constants'
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
+import { PROPOSAL_TYPE } from '@/constants'
 
 export interface ProposalTypeSelectProps {
   value: (typeof PROPOSAL_TYPE)[keyof typeof PROPOSAL_TYPE]

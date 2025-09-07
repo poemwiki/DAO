@@ -1,11 +1,11 @@
+import type { ProposalForm } from '@/hooks/useProposalForm'
 import React from 'react'
-import { PROPOSAL_TYPE } from '@/constants'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 import { useTranslation } from 'react-i18next'
-import { ProposalForm } from '@/hooks/useProposalForm'
 import { MdClear } from 'react-icons/md'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { PROPOSAL_TYPE } from '@/constants'
 import { cn } from '@/utils/format'
 
 interface Props {
@@ -30,7 +30,8 @@ export const BatchMintFields: React.FC<Props> = ({
   fieldErrors,
 }) => {
   const { t } = useTranslation()
-  if (form.type !== PROPOSAL_TYPE.BATCH_MINT) return null
+  if (form.type !== PROPOSAL_TYPE.BATCH_MINT)
+    return null
   return (
     <div className="space-y-3">
       <Label>{t('proposal.batchMintRows')}</Label>
@@ -47,18 +48,19 @@ export const BatchMintFields: React.FC<Props> = ({
                 <Input
                   value={row.address}
                   onChange={e => updateRow(i, 'address', e.target.value)}
-                  onBlur={e => {
-                    if (onBlur)
+                  onBlur={(e) => {
+                    if (onBlur) {
                       onBlur({
                         ...e,
                         target: { ...e.target, name: addrKey },
                       } as any)
+                    }
                   }}
                   placeholder={t('proposal.enterAddress')}
                   className={
-                    (fieldErrors?.[addrKey]
+                    `${fieldErrors?.[addrKey]
                       ? 'border-destructive focus-visible:ring-destructive '
-                      : '') + 'placeholder:text-muted-foreground font-mono'
+                      : ''}placeholder:text-muted-foreground font-mono`
                   }
                 />
                 {fieldErrors?.[addrKey] && (
@@ -72,19 +74,20 @@ export const BatchMintFields: React.FC<Props> = ({
                   type="number"
                   value={row.amount}
                   onChange={e => updateRow(i, 'amount', e.target.value)}
-                  onBlur={e => {
-                    if (onBlur)
+                  onBlur={(e) => {
+                    if (onBlur) {
                       onBlur({
                         ...e,
                         target: { ...e.target, name: amtKey },
                       } as any)
+                    }
                   }}
                   placeholder={t('proposal.enterAmount')}
                   className={
-                    (fieldErrors?.[amtKey]
+                    `${fieldErrors?.[amtKey]
                       ? 'border-destructive focus-visible:ring-destructive '
-                      : '') +
-                    'placeholder:text-muted-foreground font-mono text-right'
+                      : ''
+                    }placeholder:text-muted-foreground font-mono text-right`
                   }
                   min="0"
                   step="0.000000000000000001"

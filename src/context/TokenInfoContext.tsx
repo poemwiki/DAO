@@ -1,8 +1,9 @@
+import type { TokenInfoResult } from '@/queries/tokenInfo'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import React, { createContext, useContext } from 'react'
 import { usePublicClient } from 'wagmi'
 import { config } from '@/config'
-import { useQueryClient, useQuery } from '@tanstack/react-query'
-import { fetchTokenInfo, tokenInfoQueryKey, type TokenInfoResult } from '@/queries/tokenInfo'
+import { fetchTokenInfo, tokenInfoQueryKey } from '@/queries/tokenInfo'
 
 export interface TokenInfoCache extends Partial<TokenInfoResult> {
   loading: boolean

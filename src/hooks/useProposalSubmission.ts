@@ -27,7 +27,8 @@ export function useProposalSubmission({
 
   // Derive friendly error only when status === 'error'; prevents old error flashing after submit.
   useEffect(() => {
-    if (status !== 'error' || !error) return
+    if (status !== 'error' || !error)
+      return
     const e = error as unknown as {
       shortMessage?: string
       message?: string
@@ -41,7 +42,8 @@ export function useProposalSubmission({
       if (raw.length > 360)
         raw = `${raw.slice(0, 360)}…`
     }
-    if (friendlyError === raw) return
+    if (friendlyError === raw)
+      return
     queueMicrotask(() => setFriendlyError(raw))
   }, [status, error, t, friendlyError])
 

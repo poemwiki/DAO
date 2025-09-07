@@ -6,6 +6,7 @@ import AppLayout from '@/layouts/app'
 const Home = lazy(() => import('@/pages/Home'))
 const Proposal = lazy(() => import('@/pages/Proposal'))
 const CreateProposal = lazy(() => import('@/pages/CreateProposal'))
+const Member = lazy(() => import('@/pages/Member'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 // WHY: Central single source route objects for Data Router.
@@ -17,6 +18,7 @@ export const routeObjects = [
       { index: true, element: <Home /> },
       { path: ROUTES.PROPOSAL.substring(1), element: <Proposal /> },
       { path: ROUTES.CREATE_PROPOSAL.substring(1), element: <CreateProposal /> },
+      { path: ROUTES.MEMBER.substring(1), element: <Member /> },
       { path: '*', element: <NotFound /> },
     ],
   },

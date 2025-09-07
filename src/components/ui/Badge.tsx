@@ -1,6 +1,7 @@
-import React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
+import type { VariantProps } from 'class-variance-authority'
+import { cva } from 'class-variance-authority'
 import { clsx } from 'clsx'
+import React from 'react'
 
 // WHY: Avoid relying on `dark:` utilities for arbitrary values in Tailwind v4 (produced empty rules).
 // Each `.badge-color-*` utility defines unified CSS vars for both modes; dark theme overrides vars via `.dark .badge-color-*`.
@@ -34,7 +35,7 @@ type VariantColor = NonNullable<VariantProps<typeof badgeVariants>['color']>
 
 export interface BadgeProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'>,
-    VariantProps<typeof badgeVariants> {
+  VariantProps<typeof badgeVariants> {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
 }
