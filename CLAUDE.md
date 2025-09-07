@@ -2,6 +2,39 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Repository Overview
+
+Govo (GovZero) is a decentralized governance dApp: proposal lifecycle (create → vote → succeed → execute), real-time data via The Graph, and on-chain interactions through wagmi/viem. Current adopter: PoemWiki DAO. Focus points: accurate snapshot-based voting power, clear quorum display, fast post-transaction consistency (targeted refetch + light polling), and strict separation of UI vs side-effect logic.
+
+### Core Feature Domains (Quick Map)
+- Governance proposals: listing, detail, creation (arrays: targets/values/calldatas + description hash)
+- Voting: for / against / abstain (CountingSimple), delegation-aware weights
+- Quorum visualization: absolute threshold derived at snapshot block
+- Wallet + Network: address book mapping + multi-chain readiness
+- Internationalization: all user text via i18n resources (no raw strings)
+- The Graph integration: proposals, votes, members, transfers
+
+## Directory Structure (Frontend `src/`)
+
+```
+├── abis/            # Curated minimal ABIs (do not import artifacts directly)
+├── assets/          # Static assets (SVG, images)
+├── components/      # Reusable presentational + UI primitives (Tailwind + Radix)
+├── config/          # Wagmi / network / web3 config modules
+├── constants/       # Network constants, enums, feature flags
+├── context/         # React Context providers
+├── graphql/         # Raw GraphQL documents & fragments
+├── hooks/           # Custom compositional hooks (stateful logic, side-effects)
+├── layouts/         # Layout wrappers
+├── pages/           # Route-level containers (thin)
+├── queries/         # React Query key helpers + composed data hooks (query orchestration)
+├── routes/          # Route definitions / loader wrappers
+├── types/           # Shared TS types & interfaces
+└── utils/           # Pure helpers (formatting, parsing, math)
+```
+
+Distinction: `hooks/` may include contract mutations / side-effects; `queries/` centralizes stable query key factories & higher-level data composition to reduce duplication and enforce key shape discipline.
+
 ## Common Development Commands
 
 - `pnpm run dev` - Start development server (Vite)
@@ -18,8 +51,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 
-- **`/Users/apple/dev/wiki/subgraph-Governor-PWR/`** - The Graph subgraph for blockchain data indexing
-- **`/Users/apple/dev/wiki/dao-poemwiki-contracts/`** - Hardhat smart contracts (Governor + Reputation token)
+- **`../subgraph-Governor-PWR/`** - The Graph subgraph for blockchain data indexing
+- **`../dao-poemwiki-contracts/`** - Hardhat smart contracts (Governor + Reputation token)
 
 ### Technology Stack
 
@@ -46,6 +79,7 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 - Co-locate queries with hooks, handle nullable fields defensively
 - React Query for client-side caching and synchronization
 - Real-time updates through The Graph protocol subscriptions
+- Query key definitions consolidated under `src/queries/` (see React Query Key Pattern)
 
 #### Component Architecture
 
@@ -67,6 +101,7 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 - Local state with React hooks for component-specific data
 - React Query for server/blockchain state
 - Custom hooks in `src/hooks/` for stateful logic
+- Query key + composition utilities in `src/queries/`
 
 ### Important Conventions
 
@@ -95,3 +130,25 @@ This is the frontend React dApp (`govzero/`) that's part of a larger ecosystem:
 ## Node.js Version Requirement
 
 This project requires Node.js >= 22.12.0 as specified in package.json engines.
+
+## i18n Conventions
+
+- No raw user-facing strings: add to resource bundles first; prefix domain (`proposal.`, `member.`, `wallet.`)
+- Keep Chinese & English entries aligned; use descriptive, tense-agnostic keys
+- Prefer nouns / short phrases (`proposal.status.executed`, `member.balance`)
+
+## Address / ABI Update Checklist
+
+1. Deploy/upgrade contracts (external repo)
+2. Copy minimal required ABI fragments into `src/abis/` (trim unused functions/events)
+4. If events/schema changed: update subgraph & regenerate types
+5. Adjust GraphQL queries in `src/graphql/`
+6. Update / add hooks wrapping new calls; invalidate only relevant query keys
+7. Add i18n keys where new UI labels appear
+8. Run: `pnpm run lint` → `pnpm run build` → `pnpm run test`
+
+## Performance & Consistency Notes
+
+- Cache semi-static snapshot-derived data with modest `staleTime` (e.g. quorum components)
+- After transactions: delay briefly then poll specific queries (bounded retries) rather than broad invalidation
+- Avoid multiple public clients; reuse configured wagmi client

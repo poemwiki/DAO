@@ -1,5 +1,6 @@
 # Govo
 
+
 <p align="left">
   <img src="./public/govo.svg" alt="Govo Logo" width="120" height="120" />
 </p>
@@ -74,6 +75,7 @@ src/
 ├── hooks/            # Custom React hooks
 ├── layouts/          # Layout components
 ├── pages/            # Page components
+├── queries/          # React Query query keys & composed data hooks
 ├── routes/           # Route configurations
 ├── types/            # TypeScript type definitions
 └── utils/            # Utility functions
