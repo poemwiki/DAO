@@ -35,11 +35,11 @@ export function formatVoteSupport(support: number, t: (key: string) => string): 
 export function supportColor(support: number): string {
   switch (support) {
     case SUPPORT.FOR:
-      return 'text-primary border bold dark:text-green-300'
+      return 'text-primary border bold'
     case SUPPORT.AGAINST:
-      return 'text-red border bold dark:text-red-300'
+      return 'text-red border bold'
     case SUPPORT.ABSTAIN:
-      return 'text-yellow border bold dark:text-yellow-300'
+      return 'text-yellow border bold'
     default:
       return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300'
   }
