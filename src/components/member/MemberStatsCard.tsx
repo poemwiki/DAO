@@ -12,14 +12,16 @@ export function MemberStatsCard({ title, value, suffix, isLoading }: MemberStats
         {title}
       </div>
       <div className="text-2xl font-semibold font-mono tabular-nums">
-        {isLoading ? (
-          <div className="animate-pulse bg-skeleton rounded h-6 w-16" />
-        ) : (
-          <>
-            {value}
-            {suffix && ` ${suffix}`}
-          </>
-        )}
+        {isLoading
+          ? (
+              <div className="animate-pulse bg-skeleton rounded h-6 w-16" />
+            )
+          : (
+              <>
+                {value}
+                {suffix && ` ${suffix}`}
+              </>
+            )}
       </div>
     </div>
   )

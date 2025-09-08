@@ -7,8 +7,8 @@ import { ROUTES, ZERO_ADDRESS } from '@/constants'
 import { getTokenHolders } from '@/graphql'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { formatAddress, formatTokenAmount } from '@/utils/format'
-import { Avatar } from './ui/Avatar'
 import DelegateButton from './DelegateButton'
+import { Avatar } from './ui/Avatar'
 
 export default function TokenHoldersList() {
   const { t } = useTranslation()

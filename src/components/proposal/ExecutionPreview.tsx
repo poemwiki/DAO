@@ -21,7 +21,7 @@ export const ExecutionPreview: React.FC<ExecutionPreviewProps> = ({ form, t, pro
     case PROPOSAL_TYPE.BUDGET:
       lines.push(`token.mintAndApprove(${form.address || proposerAddress || '<address>'}, ${form.amount || '0'} * 1e18)`) // fallback to connected wallet
       break
-    case PROPOSAL_TYPE.BATCH_MINT:
+    case PROPOSAL_TYPE.BATCH_MINT: {
       // Build arrays matching contract signature: batchMint(address[] toArray, uint256[] amountArray)
       const validRows = form.batch.filter(r => r.address || r.amount)
       if (validRows.length === 0) {
@@ -33,6 +33,7 @@ export const ExecutionPreview: React.FC<ExecutionPreviewProps> = ({ form, t, pro
         lines.push(`token.batchMint([${addrList}], [${amtList}])`)
       }
       break
+    }
     case PROPOSAL_TYPE.GOVERNOR_SETTING:
       if (form.governorFunction === 'setProposalThreshold') {
         const v = form.governorValue || '0'

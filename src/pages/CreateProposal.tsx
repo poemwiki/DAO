@@ -24,12 +24,6 @@ import {
   short,
 } from '@/utils/format'
 
-// NOTE: This page will be extended to include batch mint & governor setting later.
-
-export default function CreateProposal() {
-  return <CreateProposalOuter />
-}
-
 const CreateProposalOuter = React.memo(() => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -114,15 +108,7 @@ const CreateProposalOuter = React.memo(() => {
       })
     }
     return null
-  }, [
-    wallet,
-    gov,
-    loadingBalance,
-    meetsThreshold,
-    gov?.proposalThreshold,
-    tokenInfo,
-    t,
-  ])
+  }, [wallet, gov, loadingBalance, meetsThreshold, t, formattedThreshold])
 
   const createStatus = submission.status
 
@@ -189,155 +175,162 @@ const CreateProposalOuter = React.memo(() => {
         </Button>
       </div>
 
-      {disabledReason ? (
-        <div className="p-6 border rounded-md bg-card space-y-2">
-          <p className="text-sm">{disabledReason}</p>
-          {balance !== null && formattedThreshold && (
-            <p className="text-xs text-secondary">
-              {t('proposalThreshold.currentVsNeeded', {
-                current: balance,
-                needed: formattedThreshold,
-              })}
-            </p>
-          )}
-        </div>
-      ) : (
-        <form onSubmit={onSubmit} className="space-y-6">
-          <div className="space-y-6">
-            <div className="flex flex-col gap-2">
-              <Label>{t('proposal.title')}</Label>
-              <Input
-                name="title"
-                value={form.title}
-                onChange={onChange}
-                onBlur={onBlur}
-                placeholder={t('proposal.enterTitle')}
-                className="placeholder:text-muted-foreground"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label>{t('proposal.type')}</Label>
-              <ProposalTypeSelect
-                value={form.type}
-                onChange={(next) => {
-                  if (next === PROPOSAL_TYPE.BUDGET) {
-                    // prefill address if empty
-                    setForm((f) => {
-                      if (f.type === PROPOSAL_TYPE.BUDGET)
-                        return f
-                      // create a fresh budget form preserving title/description via makeInitialForm
-                      const base = makeInitialForm(PROPOSAL_TYPE.BUDGET, f)
-                      // When switching TO BUDGET we only care about prior single-address types (MINT)
-                      const prevAddress = f.type === PROPOSAL_TYPE.MINT ? f.address : ''
-                      return {
-                        ...base,
-                        address: prevAddress || proposerAddress || '',
-                      }
-                    })
-                  }
-                  else {
-                    setType(next)
-                  }
-                }}
-              />
-              <p className="text-xs text-secondary">
-                {t(`proposal.typeHelp.${form.type}` as const)}
-              </p>
-            </div>
-            <BatchMintFields
-              form={form}
-              batchTotal={batchTotal}
-              symbol={tokenInfo?.symbol}
-              addRow={addBatchRow}
-              updateRow={updateBatchRow}
-              removeRow={removeBatchRow}
-              onBlur={onBlur}
-              fieldErrors={fieldErrors}
-            />
-            <GovernorSettingFields
-              form={form}
-              onChange={onChange}
-              setGovernorFunction={fn =>
-                setForm(f =>
-                  f.type === PROPOSAL_TYPE.GOVERNOR_SETTING
-                    ? { ...f, governorFunction: fn }
-                    : f,
-                )}
-              onBlur={onBlur}
-              fieldErrors={fieldErrors}
-            />
-            <MintOrBudgetFields
-              form={form}
-              proposerAddress={proposerAddress}
-              onChange={onChange}
-              onBlur={onBlur}
-              fieldErrors={fieldErrors}
-            />
-            <div className="flex flex-col gap-2">
-              <Label>{t('proposal.description')}</Label>
-              <Textarea
-                rows={10}
-                name="description"
-                value={form.description}
-                onChange={onChange}
-                onBlur={onBlur}
-                required
-                placeholder={t('proposal.enterDescription')}
-                className="placeholder:text-muted-foreground"
-              />
-            </div>
-            {/* Execution preview */}
-            <ExecutionPreview form={form} t={t} proposerAddress={proposerAddress} />
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex-1 flex flex-col items-start justify-start">
-              {submission.errors.length > 0 && (
-                <ul className="mb-2 list-disc pl-5 space-y-1 text-xs text-destructive">
-                  {submission.errors.map((er, i) => (
-                    <li key={i}>{er}</li>
-                  ))}
-                </ul>
-              )}
-
-              <p
-                className={cn('text-xs text-destructive break-words', {
-                  invisible: !(createStatus === 'error' && submission.friendlyError),
-                })}
-              >
-                {createStatus === 'error' ? submission.friendlyError : ''}
-              </p>
-
-              {createdId && (
-                <p className="text-xs text-right break-words">
-                  {t('proposal.status.proposalId', {
-                    id: short(createdId || ''),
+      {disabledReason
+        ? (
+            <div className="p-6 border rounded-md bg-card space-y-2">
+              <p className="text-sm">{disabledReason}</p>
+              {balance !== null && formattedThreshold && (
+                <p className="text-xs text-secondary">
+                  {t('proposalThreshold.currentVsNeeded', {
+                    current: balance,
+                    needed: formattedThreshold,
                   })}
                 </p>
               )}
             </div>
+          )
+        : (
+            <form onSubmit={onSubmit} className="space-y-6">
+              <div className="space-y-6">
+                <div className="flex flex-col gap-2">
+                  <Label>{t('proposal.title')}</Label>
+                  <Input
+                    name="title"
+                    value={form.title}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    placeholder={t('proposal.enterTitle')}
+                    className="placeholder:text-muted-foreground"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>{t('proposal.type')}</Label>
+                  <ProposalTypeSelect
+                    value={form.type}
+                    onChange={(next) => {
+                      if (next === PROPOSAL_TYPE.BUDGET) {
+                        // prefill address if empty
+                        setForm((f) => {
+                          if (f.type === PROPOSAL_TYPE.BUDGET)
+                            return f
+                          // create a fresh budget form preserving title/description via makeInitialForm
+                          const base = makeInitialForm(PROPOSAL_TYPE.BUDGET, f)
+                          // When switching TO BUDGET we only care about prior single-address types (MINT)
+                          const prevAddress = f.type === PROPOSAL_TYPE.MINT ? f.address : ''
+                          return {
+                            ...base,
+                            address: prevAddress || proposerAddress || '',
+                          }
+                        })
+                      }
+                      else {
+                        setType(next)
+                      }
+                    }}
+                  />
+                  <p className="text-xs text-secondary">
+                    {t(`proposal.typeHelp.${form.type}` as const)}
+                  </p>
+                </div>
+                <BatchMintFields
+                  form={form}
+                  batchTotal={batchTotal}
+                  symbol={tokenInfo?.symbol}
+                  addRow={addBatchRow}
+                  updateRow={updateBatchRow}
+                  removeRow={removeBatchRow}
+                  onBlur={onBlur}
+                  fieldErrors={fieldErrors}
+                />
+                <GovernorSettingFields
+                  form={form}
+                  onChange={onChange}
+                  setGovernorFunction={fn =>
+                    setForm(f =>
+                      f.type === PROPOSAL_TYPE.GOVERNOR_SETTING
+                        ? { ...f, governorFunction: fn }
+                        : f,
+                    )}
+                  onBlur={onBlur}
+                  fieldErrors={fieldErrors}
+                />
+                <MintOrBudgetFields
+                  form={form}
+                  proposerAddress={proposerAddress}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  fieldErrors={fieldErrors}
+                />
+                <div className="flex flex-col gap-2">
+                  <Label>{t('proposal.description')}</Label>
+                  <Textarea
+                    rows={10}
+                    name="description"
+                    value={form.description}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    required
+                    placeholder={t('proposal.enterDescription')}
+                    className="placeholder:text-muted-foreground"
+                  />
+                </div>
+                {/* Execution preview */}
+                <ExecutionPreview form={form} t={t} proposerAddress={proposerAddress} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 flex flex-col items-start justify-start">
+                  {submission.errors.length > 0 && (
+                    <ul className="mb-2 list-disc pl-5 space-y-1 text-xs text-destructive">
+                      {submission.errors.map((er, i) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <li key={i}>{er}</li>
+                      ))}
+                    </ul>
+                  )}
 
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={['building', 'signing', 'pending'].includes(
-                  createStatus,
-                )}
-                className="relative"
-              >
-                {createStatus === 'building' && t('wallet.txBuilding')}
-                {createStatus === 'signing' && t('wallet.txSigning')}
-                {createStatus === 'pending' && t('wallet.txPending')}
-                {createStatus === 'success' && t('proposal.status.success')}
-                {['idle', 'error'].includes(createStatus)
-                  && t('proposal.submit')}
-                {['building', 'signing', 'pending'].includes(createStatus) && (
-                  <span className="ml-2 h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
-                )}
-              </Button>
-            </div>
-          </div>
-        </form>
-      )}
+                  <p
+                    className={cn('text-xs text-destructive break-words', {
+                      invisible: !(createStatus === 'error' && submission.friendlyError),
+                    })}
+                  >
+                    {createStatus === 'error' ? submission.friendlyError : ''}
+                  </p>
+
+                  {createdId && (
+                    <p className="text-xs text-right break-words">
+                      {t('proposal.status.proposalId', {
+                        id: short(createdId || ''),
+                      })}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    disabled={['building', 'signing', 'pending'].includes(
+                      createStatus,
+                    )}
+                    className="relative"
+                  >
+                    {createStatus === 'building' && t('wallet.txBuilding')}
+                    {createStatus === 'signing' && t('wallet.txSigning')}
+                    {createStatus === 'pending' && t('wallet.txPending')}
+                    {createStatus === 'success' && t('proposal.status.success')}
+                    {['idle', 'error'].includes(createStatus)
+                      && t('proposal.submit')}
+                    {['building', 'signing', 'pending'].includes(createStatus) && (
+                      <span className="ml-2 h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          )}
     </div>
   )
 })
+
+export default function CreateProposal() {
+  return <CreateProposalOuter />
+}

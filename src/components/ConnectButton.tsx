@@ -1,6 +1,6 @@
 import type { Account } from '@web3-onboard/core/dist/types'
 import { useConnectWallet, useSetChain } from '@web3-onboard/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SlWallet } from 'react-icons/sl'
 import { Button } from '@/components/ui/button'
@@ -17,8 +17,34 @@ export default function ConnectWallet() {
   const { t } = useTranslation()
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet()
   const [{ chains }, setChain] = useSetChain()
-  const [account, setAccount] = useState<Account | null>(null)
+  // Derive account directly from wallet to avoid redundant state & setState in effects
+  const account: Account | null = useMemo(() => {
+    if (!wallet || !wallet.provider)
+      return null
+    const walletAccount = wallet.accounts[0]
+    return {
+      address: walletAccount.address,
+      balance: walletAccount.balance,
+      ens: walletAccount.ens,
+      uns: null,
+    }
+  }, [wallet])
   // Removed delegate related state/effects
+
+  const autoConnect = useCallback(async () => {
+    const previouslyConnectedWallets: string[] = JSON.parse(
+      window.localStorage.getItem('connectedWallets') || '[]',
+    )
+    if (previouslyConnectedWallets.length) {
+      return await connect({
+        autoSelect: {
+          label: previouslyConnectedWallets[0],
+          disableModals: true,
+        },
+      })
+    }
+    return previouslyConnectedWallets
+  }, [connect])
 
   async function login() {
     let connected = await autoConnect()
@@ -33,51 +59,33 @@ export default function ConnectWallet() {
     await setChain({ chainId: chain.id })
   }
 
-  async function autoConnect() {
-    const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem('connectedWallets') || '[]',
-    )
-    if (previouslyConnectedWallets.length) {
-      return await connect({
-        autoSelect: {
-          label: previouslyConnectedWallets[0],
-          disableModals: true,
-        },
-      })
-    }
-    return previouslyConnectedWallets
-  }
+  // (autoConnect moved above login for lint ordering)
 
   async function handleDisconnect() {
     if (wallet) {
       await disconnect(wallet)
       window.localStorage.removeItem('connectedWallets')
-      setAccount(null)
     }
   }
 
   // auto connect on mount if connected before
+  const didAutoConnect = useRef(false)
   useEffect(() => {
-    const init = async () => {
+    if (didAutoConnect.current)
+      return
+    didAutoConnect.current = true
+    ;(async () => {
       const connected = await autoConnect()
       if (connected.length) {
         const chain = chains[0]
         await setChain({ chainId: chain.id })
       }
-    }
-    init()
-  }, [])
+    })()
+  }, [autoConnect, chains, setChain])
 
   useEffect(() => {
-    if (wallet && wallet?.provider) {
-      const walletAccount = wallet?.accounts[0]
-      setAccount({
-        address: walletAccount.address,
-        balance: walletAccount.balance,
-        ens: walletAccount.ens,
-        uns: null,
-      })
-      // 保存连接的钱包信息到 localStorage (used for optional future UX like showing last used label)
+    if (wallet && wallet.provider) {
+      // Persist last connected wallet label
       window.localStorage.setItem(
         'connectedWallets',
         JSON.stringify([wallet.label]),

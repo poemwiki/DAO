@@ -1,11 +1,11 @@
 import type { Proposal } from '@/types'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 import { IoMdTime } from 'react-icons/io'
+import { Link } from 'react-router-dom'
+import { Avatar } from '@/components/ui/Avatar'
 import { getExplorerTxUrl } from '@/config'
 import { ROUTES } from '@/constants'
-import { Avatar } from '@/components/ui/Avatar'
 import { useDisplayName } from '@/hooks/useDisplayName'
 import { useEstimateBlockTimestamp } from '@/hooks/useEstimateBlockTimestamp'
 import { formatGraphTimestampLocalMinutes, short } from '@/utils/format'
@@ -51,13 +51,16 @@ export function ProposalTimeline({
     return n < 1e12 ? n * 1000 : n
   }
 
-  const fmtTs = (ms?: number, estimated?: boolean) => {
-    if (!ms) {
-      return '-'
-    }
-    const label = formatGraphTimestampLocalMinutes(ms, t('lang') as string)
-    return estimated ? `≈ ${label}` : label
-  }
+  const fmtTs = React.useCallback(
+    (ms?: number, estimated?: boolean) => {
+      if (!ms) {
+        return '-'
+      }
+      const label = formatGraphTimestampLocalMinutes(ms, t('lang') as string)
+      return estimated ? `≈ ${label}` : label
+    },
+    [t],
+  )
 
   // WHY: Original implementation relied on sorting by (possibly undefined) timestamps, then
   // updating when async block timestamp estimates arrived — causing order flicker.
@@ -183,17 +186,7 @@ export function ProposalTimeline({
       list.push(createdEvent)
 
     return list
-  }, [
-    proposal,
-    proposerName,
-    startBlockNum,
-    endBlockNum,
-    startInfo?.timestamp,
-    endInfo?.timestamp,
-    startInfo?.isEstimated,
-    endInfo?.isEstimated,
-    t,
-  ])
+  }, [proposal, proposerName, t, startInfo?.timestamp, startInfo?.isEstimated, startBlockNum, fmtTs, endInfo?.timestamp, endInfo?.isEstimated, endBlockNum])
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -230,24 +223,25 @@ export function ProposalTimeline({
                 return (
                   <li key={safeKey} className="relative pl-8">
                     <span className={`${baseOuter} ${outerClass}`}>
-                      {isCompleted ? (
-                        // check icon for completed
-                        <svg
-                          viewBox="0 0 16 16"
-                          width="10"
-                          height="10"
-                          aria-hidden="true"
-                          className="fill-current"
-                        >
-                          <path d="M6.173 12.414a1 1 0 0 1-1.414 0L2.293 9.95a1 1 0 1 1 1.414-1.415l1.759 1.76 6.12-6.12a1 1 0 1 1 1.415 1.414l-7.828 7.826Z" />
-                        </svg>
-                      ) : isCurrent
+                      {isCompleted
                         ? (
-                            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                            <svg
+                              viewBox="0 0 16 16"
+                              width="10"
+                              height="10"
+                              aria-hidden="true"
+                              className="fill-current"
+                            >
+                              <path d="M6.173 12.414a1 1 0 0 1-1.414 0L2.293 9.95a1 1 0 1 1 1.414-1.415l1.759 1.76 6.12-6.12a1 1 0 1 1 1.415 1.414l-7.828 7.826Z" />
+                            </svg>
                           )
-                        : (
-                            <span className="w-2.5 h-2.5 rounded-full bg-transparent" />
-                          )}
+                        : isCurrent
+                          ? (
+                              <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+                            )
+                          : (
+                              <span className="w-2.5 h-2.5 rounded-full bg-transparent" />
+                            )}
                     </span>
                     <div className="text-sm font-medium tracking-wide mb-1 flex flex-wrap gap-2">
                       {e.type === 'vote'
@@ -302,7 +296,7 @@ function VoteEventLabel({
 }) {
   const name = useDisplayName({ address })
   const { t } = useTranslation()
-  
+
   return (
     <span className="flex items-center gap-2">
       <Avatar address={address} size={16} />

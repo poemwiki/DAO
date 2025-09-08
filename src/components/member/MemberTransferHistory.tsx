@@ -1,17 +1,17 @@
+import type { TokenInfoResult } from '@/queries/tokenInfo'
+import type { Proposal, Transfer } from '@/types'
+import { useQuery } from '@tanstack/react-query'
 import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { formatUnits } from 'viem'
 import { Link } from 'react-router-dom'
-import type { Proposal, Transfer } from '@/types'
+import { formatUnits } from 'viem'
+import { getExplorerTxUrl } from '@/config'
+import { ROUTES } from '@/constants'
+import { getProposals } from '@/graphql'
 import { useMemberTransfers } from '@/hooks/useMemberTransfers'
 import { useTokenInfo } from '@/hooks/useTokenInfo'
-import { useQuery } from '@tanstack/react-query'
-import { getProposals } from '@/graphql'
-import { ROUTES } from '@/constants'
-import { getProposalTitle } from '@/utils/proposal'
-import { TokenInfoResult } from '@/queries/tokenInfo'
-import { getExplorerTxUrl } from '@/config'
 import { short } from '@/utils/format'
+import { getProposalTitle } from '@/utils/proposal'
 
 interface MemberTransferHistoryProps {
   address: string
@@ -58,21 +58,23 @@ function TransferRow({
         <div className="text-xs text-secondary/70">{tokenInfo?.symbol}</div>
       </td>
       <td className="px-6 py-4 text-xs md:text-sm max-w-[220px]">
-        {related ? (
-          <Link
-            to={ROUTES.PROPOSAL.replace(':id', related.id)}
-            className="text-primary hover:underline font-mono line-clamp-2"
-            title={proposalTitle || `#${related.proposalId || related.id}`}
-          >
-            {proposalTitle
-              ? proposalTitle.length > 60
-                ? `${proposalTitle.slice(0, 60)}...`
-                : proposalTitle
-              : `#${related.proposalId || related.id}`}
-          </Link>
-        ) : (
-          <span className="text-secondary/60">-</span>
-        )}
+        {related
+          ? (
+              <Link
+                to={ROUTES.PROPOSAL.replace(':id', related.id)}
+                className="text-primary hover:underline font-mono line-clamp-2"
+                title={proposalTitle || `#${related.proposalId || related.id}`}
+              >
+                {proposalTitle
+                  ? proposalTitle.length > 60
+                    ? `${proposalTitle.slice(0, 60)}...`
+                    : proposalTitle
+                  : `#${related.proposalId || related.id}`}
+              </Link>
+            )
+          : (
+              <span className="text-secondary/60">-</span>
+            )}
       </td>
       <td className="px-6 py-4 text-secondary">
         {new Date(Number(transfer.createdAt) * 1000).toLocaleDateString()}
@@ -107,9 +109,10 @@ export function MemberTransferHistory({ address }: MemberTransferHistoryProps) {
     : []).reduce(
     (acc, p) => {
       if (p) {
-        ;['proposeTx', 'executeTx', 'cancelTx'].forEach(k => {
+        ;['proposeTx', 'executeTx', 'cancelTx'].forEach((k) => {
           const tx = p[k as 'executeTx' | 'proposeTx' | 'cancelTx']
-          if (tx) acc[tx] = p
+          if (tx)
+            acc[tx] = p
         })
       }
       return acc

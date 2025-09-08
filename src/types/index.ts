@@ -70,9 +70,7 @@ export interface Proposal {
 }
 
 // Narrow shape returned by MEMBER_PROPOSALS_QUERY (creation list per member)
-export type MemberCreatedProposal = Pick<Proposal,
-  'id' | 'proposalId' | 'description' | 'canceled' | 'executed' | 'createdAt' | 'updatedAt' | 'calldatas' | 'signatures'
-> & { proposer?: { id: string } }
+export type MemberCreatedProposal = Pick<Proposal, 'id' | 'proposalId' | 'description' | 'canceled' | 'executed' | 'createdAt' | 'updatedAt' | 'calldatas' | 'signatures'> & { proposer?: { id: string } }
 
 export interface BlockEstimateInfo {
   timestamp?: number | string

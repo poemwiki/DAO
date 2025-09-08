@@ -32,7 +32,7 @@ export default function Proposal() {
       && new URLSearchParams(window.location.search).get('debug') === '1'
   // Progressive loading: first attempt subgraph; if missing, perform limited retries
   const MAX_RETRIES = 3
-  const retryDelays = [3000, 5000, 8000] // ms sequence
+  const retryDelays = React.useMemo(() => [3000, 5000, 8000], []) // ms sequence
   const [attempt, setAttempt] = React.useState(0)
   const [manualTick, setManualTick] = React.useState(0)
 
@@ -58,7 +58,7 @@ export default function Proposal() {
       refetch()
     }, delay)
     return () => clearTimeout(handle)
-  }, [isLoading, proposal, attempt])
+  }, [isLoading, proposal, attempt, retryDelays, refetch])
 
   // Probe existence & state directly from chain. We intentionally DO NOT depend on tx hashes.
   // Explicit refresh after lifecycle transitions is handled by a manual tick (see below hook usage in action panels).

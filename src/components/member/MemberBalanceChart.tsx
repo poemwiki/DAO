@@ -88,7 +88,8 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
   let xTickIndices: number[] = []
   if (points.length <= maxXTicks) {
     xTickIndices = points.map((_, i) => i)
-  } else {
+  }
+  else {
     xTickIndices = Array.from({ length: maxXTicks }).map((_, i) => Math.round((i / (maxXTicks - 1)) * (points.length - 1)))
     // Deduplicate in rare rounding collisions
     xTickIndices = [...new Set(xTickIndices)]
@@ -116,7 +117,7 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
           </div>
         </div>
       )}
-      
+
       {/* Chart */}
       <div className="relative overflow-x-auto">
         <svg
@@ -182,6 +183,7 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
 
             return (
               <circle
+                // eslint-disable-next-line react/no-array-index-key
                 key={index}
                 cx={x}
                 cy={y}
@@ -226,9 +228,10 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
           />
 
           {/* Y ticks & labels */}
-    {yTicks.map((val, i) => {
+          {yTicks.map((val, i) => {
             const y = chartHeight - padding - ((val - minY) / yRange) * (chartHeight - 2 * padding)
             return (
+              // eslint-disable-next-line react/no-array-index-key
               <g key={i}>
                 <line
                   x1={padding - 4}
@@ -245,14 +248,14 @@ export function MemberBalanceChart({ address }: MemberBalanceChartProps) {
                   textAnchor="end"
                   className="text-[10px] fill-secondary"
                 >
-      {formatCompactNumber(val, { decimals: 2 })}
+                  {formatCompactNumber(val, { decimals: 2 })}
                 </text>
               </g>
             )
           })}
 
           {/* X ticks & labels */}
-          {xTickIndices.map(idx => {
+          {xTickIndices.map((idx) => {
             const x = (idx / (points.length - 1)) * (chartWidth - 2 * padding) + padding
             return (
               <g key={idx}>

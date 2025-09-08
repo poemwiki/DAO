@@ -4,6 +4,7 @@
 
 import antfu from '@antfu/eslint-config'
 
+// Base config from antfu
 export default antfu({
   react: true,
   typescript: true,
@@ -21,13 +22,20 @@ export default antfu({
     '*.d.ts',
     'src/**/*.d.ts',
     'statics/*',
+    '.claude/**',
+    '.vscode/**',
   ],
   rules: {
     // Enforce no explicit any across project
     '@typescript-eslint/no-explicit-any': ['warn'],
-    // Allow console.warn / error only
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'no-console': ['warn', { allow: ['warn', 'error', 'log'] }],
     // Keep prop-types off (handled by TS)
     'react/prop-types': 'off',
+  },
+}, {
+  files: ['**/*.json'],
+  rules: {
+    'style/eol-last': 'off',
+    'eol-last': 'off',
   },
 })

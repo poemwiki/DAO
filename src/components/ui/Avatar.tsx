@@ -14,7 +14,7 @@ function getJazziconSeed(address: string): number | null {
   if (!address || typeof address !== 'string') {
     return null
   }
-  
+
   // Check if it's a valid Ethereum address
   if (!isAddress(address)) {
     return null
@@ -26,8 +26,9 @@ function getJazziconSeed(address: string): number | null {
   }
 
   try {
-    return parseInt(address.slice(2, 10), 16)
-  } catch {
+    return Number.parseInt(address.slice(2, 10), 16)
+  }
+  catch {
     return null
   }
 }
@@ -51,15 +52,16 @@ function createFallbackElement(address: string, size: number): HTMLElement {
 
 function AvatarComponent({ address, size = 40, className = '' }: AvatarProps) {
   const avatarRef = useRef<HTMLDivElement>(null)
-  
+
   // Memoize seed calculation to avoid recalculation on every render
   const seed = useMemo(() => getJazziconSeed(address), [address])
-  
+
   // Memoize whether the address is valid
   const isValidAddress = useMemo(() => !!address && isAddress(address), [address])
 
   useEffect(() => {
-    if (!avatarRef.current) return
+    if (!avatarRef.current)
+      return
 
     // Clear previous content
     avatarRef.current.innerHTML = ''
@@ -75,18 +77,20 @@ function AvatarComponent({ address, size = 40, className = '' }: AvatarProps) {
       if (seed !== null) {
         // Generate the jazzicon
         const jazziconElement = jazzicon(size, seed)
-        
+
         // Apply styles to make it round and properly sized
         jazziconElement.style.borderRadius = '50%'
         jazziconElement.style.overflow = 'hidden'
-        
+
         avatarRef.current.appendChild(jazziconElement)
-      } else {
+      }
+      else {
         throw new Error('Invalid seed')
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.warn('Failed to generate jazzicon for address:', address, error)
-      
+
       // Use fallback element
       const fallback = createFallbackElement(address, size)
       avatarRef.current.appendChild(fallback)
