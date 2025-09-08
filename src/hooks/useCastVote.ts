@@ -1,3 +1,4 @@
+import type { BaseError } from 'viem'
 import { useCallback, useState } from 'react'
 import { usePublicClient, useWalletClient } from 'wagmi'
 import { governorABI } from '@/abis/governorABI'
@@ -7,14 +8,14 @@ type Status = 'idle' | 'building' | 'signing' | 'pending' | 'success' | 'error'
 
 interface UseCastVoteOptions {
   onSuccess?: (_data: { txHash: `0x${string}` }) => void
-  onError?: (_err: unknown) => void
+  onError?: (err: BaseError) => void
 }
 
 export function useCastVote({ onSuccess, onError }: UseCastVoteOptions = {}) {
   const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
   const [status, setStatus] = useState<Status>('idle')
-  const [error, setError] = useState<unknown>(null)
+  const [error, setError] = useState<BaseError | null>(null)
   const [result, setResult] = useState<{ txHash: `0x${string}` } | null>(null)
 
   const cast = useCallback(
@@ -42,9 +43,10 @@ export function useCastVote({ onSuccess, onError }: UseCastVoteOptions = {}) {
         onSuccess?.({ txHash: hash })
       }
       catch (e) {
-        setError(e)
+        const err = e as BaseError
+        setError(err)
         setStatus('error')
-        onError?.(e)
+        onError?.(err)
       }
     },
     [publicClient, walletClient, onSuccess, onError],

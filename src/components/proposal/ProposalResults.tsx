@@ -126,7 +126,7 @@ export function ProposalResults({ proposal }: ProposalResultsProps) {
           )}
         </div>
       </div>
-      
+
       <VotesList proposal={proposal} />
     </div>
   )

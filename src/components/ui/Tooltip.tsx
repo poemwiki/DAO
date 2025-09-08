@@ -1,6 +1,4 @@
-import type { ComponentPropsWithoutRef, ElementRef } from 'react'
-// Backwards compatible simple wrapper for previous usage pattern: <Tooltip content=...><child/></Tooltip>
-import type { ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef, ReactNode } from 'react'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { forwardRef } from 'react'
 

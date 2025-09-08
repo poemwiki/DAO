@@ -1,9 +1,10 @@
+import type { TokenInfoResult } from '@/queries/tokenInfo'
 import type { Proposal, VoteCastEntity } from '@/types'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { formatUnits } from 'viem'
-import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/button'
 import { VoteSupportBadge } from '@/components/VoteSupportBadge'
@@ -32,12 +33,15 @@ export function VotesList({ proposal }: VotesListProps) {
     )
   }
 
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-md font-semibold">
-          {t('proposal.vote.details')} ({votes.length})
+          {t('proposal.vote.details')}
+          {' '}
+          (
+          {votes.length}
+          )
         </h3>
         <Button
           variant="ghost"
@@ -45,17 +49,19 @@ export function VotesList({ proposal }: VotesListProps) {
           onClick={() => setIsExpanded(!isExpanded)}
           className="text-sm"
         >
-          {isExpanded ? (
-            <>
-              <ChevronUp size={16} />
-              {t('common.close')}
-            </>
-          ) : (
-            <>
-              <ChevronDown size={16} />
-              {t('common.showDetails')}
-            </>
-          )}
+          {isExpanded
+            ? (
+                <>
+                  <ChevronUp size={16} />
+                  {t('common.close')}
+                </>
+              )
+            : (
+                <>
+                  <ChevronDown size={16} />
+                  {t('common.showDetails')}
+                </>
+              )}
         </Button>
       </div>
 
@@ -96,7 +102,11 @@ export function VotesList({ proposal }: VotesListProps) {
                 onClick={() => setShowAll(true)}
                 className="text-sm"
               >
-                {t('common.showMore')} ({t('common.moreCount', { count: votes.length - 10 })})
+                {t('common.showMore')}
+                {' '}
+                (
+                {t('common.moreCount', { count: votes.length - 10 })}
+                )
               </Button>
             </div>
           )}
@@ -125,7 +135,7 @@ export function VotesList({ proposal }: VotesListProps) {
 
 interface VoteRowProps {
   vote: VoteCastEntity
-  tokenInfo: any
+  tokenInfo?: TokenInfoResult
 }
 
 function VoteRow({
@@ -152,7 +162,9 @@ function VoteRow({
         <VoteSupportBadge support={vote.support} />
       </td>
       <td className="px-3 py-2 text-right font-mono text-xs">
-        {Number.parseFloat(weight).toFixed(2)} {tokenInfo?.symbol}
+        {Number.parseFloat(weight).toFixed(2)}
+        {' '}
+        {tokenInfo?.symbol}
       </td>
     </tr>
   )

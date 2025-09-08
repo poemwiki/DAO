@@ -56,7 +56,7 @@ export default function DelegateModal({
       queryFn: getTokenHolders,
     })
 
-  const members: Member[] = tokenHoldersData?.members || []
+  const members: Member[] = useMemo(() => tokenHoldersData?.members || [], [tokenHoldersData])
   const selfMember = members.find(
     m => m.id.toLowerCase() === address?.toLowerCase(),
   )
@@ -100,7 +100,7 @@ export default function DelegateModal({
     else if (isTxError && txStatus === 'pending') {
       setTxStatus('error')
     }
-  }, [isConfirming, isConfirmed, isTxError])
+  }, [isConfirming, isConfirmed, isTxError, txStatus])
 
   // trigger callback when confirmed
   useOnDelegatedEffect(isConfirmed, selectedDelegate, txHash, onDelegated)
@@ -142,6 +142,7 @@ export default function DelegateModal({
       setTxHash(hash)
       setTxStatus('pending')
     }
+    // eslint-disable-next-line ts/no-explicit-any
     catch (error: any) {
       console.error('Delegation error:', error)
       setTxError(error?.shortMessage || error?.message || 'Unknown error')
@@ -173,35 +174,35 @@ export default function DelegateModal({
   }
 
   const getButtonDisabled = () => {
-    if (txStatus === 'success') {
+    if (txStatus === 'success')
       return true
-    }
-    if (txStatus === 'signing' || txStatus === 'pending') {
+    if (txStatus === 'signing' || txStatus === 'pending')
       return true
-    }
     return !selectedDelegate || isWritePending
   }
 
-  // find self member to check delegation status
-  // hide entirely if user not a member
+  // ALWAYS call hooks (cannot return before them)
+  const orderedMembers = useMemo(() => {
+    if (!selfMember)
+      return []
+    const selfLower = selfMember.id.toLowerCase()
+    return [
+      selfMember,
+      ...members.filter(m => m.id.toLowerCase() !== selfLower),
+    ]
+  }, [selfMember, members])
+
+  const selectedMember = useMemo(() => {
+    const target = selectedDelegate?.toLowerCase()
+    if (!target)
+      return undefined
+    return orderedMembers.find(m => m.id.toLowerCase() === target)
+  }, [orderedMembers, selectedDelegate])
+
+  // Safe to return after hooks
   if (!selfMember) {
     return null
   }
-
-  // reorder so self is first
-  const orderedMembers = [
-    selfMember,
-    ...members.filter(m => m.id.toLowerCase() !== selfMember.id.toLowerCase()),
-  ]
-
-  // derive selected member for display
-  const selectedMember = useMemo(
-    () =>
-      orderedMembers.find(
-        m => m.id.toLowerCase() === selectedDelegate.toLowerCase(),
-      ),
-    [orderedMembers, selectedDelegate],
-  )
 
   return (
     <Modal

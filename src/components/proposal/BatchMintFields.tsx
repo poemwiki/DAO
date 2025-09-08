@@ -43,6 +43,7 @@ export const BatchMintFields: React.FC<Props> = ({
           const addrKey = `batch.${i + 1}.address`
           const amtKey = `batch.${i + 1}.amount`
           return (
+            // eslint-disable-next-line react/no-array-index-key
             <div key={i} className="flex gap-2 items-start">
               <div className="flex-1 space-y-1">
                 <Input
@@ -53,7 +54,7 @@ export const BatchMintFields: React.FC<Props> = ({
                       onBlur({
                         ...e,
                         target: { ...e.target, name: addrKey },
-                      } as any)
+                      } as React.FocusEvent<HTMLInputElement>)
                     }
                   }}
                   placeholder={t('proposal.enterAddress')}
@@ -79,7 +80,7 @@ export const BatchMintFields: React.FC<Props> = ({
                       onBlur({
                         ...e,
                         target: { ...e.target, name: amtKey },
-                      } as any)
+                      } as React.FocusEvent<HTMLInputElement>)
                     }
                   }}
                   placeholder={t('proposal.enterAmount')}

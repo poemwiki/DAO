@@ -14,15 +14,15 @@ export function ProposalDebugPanel({
   proposal,
   stateCode,
 }: ProposalDebugPanelProps) {
-  if (!proposal) {
-    return null
-  }
   const snapshotBlock = proposal?.startBlock
     ? Number(proposal.startBlock)
     : undefined
   const { data: quorumRaw } = useGovernorQuorum(snapshotBlock)
   const { data: pastTotalSupply } = usePastTotalSupply(snapshotBlock)
   const { data: quorumNumerator } = useQuorumNumerator()
+  if (!proposal) {
+    return null
+  }
   return (
     <section className="space-y-2 p-4 border rounded-md bg-card text-xs font-mono break-all">
       <div className="font-semibold">Debug</div>

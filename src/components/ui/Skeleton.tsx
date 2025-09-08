@@ -26,6 +26,7 @@ export function StatsSkeleton({ labels }: { labels: string[] }) {
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
       {labels.map((label, idx) => (
         <div
+          // eslint-disable-next-line react/no-array-index-key
           key={idx}
           className={cn(
             'p-6 border rounded-lg bg-card',
@@ -48,6 +49,7 @@ export function ProposalListSkeleton({ count = 4 }: { count?: number }) {
     <div className="gap-4 grid grid-cols-1 md:grid-cols-2">
       {Array.from({ length: count }).map((_, i) => (
         <div
+          // eslint-disable-next-line react/no-array-index-key
           key={i}
           className="p-4 sm:p-6 border rounded-lg bg-card hover:border-primary transition-colors"
         >
@@ -138,6 +140,7 @@ export function ProposalPageSkeleton() {
               <Skeleton className="h-6 w-20" />
               <div className="space-y-6">
                 {Array.from({ length: 4 }).map((_, i) => (
+                  // eslint-disable-next-line react/no-array-index-key
                   <div key={i} className="relative pl-8">
                     <div className="space-y-1">
                       <Skeleton className="h-4 w-2/3" />

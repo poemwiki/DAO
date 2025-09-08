@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
-import { keccak256, stringToHex } from 'viem'
+import { BaseError, keccak256, stringToHex } from 'viem'
 import { usePublicClient, useWalletClient } from 'wagmi'
 import { governorABI } from '@/abis/governorABI'
 import { config } from '@/config'
@@ -24,7 +24,7 @@ export function useExecuteProposal(opts: UseExecuteProposalOptions = {}) {
   const { data: walletClient } = useWalletClient()
   const queryClient = useQueryClient()
   const [status, setStatus] = useState<Status>('idle')
-  const [error, setError] = useState<unknown>(null)
+  const [error, setError] = useState<BaseError | null>(null)
   const [txHash, setTxHash] = useState<`0x${string}` | null>(null)
 
   const execute = useCallback(
@@ -82,7 +82,12 @@ export function useExecuteProposal(opts: UseExecuteProposalOptions = {}) {
         opts.onSuccess?.()
       }
       catch (e) {
-        setError(e)
+        if (e instanceof BaseError) {
+          setError(e)
+        }
+        else {
+          setError(new BaseError((e as Error)?.message || 'Unknown error'))
+        }
         setStatus('error')
       }
     },

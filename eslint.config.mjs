@@ -31,6 +31,7 @@ export default antfu({
     'no-console': ['warn', { allow: ['warn', 'error', 'log'] }],
     // Keep prop-types off (handled by TS)
     'react/prop-types': 'off',
+    'react-hooks-extra/no-direct-set-state-in-use-effect': 'off',
   },
 }, {
   files: ['**/*.json'],

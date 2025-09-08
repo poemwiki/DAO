@@ -36,6 +36,7 @@ export function ProposalActions({
             : ''
           return (
             <li
+              // eslint-disable-next-line react/no-array-index-key
               key={i}
               className="p-4 flex flex-col gap-2 border rounded-md bg-card"
             >
