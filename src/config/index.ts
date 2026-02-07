@@ -3,6 +3,7 @@ export const config = {
     baseUrl:
       import.meta.env.VITE_SUBGRAPH_URL
         || 'https://api.thegraph.com/subgraphs/name/your-subgraph',
+    key: import.meta.env.VITE_SUBGRAPH_KEY || '',
   },
   app: {
     name: import.meta.env.VITE_DAO_NAME || 'DAO',

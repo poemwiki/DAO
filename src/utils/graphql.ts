@@ -24,6 +24,7 @@ export async function fetchGraphQL<T>(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${config.api.key}`,
     },
     body: JSON.stringify({
       query,
