@@ -40,7 +40,7 @@ export default function AppLayout() {
       </main>
       <footer className="w-full border-t bg-background">
         <div className="container py-4 text-center text-sm text-secondary">
-          Powered by
+          Powered by&nbsp;
           <a
             className="hover:underline decoration-primary hover:text-primary"
             href="https://github.com/poemwiki/govo"
