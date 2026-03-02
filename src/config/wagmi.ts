@@ -21,18 +21,24 @@ if (!chain) {
 }
 
 // Create wagmi config
+const transports: Record<number, ReturnType<typeof http>> = {
+  [mainnet.id]: http(),
+  [polygon.id]: http('https://polygon.drpc.org'),
+  [polygonAmoy.id]: http(
+    chain.id === polygonAmoy.id && config.network.rpcUrl
+      ? config.network.rpcUrl
+      : undefined,
+  ),
+  [sepolia.id]: http(),
+}
+
+// Override active chain with custom rpc if provided (works for any selected chain).
+// Only set when rpcUrl exists to avoid clobbering defaults.
+if (config.network.rpcUrl) {
+  transports[chain.id] = http(config.network.rpcUrl)
+}
+
 export const wagmiConfig = createConfig({
   chains: [chain],
-  transports: {
-    [mainnet.id]: http(),
-    [polygon.id]: http(),
-    [polygonAmoy.id]: http(
-      chain.id === polygonAmoy.id && config.network.rpcUrl
-        ? config.network.rpcUrl
-        : undefined,
-    ),
-    [sepolia.id]: http(),
-    // override active chain with custom rpc if provided (works for any selected chain)
-    [chain.id]: http(config.network.rpcUrl ? config.network.rpcUrl : undefined),
-  },
+  transports,
 })
